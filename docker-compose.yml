@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:15.8
+    environment:
+      POSTGRES_USER: glad_user
+      POSTGRES_PASSWORD: glad1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./ops/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    container_name: glad-postgres
+    network_mode: "bridge"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glad_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    container_name: glad-grafana
+    network_mode: "bridge"
+    depends_on:
+      - prometheus
+      - prometheus-pushgateway
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    container_name: glad-prometheus
+    network_mode: "bridge"
+  prometheus-pushgateway:
+    image: prom/pushgateway
+    container_name: glad-pushgateway
+    expose:
+      - 9091
+    ports:
+      - "9091:9091"
+
+volumes:
+  postgres_data:
