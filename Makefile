@@ -27,11 +27,17 @@ build-api:
 #build-cmd:
 #	go build -tags $(LIBRARY_ENV) -o ./bin/search cmd/main.go
 
+# Adding more flags for complete static linking
 linux-binaries:
-	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -tags "$(LIBRARY_ENV) netgo" -installsuffix netgo -o $(BIN_DIR)/api api/main.go
-#	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -tags "$(LIBRARY_ENV) netgo" -installsuffix netgo -o $(BIN_DIR)/search cmd/main.go
+	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -tags "$(LIBRARY_ENV) netgo" -installsuffix netgo -ldflags="-w -s" -o $(BIN_DIR)/api api/main.go
+#	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -tags "$(LIBRARY_ENV) netgo" -installsuffix netgo -ldflags="-w -s" -o $(BIN_DIR)/search cmd/main.go
 
 ci: dependencies test	
+
+# builds one docker image
+# TODO: extend for multiple services
+docker:
+	docker build -t api:$(LIBRARY_ENV) .
 
 build-mocks:
 	@go get github.com/golang/mock/gomock
