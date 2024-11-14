@@ -1,3 +1,7 @@
+# Copyright 2024 AboveCloud9.AI Products and Services Private Limited
+# All rights reserved.
+# This code may not be used, copied, modified, or distributed without explicit permission.
+
 # my global config
 global:
   scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
