@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	usernameAlice = "alice@wonder.land"
-	passwordAlice = "testing123"
+	nameAlice    = "alice@wonder.land"
+	countryAlice = "testing123"
 )
 
 func Test_listTenants(t *testing.T) {
@@ -79,10 +79,10 @@ func Test_createTenant(t *testing.T) {
 	defer ts.Close()
 
 	payload := struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}{Username: usernameAlice,
-		Password: passwordAlice}
+		Name    string `json:"name"`
+		Country string `json:"country"`
+	}{Name: nameAlice,
+		Country: countryAlice}
 	payloadBytes, err := json.Marshal(payload)
 	assert.Nil(t, err)
 
@@ -114,8 +114,8 @@ func Test_getTenant(t *testing.T) {
 	assert.Equal(t, "/v1/tenants/{id}", path)
 	tenant := &entity.Tenant{
 		ID:        entity.NewID(),
-		Username:  usernameAlice,
-		Password:  passwordAlice,
+		Name:      nameAlice,
+		Country:   countryAlice,
 		AuthToken: "token123",
 	}
 	service.EXPECT().
@@ -135,8 +135,8 @@ func Test_getTenant(t *testing.T) {
 	assert.NotNil(t, d)
 
 	assert.Equal(t, tenant.ID, d.ID)
-	assert.Equal(t, tenant.Username, d.Username)
-	// password is not returned
+	assert.Equal(t, tenant.Name, d.Name)
+	// country is not returned
 	assert.Equal(t, tenant.AuthToken, d.AuthToken)
 }
 
@@ -195,12 +195,12 @@ func Test_login(t *testing.T) {
 
 	tenant := &entity.Tenant{
 		ID:        entity.NewID(),
-		Username:  usernameAlice,
-		Password:  passwordAlice,
+		Name:      nameAlice,
+		Country:   countryAlice,
 		AuthToken: "token123",
 	}
 	service.EXPECT().
-		Login(tenant.Username, tenant.Password).
+		Login(tenant.Name, tenant.Country).
 		Return(tenant, nil)
 
 	handler := login(service)
@@ -209,10 +209,10 @@ func Test_login(t *testing.T) {
 	defer ts.Close()
 
 	payload := struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}{Username: usernameAlice,
-		Password: passwordAlice}
+		Name    string `json:"name"`
+		Country string `json:"country"`
+	}{Name: nameAlice,
+		Country: countryAlice}
 	payloadBytes, err := json.Marshal(payload)
 	assert.Nil(t, err)
 
@@ -232,8 +232,8 @@ func Test_login(t *testing.T) {
 	assert.NotNil(t, d)
 
 	assert.Equal(t, tenant.ID, d.ID)
-	assert.Equal(t, tenant.Username, d.Username)
-	// password is not returned
+	assert.Equal(t, tenant.Name, d.Name)
+	// country is not returned
 	assert.Equal(t, tenant.AuthToken, d.AuthToken)
 }
 

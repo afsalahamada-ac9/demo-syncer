@@ -49,7 +49,7 @@ func listTenants(service tenant.UseCase) http.Handler {
 		for _, d := range data {
 			toJ = append(toJ, &presenter.Tenant{
 				ID:        d.ID,
-				Username:  d.Username,
+				Name:      d.Name,
 				AuthToken: d.AuthToken,
 			})
 		}
@@ -64,8 +64,8 @@ func createTenant(service tenant.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding tenant"
 		var input struct {
-			Username string `json:"username"`
-			Password string `json:"password"`
+			Name    string `json:"name"`
+			Country string `json:"country"`
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&input)
@@ -76,7 +76,7 @@ func createTenant(service tenant.UseCase) http.Handler {
 			return
 		}
 
-		id, err := service.CreateTenant(input.Username, input.Password)
+		id, err := service.CreateTenant(input.Name, input.Country)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage + ":" + err.Error()))
@@ -121,7 +121,7 @@ func getTenant(service tenant.UseCase) http.Handler {
 
 		toJ := &presenter.Tenant{
 			ID:        data.ID,
-			Username:  data.Username,
+			Name:      data.Name,
 			AuthToken: data.AuthToken,
 		}
 
@@ -163,8 +163,8 @@ func login(service tenant.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error reading tenant"
 		var input struct {
-			Username string `json:"username"`
-			Password string `json:"password"`
+			Name    string `json:"name"`
+			Country string `json:"country"`
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&input)
@@ -175,7 +175,7 @@ func login(service tenant.UseCase) http.Handler {
 			return
 		}
 
-		data, err := service.Login(input.Username, input.Password)
+		data, err := service.Login(input.Name, input.Country)
 		switch err {
 		case nil:
 			break
@@ -192,7 +192,7 @@ func login(service tenant.UseCase) http.Handler {
 
 		toJ := &presenter.Tenant{
 			ID:        data.ID,
-			Username:  data.Username,
+			Name:      data.Name,
 			AuthToken: data.AuthToken,
 		}
 
@@ -233,9 +233,9 @@ func updateTenant(service tenant.UseCase) http.Handler {
 
 		input.ID = id
 		toJ := &presenter.Tenant{
-			ID:       input.ID,
-			Username: input.Username,
-			// Password & token are not returned back
+			ID:   input.ID,
+			Name: input.Name,
+			// Country & token are not returned back
 		}
 
 		w.WriteHeader(http.StatusOK)

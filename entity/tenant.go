@@ -17,9 +17,9 @@ import (
 
 // Tenant data
 type Tenant struct {
-	ID       ID
-	Username string // same as email
-	Password string
+	ID      ID
+	Name    string
+	Country string
 
 	AuthToken string
 
@@ -29,11 +29,11 @@ type Tenant struct {
 }
 
 // NewTenant create a new tenant
-func NewTenant(username, password string) (*Tenant, error) {
+func NewTenant(name, country string) (*Tenant, error) {
 	t := &Tenant{
 		ID:        NewID(),
-		Username:  username,
-		Password:  genPassword(password),
+		Name:      name,
+		Country:   country,
 		CreatedAt: time.Now(),
 	}
 	err := t.Validate()
@@ -45,39 +45,40 @@ func NewTenant(username, password string) (*Tenant, error) {
 
 // Validate validate tenant
 func (t *Tenant) Validate() error {
-	if t.Password == "" {
-		log.Printf("Invalid password")
+	if t.Country == "" {
+		log.Printf("Invalid country")
 		return ErrInvalidEntity
 	}
 
-	if t.Username == "" {
+	if t.Name == "" {
 		return ErrInvalidEntity
 	}
 	return nil
 }
 
-// ValidatePassword validate tenant password
-func (t *Tenant) ValidatePassword(p string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(t.Password), []byte(p))
+// UNUSED: ValidatePassword validate tenant password
+func (t *Tenant) ValidatePassword(p1, p2 string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(p1), []byte(p2))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func genPassword(raw string) string {
-	hash, err := bcrypt.GenerateFromPassword([]byte(raw), 10)
-	if err != nil {
-		log.Printf("Unable to generate password, %v", err.Error())
-		return ""
-	}
+// UNUSED
+// func genPassword(raw string) string {
+// 	hash, err := bcrypt.GenerateFromPassword([]byte(raw), 10)
+// 	if err != nil {
+// 		log.Printf("Unable to generate password, %v", err.Error())
+// 		return ""
+// 	}
 
-	return string(hash)
-}
+// 	return string(hash)
+// }
 
 // ValidateToken validate tenant auth token
-func (t *Tenant) ValidateToken(token string) error {
-	if token != t.genToken() {
+func (t *Tenant) ValidateToken(token, password string) error {
+	if token != t.genToken(password) {
 		return ErrTokenMismatch
 	}
 
@@ -85,16 +86,16 @@ func (t *Tenant) ValidateToken(token string) error {
 }
 
 // simple token generator for now
-func (t *Tenant) genToken() string {
+func (t *Tenant) genToken(password string) string {
 	token := sha256.New()
-	token.Write([]byte(t.Password))
+	token.Write([]byte(password))
 	hash := token.Sum(nil)
 
 	return base64.StdEncoding.EncodeToString(hash)
 }
 
 // Exported API to generate and store the token
-func (t *Tenant) GenToken() error {
-	t.AuthToken = t.genToken()
+func (t *Tenant) GenToken(password string) error {
+	t.AuthToken = t.genToken(password)
 	return nil
 }

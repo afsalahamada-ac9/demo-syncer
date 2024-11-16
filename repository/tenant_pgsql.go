@@ -13,30 +13,30 @@ import (
 	"sudhagar/glad/entity"
 )
 
-// TenantMySQL mysql repo
-type TenantMySQL struct {
+// TenantPGSQL mysql repo
+type TenantPGSQL struct {
 	db *sql.DB
 }
 
-// NewTenantMySQL create new repository
-func NewTenantMySQL(db *sql.DB) *TenantMySQL {
-	return &TenantMySQL{
+// NewTenantPGSQL create new repository
+func NewTenantPGSQL(db *sql.DB) *TenantPGSQL {
+	return &TenantPGSQL{
 		db: db,
 	}
 }
 
 // Create a Tenant
-func (r *TenantMySQL) Create(e *entity.Tenant) (entity.ID, error) {
+func (r *TenantPGSQL) Create(e *entity.Tenant) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
-		INSERT INTO tenant (id, username, password, created_at) 
+		INSERT INTO tenant (id, name, country, created_at) 
 		VALUES(?,?,?,?)`)
 	if err != nil {
 		return e.ID, err
 	}
 	_, err = stmt.Exec(
 		e.ID,
-		e.Username,
-		e.Password,
+		e.Name,
+		e.Country,
 		time.Now().Format("2006-01-02"),
 	)
 	if err != nil {
@@ -50,16 +50,16 @@ func (r *TenantMySQL) Create(e *entity.Tenant) (entity.ID, error) {
 }
 
 // Get a Tenant
-func (r *TenantMySQL) Get(id entity.ID) (*entity.Tenant, error) {
+func (r *TenantPGSQL) Get(id entity.ID) (*entity.Tenant, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, username, password, auth_token, created_at FROM tenant WHERE id = ?`)
+		SELECT id, name, country, created_at FROM tenant WHERE id = ?`)
 	if err != nil {
 		return nil, err
 	}
 	var t entity.Tenant
 	var token sql.NullString
 
-	err = stmt.QueryRow(id).Scan(&t.ID, &t.Username, &t.Password, &token, &t.CreatedAt)
+	err = stmt.QueryRow(id).Scan(&t.ID, &t.Name, &t.Country, &t.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -71,16 +71,16 @@ func (r *TenantMySQL) Get(id entity.ID) (*entity.Tenant, error) {
 }
 
 // Get a Tenant by username
-func (r *TenantMySQL) GetByName(username string) (*entity.Tenant, error) {
+func (r *TenantPGSQL) GetByName(name string) (*entity.Tenant, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, username, password, auth_token, created_at FROM tenant WHERE username = ?`)
+		SELECT id, name, country, created_at FROM tenant WHERE username = ?`)
 	if err != nil {
 		return nil, err
 	}
 	var t entity.Tenant
 	var token sql.NullString
 
-	err = stmt.QueryRow(username).Scan(&t.ID, &t.Username, &t.Password, &token, &t.CreatedAt)
+	err = stmt.QueryRow(name).Scan(&t.ID, &t.Name, &t.Country, &t.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -92,10 +92,10 @@ func (r *TenantMySQL) GetByName(username string) (*entity.Tenant, error) {
 }
 
 // Update a Tenant
-func (r *TenantMySQL) Update(e *entity.Tenant) error {
+func (r *TenantPGSQL) Update(e *entity.Tenant) error {
 	e.UpdatedAt = time.Now()
-	_, err := r.db.Exec(`UPDATE tenant SET username = ?, auth_token = ?, updated_at = ? WHERE id = ?`,
-		e.Username, e.AuthToken, e.UpdatedAt.Format("2006-01-02"), e.ID)
+	_, err := r.db.Exec(`UPDATE tenant SET name = ?, country = ?, updated_at = ? WHERE id = ?`,
+		e.Name, e.Country, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
 	}
@@ -103,8 +103,8 @@ func (r *TenantMySQL) Update(e *entity.Tenant) error {
 }
 
 // List Tenants
-func (r *TenantMySQL) List() ([]*entity.Tenant, error) {
-	stmt, err := r.db.Prepare(`SELECT id, username, auth_token, created_at FROM tenant`)
+func (r *TenantPGSQL) List() ([]*entity.Tenant, error) {
+	stmt, err := r.db.Prepare(`SELECT id, name, country, created_at FROM tenant`)
 	if err != nil {
 		return nil, err
 	}
@@ -115,19 +115,19 @@ func (r *TenantMySQL) List() ([]*entity.Tenant, error) {
 	}
 	for rows.Next() {
 		var t entity.Tenant
-		var token sql.NullString
-		err = rows.Scan(&t.ID, &t.Username, &token, &t.CreatedAt)
+		var country sql.NullString
+		err = rows.Scan(&t.ID, &t.Name, &country, &t.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
-		t.AuthToken = token.String
+		t.Country = country.String
 		Tenants = append(Tenants, &t)
 	}
 	return Tenants, nil
 }
 
 // Delete a Tenant
-func (r *TenantMySQL) Delete(id entity.ID) error {
+func (r *TenantPGSQL) Delete(id entity.ID) error {
 	res, err := r.db.Exec(`DELETE FROM tenant WHERE id = ?`, id)
 	if err != nil {
 		return err
@@ -141,7 +141,7 @@ func (r *TenantMySQL) Delete(id entity.ID) error {
 }
 
 // Get total tenants
-func (r *TenantMySQL) GetCount() (int, error) {
+func (r *TenantPGSQL) GetCount() (int, error) {
 	var count int
 	err := r.db.QueryRow(`SELECT count(*) FROM tenant`).Scan(&count)
 	if err != nil {

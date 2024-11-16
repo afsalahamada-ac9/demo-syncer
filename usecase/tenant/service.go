@@ -25,10 +25,10 @@ func NewService(r Repository) *Service {
 }
 
 // CreateTenant create a tenant
-func (s *Service) CreateTenant(username, password string) (entity.ID, error) {
+func (s *Service) CreateTenant(name, password string) (entity.ID, error) {
 	// TODO: Check whether tenant already exists with same name
 
-	t, err := entity.NewTenant(username, password)
+	t, err := entity.NewTenant(name, password)
 	if err != nil {
 		return t.ID, err
 	}
@@ -49,8 +49,8 @@ func (s *Service) GetTenant(id entity.ID) (*entity.Tenant, error) {
 }
 
 // GetTenant get a tenant by name
-func (s *Service) GetTenantByName(username string) (*entity.Tenant, error) {
-	t, err := s.repo.GetByName(username)
+func (s *Service) GetTenantByName(name string) (*entity.Tenant, error) {
+	t, err := s.repo.GetByName(name)
 	if t == nil {
 		return nil, entity.ErrNotFound
 	}
@@ -88,15 +88,15 @@ func (s *Service) DeleteTenant(id entity.ID) error {
 
 // UpdateTenant Update a tenant
 func (s *Service) UpdateTenant(t *entity.Tenant) error {
-	// retrieve and fill in empty values for mandatory fields such as password
-	if t.Password == "" || t.AuthToken == "" {
+	// retrieve and fill in empty values for mandatory fields
+	if t.Country == "" {
 		current, err := s.GetTenant(t.ID)
 		if err != nil {
 			return err
 		}
 
-		if t.Password == "" {
-			t.Password = current.Password
+		if t.Country == "" {
+			t.Country = current.Country
 		}
 
 		if t.AuthToken == "" {
@@ -112,23 +112,23 @@ func (s *Service) UpdateTenant(t *entity.Tenant) error {
 	return s.repo.Update(t)
 }
 
-// Login Validates credentials, generates token and update the DB
-func (s *Service) Login(username, password string) (*entity.Tenant, error) {
-	// Get tenant by username
-	t, err := s.GetTenantByName(username)
+// UNUSED: Login Validates credentials, generates token and update the DB
+func (s *Service) Login(name, password string) (*entity.Tenant, error) {
+	// Get tenant by name
+	t, err := s.GetTenantByName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	// Validate credentials
-	if t.ValidatePassword(password) != nil {
-		return nil, entity.ErrAuthFailure
-	}
+	// // Validate credentials
+	// if t.ValidatePassword(password) != nil {
+	// 	return nil, entity.ErrAuthFailure
+	// }
 
-	// Generate token
-	if t.GenToken() != nil {
-		return nil, entity.ErrCreateToken
-	}
+	// // Generate token
+	// if t.GenToken() != nil {
+	// 	return nil, entity.ErrCreateToken
+	// }
 
 	// Update tenant: store token to database
 	if err = s.UpdateTenant(t); err != nil {

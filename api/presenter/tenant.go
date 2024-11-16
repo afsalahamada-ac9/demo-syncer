@@ -12,8 +12,8 @@ import (
 
 // Tenant data
 type Tenant struct {
-	ID       entity.ID `json:"id"`
-	Username string    `json:"username"`
+	ID   entity.ID `json:"id"`
+	Name string    `json:"name"`
 	// Do not return password
 	// AuthToken is returned at login
 	AuthToken string `json:"token,omitempty"`

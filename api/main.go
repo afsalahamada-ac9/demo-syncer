@@ -53,7 +53,7 @@ func main() {
 	templateRepo := repository.NewTemplateMySQL(db)
 	templateService := template.NewService(templateRepo)
 
-	tenantRepo := repository.NewTenantMySQL(db)
+	tenantRepo := repository.NewTenantPGSQL(db)
 	tenantService := tenant.NewService(tenantRepo)
 
 	accountRepo := repository.NewAccountMySQL(db)

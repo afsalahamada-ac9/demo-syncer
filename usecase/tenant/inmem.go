@@ -38,9 +38,9 @@ func (r *inmem) Get(id entity.ID) (*entity.Tenant, error) {
 }
 
 // Get a tenant by name
-func (r *inmem) GetByName(username string) (*entity.Tenant, error) {
+func (r *inmem) GetByName(name string) (*entity.Tenant, error) {
 	for _, j := range r.m {
-		if j.Username == username {
+		if j.Name == name {
 			return j, nil
 		}
 	}
