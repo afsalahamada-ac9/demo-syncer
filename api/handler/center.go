@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"sudhagar/glad/usecase/template"
+	"sudhagar/glad/usecase/center"
 
 	"sudhagar/glad/api/presenter"
 
@@ -23,14 +23,14 @@ import (
 )
 
 const (
-	httpHeaderTenantID   = "X-Messaging-TenantID"
+	httpHeaderTenantID   = "X-GLAD-TenantID"
 	httpHeaderTotalCount = "X-Total-Count"
 )
 
-func listTemplates(service template.UseCase) http.Handler {
+func listCenters(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error reading templates"
-		var data []*entity.Template
+		errorMessage := "Error reading centers"
+		var data []*entity.Center
 		var err error
 		tenant := r.Header.Get(httpHeaderTenantID)
 		search := r.URL.Query().Get("search")
@@ -44,12 +44,12 @@ func listTemplates(service template.UseCase) http.Handler {
 
 		switch {
 		case search == "":
-			data, err = service.ListTemplates(tenantID)
+			data, err = service.ListCenters(tenantID)
 		default:
 			// TODO: search need to be reworked; need to add a count
-			// for search; also need to see how the react-admin generates
+			// for search; also need to see how the caller generates
 			// the search query request
-			data, err = service.SearchTemplates(tenantID, search)
+			data, err = service.SearchCenters(tenantID, search)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
@@ -66,31 +66,31 @@ func listTemplates(service template.UseCase) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		var toJ []*presenter.Template
+		var toJ []*presenter.Center
 		for _, d := range data {
-			toJ = append(toJ, &presenter.Template{
+			toJ = append(toJ, &presenter.Center{
 				ID:       d.ID,
 				TenantID: d.TenantID,
+				ExtID:    d.ExtID,
 				Name:     d.Name,
-				Type:     d.Type,
-				Content:  d.Content,
+				Mode:     d.Mode,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.Header().Set(httpHeaderTenantID, tenant)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode template"))
+			w.Write([]byte("Unable to encode center"))
 		}
 	})
 }
 
-func createTemplate(service template.UseCase) http.Handler {
+func createCenter(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error adding template"
+		errorMessage := "Error adding center"
 		var input struct {
-			Name    string              `json:"name"`
-			Type    entity.TemplateType `json:"type"`
-			Content string              `json:"content"`
+			ExtID string            `json:"extId"`
+			Name  string            `json:"name"`
+			Mode  entity.CenterMode `json:"mode"`
 		}
 
 		tenant := r.Header.Get(httpHeaderTenantID)
@@ -109,21 +109,21 @@ func createTemplate(service template.UseCase) http.Handler {
 			return
 		}
 
-		id, err := service.CreateTemplate(
+		id, err := service.CreateCenter(
 			tenantID,
+			input.ExtID,
 			input.Name,
-			input.Type,
-			input.Content)
+			input.Mode)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
-		toJ := &presenter.Template{
+		toJ := &presenter.Center{
 			ID:       id,
+			ExtID:    input.ExtID,
 			Name:     input.Name,
-			Type:     entity.TemplateText,
-			Content:  input.Content,
+			Mode:     input.Mode,
 			TenantID: tenantID,
 		}
 
@@ -138,9 +138,9 @@ func createTemplate(service template.UseCase) http.Handler {
 	})
 }
 
-func getTemplate(service template.UseCase) http.Handler {
+func getCenter(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error reading template"
+		errorMessage := "Error reading center"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
@@ -148,7 +148,7 @@ func getTemplate(service template.UseCase) http.Handler {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		data, err := service.GetTemplate(id)
+		data, err := service.GetCenter(id)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage + ":" + err.Error()))
@@ -161,24 +161,24 @@ func getTemplate(service template.UseCase) http.Handler {
 			return
 		}
 
-		toJ := &presenter.Template{
-			ID:      data.ID,
-			Name:    data.Name,
-			Type:    data.Type,
-			Content: data.Content,
+		toJ := &presenter.Center{
+			ID:    data.ID,
+			ExtID: data.ExtID,
+			Name:  data.Name,
+			Mode:  data.Mode,
 		}
 
 		w.Header().Set(httpHeaderTenantID, data.TenantID.String())
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode template"))
+			w.Write([]byte("Unable to encode center"))
 		}
 	})
 }
 
-func deleteTemplate(service template.UseCase) http.Handler {
+func deleteCenter(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error removing template"
+		errorMessage := "Error removing center"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
@@ -186,14 +186,14 @@ func deleteTemplate(service template.UseCase) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		err = service.DeleteTemplate(id)
+		err = service.DeleteCenter(id)
 		switch err {
 		case nil:
 			w.WriteHeader(http.StatusOK)
 			return
 		case entity.ErrNotFound:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Template doesn't exist"))
+			w.Write([]byte("Center doesn't exist"))
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
@@ -203,9 +203,9 @@ func deleteTemplate(service template.UseCase) http.Handler {
 	})
 }
 
-func updateTemplate(service template.UseCase) http.Handler {
+func updateCenter(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error updating template"
+		errorMessage := "Error updating center"
 
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
@@ -215,7 +215,7 @@ func updateTemplate(service template.UseCase) http.Handler {
 			return
 		}
 
-		var input entity.Template
+		var input entity.Center
 		tenant := r.Header.Get(httpHeaderTenantID)
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
@@ -234,19 +234,19 @@ func updateTemplate(service template.UseCase) http.Handler {
 
 		input.ID = id
 		input.TenantID = tenantID
-		err = service.UpdateTemplate(&input)
+		err = service.UpdateCenter(&input)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
-		toJ := &presenter.Template{
+		toJ := &presenter.Center{
 			ID:       input.ID,
 			TenantID: tenantID,
+			ExtID:    input.ExtID,
 			Name:     input.Name,
-			Type:     input.Type,
-			Content:  input.Content,
+			Mode:     input.Mode,
 		}
 
 		w.Header().Set(httpHeaderTenantID, tenant)
@@ -260,25 +260,25 @@ func updateTemplate(service template.UseCase) http.Handler {
 	})
 }
 
-// MakeTemplateHandlers make url handlers
-func MakeTemplateHandlers(r *mux.Router, n negroni.Negroni, service template.UseCase) {
-	r.Handle("/v1/templates", n.With(
-		negroni.Wrap(listTemplates(service)),
-	)).Methods("GET", "OPTIONS").Name("listTemplates")
+// MakeCenterHandlers make url handlers
+func MakeCenterHandlers(r *mux.Router, n negroni.Negroni, service center.UseCase) {
+	r.Handle("/v1/centers", n.With(
+		negroni.Wrap(listCenters(service)),
+	)).Methods("GET", "OPTIONS").Name("listCenters")
 
-	r.Handle("/v1/templates", n.With(
-		negroni.Wrap(createTemplate(service)),
-	)).Methods("POST", "OPTIONS").Name("createTemplate")
+	r.Handle("/v1/centers", n.With(
+		negroni.Wrap(createCenter(service)),
+	)).Methods("POST", "OPTIONS").Name("createCenter")
 
-	r.Handle("/v1/templates/{id}", n.With(
-		negroni.Wrap(getTemplate(service)),
-	)).Methods("GET", "OPTIONS").Name("getTemplate")
+	r.Handle("/v1/centers/{id}", n.With(
+		negroni.Wrap(getCenter(service)),
+	)).Methods("GET", "OPTIONS").Name("getCenter")
 
-	r.Handle("/v1/templates/{id}", n.With(
-		negroni.Wrap(deleteTemplate(service)),
-	)).Methods("DELETE", "OPTIONS").Name("deleteTemplate")
+	r.Handle("/v1/centers/{id}", n.With(
+		negroni.Wrap(deleteCenter(service)),
+	)).Methods("DELETE", "OPTIONS").Name("deleteCenter")
 
-	r.Handle("/v1/templates/{id}", n.With(
-		negroni.Wrap(updateTemplate(service)),
-	)).Methods("PUT", "OPTIONS").Name("updateTemplate")
+	r.Handle("/v1/centers/{id}", n.With(
+		negroni.Wrap(updateCenter(service)),
+	)).Methods("PUT", "OPTIONS").Name("updateCenter")
 }

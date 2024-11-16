@@ -4,7 +4,7 @@
  * This code may not be used, copied, modified, or distributed without explicit permission.
  */
 
-package template
+package center
 
 import (
 	"strings"
@@ -14,33 +14,33 @@ import (
 
 // inmem in memory repo
 type inmem struct {
-	m map[entity.ID]*entity.Template
+	m map[entity.ID]*entity.Center
 }
 
 // newInmem create new repository
 func newInmem() *inmem {
-	var m = map[entity.ID]*entity.Template{}
+	var m = map[entity.ID]*entity.Center{}
 	return &inmem{
 		m: m,
 	}
 }
 
-// Create a template
-func (r *inmem) Create(e *entity.Template) (entity.ID, error) {
+// Create a center
+func (r *inmem) Create(e *entity.Center) (entity.ID, error) {
 	r.m[e.ID] = e
 	return e.ID, nil
 }
 
-// Get a template
-func (r *inmem) Get(id entity.ID) (*entity.Template, error) {
+// Get a center
+func (r *inmem) Get(id entity.ID) (*entity.Center, error) {
 	if r.m[id] == nil {
 		return nil, entity.ErrNotFound
 	}
 	return r.m[id], nil
 }
 
-// Update a template
-func (r *inmem) Update(e *entity.Template) error {
+// Update a center
+func (r *inmem) Update(e *entity.Center) error {
 	_, err := r.Get(e.ID)
 	if err != nil {
 		return err
@@ -49,23 +49,23 @@ func (r *inmem) Update(e *entity.Template) error {
 	return nil
 }
 
-// Search templates
+// Search centers
 func (r *inmem) Search(tenantID entity.ID,
 	query string,
-) ([]*entity.Template, error) {
-	var d []*entity.Template
+) ([]*entity.Center, error) {
+	var d []*entity.Center
 	for _, j := range r.m {
 		if j.TenantID == tenantID &&
-			strings.Contains(strings.ToLower(j.Content), query) {
+			strings.Contains(strings.ToLower(j.Name), query) {
 			d = append(d, j)
 		}
 	}
 	return d, nil
 }
 
-// List templates
-func (r *inmem) List(tenantID entity.ID) ([]*entity.Template, error) {
-	var d []*entity.Template
+// List centers
+func (r *inmem) List(tenantID entity.ID) ([]*entity.Center, error) {
+	var d []*entity.Center
 	for _, j := range r.m {
 		if j.TenantID == tenantID {
 			d = append(d, j)
@@ -74,7 +74,7 @@ func (r *inmem) List(tenantID entity.ID) ([]*entity.Template, error) {
 	return d, nil
 }
 
-// Delete a template
+// Delete a center
 func (r *inmem) Delete(id entity.ID) error {
 	if r.m[id] == nil {
 		return entity.ErrNotFound
@@ -84,7 +84,7 @@ func (r *inmem) Delete(id entity.ID) error {
 	return nil
 }
 
-// GetCount gets total templates for a given tenant
+// GetCount gets total centers for a given tenant
 func (r *inmem) GetCount(tenantID entity.ID) (int, error) {
 	count := 0
 	for _, j := range r.m {

@@ -42,7 +42,7 @@ docker:
 build-mocks:
 	@go get github.com/golang/mock/gomock
 	@go install github.com/golang/mock/mockgen
-	@~/go/bin/mockgen -source=usecase/template/interface.go -destination=usecase/template/mock/template.go
+	@~/go/bin/mockgen -source=usecase/center/interface.go -destination=usecase/center/mock/center.go
 
 test:
 	go test -tags testing ./...

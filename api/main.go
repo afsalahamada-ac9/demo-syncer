@@ -18,10 +18,10 @@ import (
 	"sudhagar/glad/repository"
 
 	"sudhagar/glad/usecase/account"
+	"sudhagar/glad/usecase/center"
 	"sudhagar/glad/usecase/contact"
 	"sudhagar/glad/usecase/label"
 	"sudhagar/glad/usecase/labeler"
-	"sudhagar/glad/usecase/template"
 	"sudhagar/glad/usecase/tenant"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -50,8 +50,8 @@ func main() {
 	}
 	defer db.Close()
 
-	templateRepo := repository.NewTemplateMySQL(db)
-	templateService := template.NewService(templateRepo)
+	centerRepo := repository.NewCenterPGSQL(db)
+	centerService := center.NewService(centerRepo)
 
 	tenantRepo := repository.NewTenantPGSQL(db)
 	tenantService := tenant.NewService(tenantRepo)
@@ -78,8 +78,8 @@ func main() {
 		negroni.HandlerFunc(middleware.Metrics(metricService)),
 		negroni.NewLogger(),
 	)
-	// template
-	handler.MakeTemplateHandlers(r, *n, templateService)
+	// center
+	handler.MakeCenterHandlers(r, *n, centerService)
 
 	// tenant
 	handler.MakeTenantHandlers(r, *n, tenantService)
