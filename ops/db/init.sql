@@ -102,9 +102,9 @@ CREATE TABLE IF NOT EXISTS course (
     -- When multitenancy is introduced, then country can be removed.
     location JSONB,
     center_id BIGINT NOT NULL REFERENCES center(id) ON DELETE RESTRICT,
-    type course_type NOT NULL DEFAULT 'in-person',
+    ctype course_type NOT NULL DEFAULT 'in-person',
     num_attendees INTEGER DEFAULT 0,
-    auto_approve BOOLEAN DEFAULT FALSE,
+    is_auto_approve BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
