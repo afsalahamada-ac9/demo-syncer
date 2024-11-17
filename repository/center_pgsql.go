@@ -67,7 +67,7 @@ func (r *CenterPGSQL) Get(id entity.ID) (*entity.Center, error) {
 	var c entity.Center
 	var ext_id sql.NullString
 	var name sql.NullString
-	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, ext_id, &name, &c.Mode, &c.CreatedAt)
+	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &name, &c.Mode, &c.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
