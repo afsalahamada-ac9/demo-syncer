@@ -15,41 +15,34 @@ import (
 // Service account usecase
 type Service struct {
 	repo Repository
-	msgr Messager
 }
 
 // NewService create new service
-func NewService(r Repository, m Messager) *Service {
+func NewService(r Repository) *Service {
 	return &Service{
 		repo: r,
-		msgr: m,
 	}
-}
-
-// GetQR gets QR data to add an account
-func (s *Service) GetQR(
-	tenantID entity.ID,
-	at entity.AccountType) (username string, qrData string, err error) {
-
-	// TODO: Validate account type
-	// TODO: Store tenant id?
-
-	username, qrData, err = s.msgr.Start()
-
-	return username, qrData, err
-}
-
-func (s *Service) GetStatus(username string, tenantID entity.ID) (entity.AccountStatus, error) {
-	// TODO: Tenant id to be implemented
-	return s.msgr.GetStatus(username)
 }
 
 // CreateAccount create a account
 func (s *Service) CreateAccount(
 	tenantID entity.ID,
+	extID string,
 	username string,
-	at entity.AccountType) error {
-	account, err := entity.NewAccount(tenantID, username, at)
+	first_name string,
+	last_name string,
+	phone string,
+	email string,
+	at entity.AccountType,
+) error {
+	account, err := entity.NewAccount(tenantID,
+		extID,
+		username,
+		first_name,
+		last_name,
+		phone,
+		email,
+		at)
 	if err != nil {
 		return err
 	}

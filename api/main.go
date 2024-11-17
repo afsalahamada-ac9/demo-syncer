@@ -56,8 +56,8 @@ func main() {
 	tenantRepo := repository.NewTenantPGSQL(db)
 	tenantService := tenant.NewService(tenantRepo)
 
-	accountRepo := repository.NewAccountMySQL(db)
-	accountService := account.NewService(accountRepo, nil)
+	accountRepo := repository.NewAccountPGSQL(db)
+	accountService := account.NewService(accountRepo)
 
 	contactRepo := repository.NewContactMySQL(db)
 	contactService := contact.NewService(contactRepo)

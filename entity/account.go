@@ -14,28 +14,26 @@ import (
 type AccountType int
 
 const (
-	AccountWhatsApp AccountType = iota
+	AccountTeacher AccountType = iota
+	AccountAssistantTeacher
+	AccountOrganizer
+	AccountMember
+	AccountUser
 	// Add new types here
-)
-
-// AccountStatus type
-type AccountStatus int
-
-const (
-	AccountStatusUnknown AccountStatus = iota
-	AccountStatusConnected
-	AccountStatusLoggedIn
-	// Add new statuses here
 )
 
 // Account data
 type Account struct {
-	ID       ID
-	TenantID ID
-	Username string
-	Type     AccountType
+	ID ID
+	// TenantID ID
+	ExtID string
 
-	// TODO: Add registration data here
+	Username  string
+	FirstName string
+	LastName  string
+	Phone     string
+	Email     string
+	Type      AccountType
 
 	// meta data
 	CreatedAt time.Time
@@ -43,11 +41,23 @@ type Account struct {
 }
 
 // NewAccount create a new account
-func NewAccount(tenantID ID, username string, at AccountType) (*Account, error) {
+func NewAccount(tenantID ID,
+	extID string,
+	username string,
+	first_name string,
+	last_name string,
+	phone string,
+	email string,
+	at AccountType,
+) (*Account, error) {
 	t := &Account{
 		ID:        NewID(),
-		TenantID:  tenantID,
+		ExtID:     extID,
 		Username:  username,
+		FirstName: first_name,
+		LastName:  last_name,
+		Phone:     phone,
+		Email:     email,
 		Type:      at,
 		CreatedAt: time.Now(),
 	}

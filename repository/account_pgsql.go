@@ -13,30 +13,34 @@ import (
 	"sudhagar/glad/entity"
 )
 
-// AccountMySQL mysql repo
-type AccountMySQL struct {
+// AccountPGSQL mysql repo
+type AccountPGSQL struct {
 	db *sql.DB
 }
 
-// NewAccountMySQL create new repository
-func NewAccountMySQL(db *sql.DB) *AccountMySQL {
-	return &AccountMySQL{
+// NewAccountPGSQL create new repository
+func NewAccountPGSQL(db *sql.DB) *AccountPGSQL {
+	return &AccountPGSQL{
 		db: db,
 	}
 }
 
 // Create a account
-func (r *AccountMySQL) Create(e *entity.Account) error {
+func (r *AccountPGSQL) Create(e *entity.Account) error {
 	stmt, err := r.db.Prepare(`
-		INSERT INTO account (id, tenant_id, username, type, created_at) 
+		INSERT INTO account (id, ext_id, username, first_name, last_name, phone, email, type, created_at) 
 		VALUES(?,?,?,?,?)`)
 	if err != nil {
 		return err
 	}
 	_, err = stmt.Exec(
 		e.ID,
-		e.TenantID,
+		e.ExtID,
 		e.Username,
+		e.FirstName,
+		e.LastName,
+		e.Phone,
+		e.Email,
 		int(e.Type),
 		time.Now().Format("2006-01-02"),
 	)
@@ -51,16 +55,17 @@ func (r *AccountMySQL) Create(e *entity.Account) error {
 }
 
 // TODO: GetByID()
-// TODO: Need a filter by TenantID as well
+// TODO: Need a filter by TenantID if/when TenantID support is added.
+// Accounts are global in nature, but for storage purposes they will be assigned to some tenants.
 // Get a account
-func (r *AccountMySQL) Get(username string) (*entity.Account, error) {
+func (r *AccountPGSQL) Get(username string) (*entity.Account, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, type, created_at FROM account WHERE username = ?`)
+		SELECT id, ext_id, type, created_at FROM account WHERE username = ?`)
 	if err != nil {
 		return nil, err
 	}
 	var t entity.Account
-	err = stmt.QueryRow(username).Scan(&t.ID, &t.TenantID, &t.Type, &t.CreatedAt)
+	err = stmt.QueryRow(username).Scan(&t.ID, &t.ExtID, &t.Type, &t.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -73,7 +78,7 @@ func (r *AccountMySQL) Get(username string) (*entity.Account, error) {
 
 // TODO: UpdateByID()
 // Update a account
-func (r *AccountMySQL) Update(e *entity.Account) error {
+func (r *AccountPGSQL) Update(e *entity.Account) error {
 	e.UpdatedAt = time.Now()
 	_, err := r.db.Exec(`UPDATE account SET username = ?, type = ?, updated_at = ? WHERE id = ?`,
 		e.Username, int(e.Type), e.UpdatedAt.Format("2006-01-02"), e.ID)
@@ -84,14 +89,14 @@ func (r *AccountMySQL) Update(e *entity.Account) error {
 }
 
 // List accounts
-func (r *AccountMySQL) List(tenantID entity.ID) ([]*entity.Account, error) {
+func (r *AccountPGSQL) List(tenantID entity.ID) ([]*entity.Account, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, username, type, created_at FROM account WHERE tenant_id = ?`)
+		SELECT id, ext_id, username, type, created_at FROM account`)
 	if err != nil {
 		return nil, err
 	}
 	var accounts []*entity.Account
-	rows, err := stmt.Query(tenantID)
+	rows, err := stmt.Query()
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +104,7 @@ func (r *AccountMySQL) List(tenantID entity.ID) ([]*entity.Account, error) {
 	var username sql.NullString
 	for rows.Next() {
 		var t entity.Account
-		err = rows.Scan(&t.ID, &t.TenantID, &username, &t.Type, &t.CreatedAt)
+		err = rows.Scan(&t.ID, &t.ExtID, &username, &t.Type, &t.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -111,7 +116,7 @@ func (r *AccountMySQL) List(tenantID entity.ID) ([]*entity.Account, error) {
 
 // TODO: DeleteByID()
 // Delete a account
-func (r *AccountMySQL) Delete(username string) error {
+func (r *AccountPGSQL) Delete(username string) error {
 	res, err := r.db.Exec(`DELETE FROM account WHERE username = ?`, username)
 	if err != nil {
 		return err
@@ -125,14 +130,14 @@ func (r *AccountMySQL) Delete(username string) error {
 }
 
 // Get total accounts
-func (r *AccountMySQL) GetCount(tenantID entity.ID) (int, error) {
-	stmt, err := r.db.Prepare(`SELECT count(*) FROM account WHERE tenant_id = ?`)
+func (r *AccountPGSQL) GetCount(tenantID entity.ID) (int, error) {
+	stmt, err := r.db.Prepare(`SELECT count(*) FROM account`)
 	if err != nil {
 		return 0, err
 	}
 
 	var count int
-	err = stmt.QueryRow(tenantID).Scan(&count)
+	err = stmt.QueryRow().Scan(&count)
 	if err != nil {
 		return 0, err
 	}

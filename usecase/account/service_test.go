@@ -22,6 +22,8 @@ const (
 	accountIDAlice  entity.ID = 13790492210917010000
 	accountID2Alice entity.ID = 13790492210917010002
 	tenantAlice     entity.ID = 13790492210917015554
+	aliceExtID                = "001aliceExtID"
+	alice2ExtID               = "002aliceExtID"
 
 	// todo: add multi-tenant support
 	// tenantBob entity.ID = 13790492210917015555
@@ -29,58 +31,66 @@ const (
 
 func newFixtureAccount() *entity.Account {
 	return &entity.Account{
-		ID:        accountIDAlice,
-		TenantID:  tenantAlice,
+		ID: accountIDAlice,
+		// TenantID:  tenantAlice,
+		ExtID:     aliceExtID,
 		Username:  accountUsernameAlice,
-		Type:      entity.AccountWhatsApp,
+		FirstName: "Alice",
+		LastName:  "Wonderland",
+		Phone:     "1235556789",
+		Email:     "alice@wonderland.ai",
+		Type:      entity.AccountTeacher,
 		CreatedAt: time.Now(),
 	}
 }
 
-// Mock messager
-type messager struct {
-}
-
-func (m *messager) Start() (username string, qrData string, err error) {
-	return accountUsernameAlice, "", nil
-}
-
-func (m *messager) Stop(id string) error {
-	return nil
-}
-
-func (m *messager) GetStatus(username string) (entity.AccountStatus, error) {
-	return entity.AccountStatusUnknown, nil
-}
-
-// End of Mock messager
-
 func Test_Create(t *testing.T) {
 	repo := newInmem()
-	m := NewService(repo, &messager{})
+	m := NewService(repo)
 	account := newFixtureAccount()
-	err := m.CreateAccount(account.TenantID, account.Username, account.Type)
+	err := m.CreateAccount(tenantAlice,
+		account.ExtID,
+		account.Username,
+		account.FirstName,
+		account.LastName,
+		account.Phone,
+		account.Email,
+		account.Type,
+	)
 	assert.Nil(t, err)
 	assert.False(t, account.CreatedAt.IsZero())
 }
 
 func Test_SearchAndFind(t *testing.T) {
 	repo := newInmem()
-	m := NewService(repo, &messager{})
+	m := NewService(repo)
 	account1 := newFixtureAccount()
 	account2 := newFixtureAccount()
 	account2.ID = accountID2Alice
 	account2.Username = accountUsername2Alice
+	account2.ExtID = alice2ExtID
 
-	_ = m.CreateAccount(account1.TenantID,
+	_ = m.CreateAccount(tenantAlice,
+		account1.ExtID,
 		account1.Username,
-		account1.Type)
-	_ = m.CreateAccount(account2.TenantID,
+		account1.FirstName,
+		account1.LastName,
+		account1.Phone,
+		account1.Email,
+		account1.Type,
+	)
+	_ = m.CreateAccount(tenantAlice,
+		account2.ExtID,
 		account2.Username,
-		account2.Type)
+		account2.FirstName,
+		account2.LastName,
+		account2.Phone,
+		account2.Email,
+		account2.Type,
+	)
 
 	t.Run("list all", func(t *testing.T) {
-		all, err := m.ListAccounts(account1.TenantID)
+		all, err := m.ListAccounts(tenantAlice)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(all))
 	})
@@ -88,7 +98,7 @@ func Test_SearchAndFind(t *testing.T) {
 	t.Run("get", func(t *testing.T) {
 		saved, err := m.GetAccount(account1.Username)
 		assert.Nil(t, err)
-		assert.Equal(t, account1.TenantID, saved.TenantID)
+		assert.Equal(t, account1.ExtID, saved.ExtID)
 		assert.Equal(t, account1.Type, saved.Type)
 		assert.Equal(t, account1.Username, saved.Username)
 	})
@@ -98,12 +108,17 @@ func Test_SearchAndFind(t *testing.T) {
 // Perhaps a human readable name can be given for customer to reference.
 func Test_Update(t *testing.T) {
 	repo := newInmem()
-	m := NewService(repo, &messager{})
+	m := NewService(repo)
 	account := newFixtureAccount()
-	err := m.CreateAccount(
-		account.TenantID,
+	err := m.CreateAccount(tenantAlice,
+		account.ExtID,
 		account.Username,
-		account.Type)
+		account.FirstName,
+		account.LastName,
+		account.Phone,
+		account.Email,
+		account.Type,
+	)
 	assert.Nil(t, err)
 
 	saved, _ := m.GetAccount(account.Username)
@@ -120,17 +135,23 @@ func Test_Update(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	repo := newInmem()
-	m := NewService(repo, &messager{})
+	m := NewService(repo)
 
 	account1 := newFixtureAccount()
 
 	account2 := newFixtureAccount()
 	account2.ID = accountID2Alice
 	account2.Username = accountUsername2Alice
-	_ = m.CreateAccount(
-		account2.TenantID,
+	account2.ExtID = alice2ExtID
+	_ = m.CreateAccount(tenantAlice,
+		account2.ExtID,
 		account2.Username,
-		account2.Type)
+		account2.FirstName,
+		account2.LastName,
+		account2.Phone,
+		account2.Email,
+		account2.Type,
+	)
 
 	err := m.DeleteAccount(account1.Username)
 	assert.Equal(t, entity.ErrNotFound, err)

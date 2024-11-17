@@ -11,7 +11,7 @@ import (
 )
 
 // Label data - TenantID is returned in the HTTP header
-// X-Messaging-TenantID
+// X-GLAD-TenantID
 type Label struct {
 	ID       entity.ID `json:"id"`
 	TenantID entity.ID `json:"tenantId"`

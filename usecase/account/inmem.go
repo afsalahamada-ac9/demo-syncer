@@ -47,7 +47,7 @@ func (r *inmem) Update(e *entity.Account) error {
 		return entity.ErrNotFound
 	}
 
-	account.TenantID = e.TenantID
+	account.ExtID = e.ExtID
 	account.Username = e.Username
 	account.Type = e.Type
 	account.CreatedAt = e.CreatedAt
@@ -61,9 +61,8 @@ func (r *inmem) Update(e *entity.Account) error {
 func (r *inmem) List(tenantID entity.ID) ([]*entity.Account, error) {
 	var d []*entity.Account
 	for _, j := range r.m {
-		if j.TenantID == tenantID {
-			d = append(d, j)
-		}
+		// TenantID check removed
+		d = append(d, j)
 	}
 	return d, nil
 }
@@ -83,10 +82,9 @@ func (r *inmem) Delete(username string) error {
 // GetCount gets total accounts for a given tenant
 func (r *inmem) GetCount(tenantID entity.ID) (int, error) {
 	count := 0
-	for _, j := range r.m {
-		if j.TenantID == tenantID {
-			count++
-		}
+	for _, _ = range r.m {
+		// TenantID check removed
+		count++
 	}
 	return count, nil
 }

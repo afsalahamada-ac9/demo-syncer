@@ -43,13 +43,13 @@ func Test_listAccounts(t *testing.T) {
 	assert.Equal(t, "/v1/accounts", path)
 	tmpl := &entity.Account{
 		ID:       accountIDPrimary,
-		TenantID: tenantAlice,
+		ExtID:    aliceExtID,
 		Username: accountUsernamePrimary,
-		Type:     entity.AccountWhatsApp,
+		Type:     entity.AccountTeacher,
 	}
-	service.EXPECT().GetCount(tmpl.TenantID).Return(1)
+	service.EXPECT().GetCount(tenantAlice).Return(1)
 	service.EXPECT().
-		ListAccounts(tmpl.TenantID).
+		ListAccounts(tenantAlice).
 		Return([]*entity.Account{tmpl}, nil)
 	ts := httptest.NewServer(listAccounts(service))
 	defer ts.Close()
@@ -129,9 +129,9 @@ func Test_getAccount(t *testing.T) {
 	assert.Equal(t, "/v1/accounts/{username}", path)
 	tmpl := &entity.Account{
 		ID:       accountIDPrimary,
-		TenantID: tenantAlice,
+		ExtID:    aliceExtID,
 		Username: accountUsernamePrimary,
-		Type:     entity.AccountWhatsApp,
+		Type:     entity.AccountTeacher,
 	}
 	service.EXPECT().
 		GetAccount(tmpl.Username).

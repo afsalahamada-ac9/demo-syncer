@@ -30,26 +30,16 @@ type Repository interface {
 	Writer
 }
 
-// Messager interface
-type Messager interface {
-	// Start starts the messager interface; In future, type could
-	// be passed, so appropriate service such as WA, Msgr, could be
-	// started
-	Start() (username string, qrData string, err error) // data is optional
-	GetStatus(username string) (entity.AccountStatus, error)
-	Stop(username string) error // error may not be too relevant here
-}
-
 // UseCase interface
 type UseCase interface {
-	GetQR(
-		tenantID entity.ID,
-		at entity.AccountType) (username string, qrData string, err error)
-	GetStatus(username string, tenantID entity.ID) (entity.AccountStatus, error)
-
 	CreateAccount(
 		tenantID entity.ID,
+		extID string,
 		username string,
+		first_name string,
+		last_name string,
+		phone string,
+		email string,
 		at entity.AccountType) error
 	GetAccount(username string) (*entity.Account, error)
 	ListAccounts(tenantID entity.ID) ([]*entity.Account, error)

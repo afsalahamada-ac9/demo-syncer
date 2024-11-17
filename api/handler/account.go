@@ -51,103 +51,19 @@ func listAccounts(service account.UseCase) http.Handler {
 		var toJ []*presenter.Account
 		for _, d := range data {
 			toJ = append(toJ, &presenter.Account{
-				ID:       d.ID,
-				TenantID: d.TenantID,
-				Username: d.Username,
-				Type:     d.Type,
+				ID:        d.ID,
+				ExtID:     d.ExtID,
+				Username:  d.Username,
+				FirstName: d.FirstName,
+				LastName:  d.LastName,
+				Phone:     d.Phone,
+				Email:     d.Email,
+				Type:      d.Type,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Unable to encode account"))
-		}
-	})
-}
-
-func getAccountQR(service account.UseCase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error adding account"
-
-		tenant := r.Header.Get(httpHeaderTenantID)
-		tenantID, err := entity.StringToID(tenant)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
-			return
-		}
-
-		// var input struct {
-		// 	Type entity.AccountType `json:"type"`
-		// }
-		// err = json.NewDecoder(r.Body).Decode(&input)
-		// if err != nil {
-		// 	log.Println(err.Error())
-		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	w.Write([]byte("Unable to decode the data. " + err.Error()))
-		// 	return
-		// }
-
-		// account type hardcoded to WhatsApp
-		username, data, err := service.GetQR(
-			tenantID,
-			entity.AccountWhatsApp)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
-			return
-		}
-		toJ := &presenter.Account{
-			Username: username,
-			Data:     data,
-			TenantID: tenantID,
-		}
-
-		w.Header().Set(httpHeaderTenantID, tenant)
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(toJ); err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
-			return
-		}
-	})
-}
-
-func getAccountStatus(service account.UseCase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error adding account"
-		vars := mux.Vars(r)
-		username := vars["username"]
-
-		tenant := r.Header.Get(httpHeaderTenantID)
-		tenantID, err := entity.StringToID(tenant)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
-			return
-		}
-
-		status, err := service.GetStatus(
-			username,
-			tenantID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
-			return
-		}
-		toJ := &presenter.Account{
-			Username: username,
-			Status:   status,
-			TenantID: tenantID,
-		}
-
-		w.Header().Set(httpHeaderTenantID, tenant)
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(toJ); err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
-			return
 		}
 	})
 }
@@ -225,12 +141,17 @@ func getAccount(service account.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Account{
-			ID:       data.ID,
-			Username: data.Username,
-			Type:     data.Type,
+			ID:        data.ID,
+			ExtID:     data.ExtID,
+			Username:  data.Username,
+			FirstName: data.FirstName,
+			LastName:  data.LastName,
+			Phone:     data.Phone,
+			Email:     data.Email,
+			Type:      data.Type,
 		}
 
-		w.Header().Set(httpHeaderTenantID, data.TenantID.String())
+		w.Header().Set(httpHeaderTenantID, "")
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Unable to encode account"))
@@ -268,15 +189,15 @@ func updateAccount(service account.UseCase) http.Handler {
 		username := vars["username"]
 
 		var input entity.Account
-		tenant := r.Header.Get(httpHeaderTenantID)
-		tenantID, err := entity.StringToID(tenant)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
-			return
-		}
+		// tenant := r.Header.Get(httpHeaderTenantID)
+		// tenantID, err := entity.StringToID(tenant)
+		// if err != nil {
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	w.Write([]byte("Missing tenant ID"))
+		// 	return
+		// }
 
-		err = json.NewDecoder(r.Body).Decode(&input)
+		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
@@ -285,7 +206,6 @@ func updateAccount(service account.UseCase) http.Handler {
 		}
 
 		input.Username = username
-		input.TenantID = tenantID
 		err = service.UpdateAccount(&input)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -294,13 +214,17 @@ func updateAccount(service account.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Account{
-			ID:       input.ID,
-			TenantID: tenantID,
-			Username: input.Username,
-			Type:     input.Type,
+			ID:        input.ID,
+			ExtID:     input.ExtID,
+			Username:  input.Username,
+			FirstName: input.FirstName,
+			LastName:  input.LastName,
+			Phone:     input.Phone,
+			Email:     input.Email,
+			Type:      input.Type,
 		}
 
-		w.Header().Set(httpHeaderTenantID, tenant)
+		w.Header().Set(httpHeaderTenantID, "")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
@@ -316,14 +240,6 @@ func MakeAccountHandlers(r *mux.Router, n negroni.Negroni, service account.UseCa
 	r.Handle("/v1/accounts", n.With(
 		negroni.Wrap(listAccounts(service)),
 	)).Methods("GET", "OPTIONS").Name("listAccounts")
-
-	r.Handle("/v1/accounts/qr", n.With(
-		negroni.Wrap(getAccountQR(service)),
-	)).Methods("GET", "OPTIONS").Name("getAccountQR")
-
-	r.Handle("/v1/accounts/{username}/status", n.With(
-		negroni.Wrap(getAccountStatus(service)),
-	)).Methods("GET", "OPTIONS").Name("getAccountStatus")
 
 	// r.Handle("/v1/accounts", n.With(
 	// 	negroni.Wrap(createAccount(service)),
