@@ -50,6 +50,7 @@ func listTenants(service tenant.UseCase) http.Handler {
 			toJ = append(toJ, &presenter.Tenant{
 				ID:        d.ID,
 				Name:      d.Name,
+				Country:   d.Country,
 				AuthToken: d.AuthToken,
 			})
 		}
@@ -83,7 +84,9 @@ func createTenant(service tenant.UseCase) http.Handler {
 			return
 		}
 		toJ := &presenter.Tenant{
-			ID: id,
+			ID:      id,
+			Name:    input.Name,
+			Country: input.Country,
 		}
 
 		w.WriteHeader(http.StatusCreated)
@@ -122,6 +125,7 @@ func getTenant(service tenant.UseCase) http.Handler {
 		toJ := &presenter.Tenant{
 			ID:        data.ID,
 			Name:      data.Name,
+			Country:   data.Country,
 			AuthToken: data.AuthToken,
 		}
 
@@ -233,9 +237,10 @@ func updateTenant(service tenant.UseCase) http.Handler {
 
 		input.ID = id
 		toJ := &presenter.Tenant{
-			ID:   input.ID,
-			Name: input.Name,
-			// Country & token are not returned back
+			ID:      input.ID,
+			Name:    input.Name,
+			Country: input.Country,
+			// AuthToken is not returned back
 		}
 
 		w.WriteHeader(http.StatusOK)

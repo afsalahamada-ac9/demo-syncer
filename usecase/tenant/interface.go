@@ -35,7 +35,7 @@ type Repository interface {
 type UseCase interface {
 	GetTenant(id entity.ID) (*entity.Tenant, error)
 	ListTenants() ([]*entity.Tenant, error)
-	CreateTenant(username, password string) (entity.ID, error)
+	CreateTenant(username, country string) (entity.ID, error)
 	UpdateTenant(e *entity.Tenant) error
 	DeleteTenant(id entity.ID) error
 	Login(username, password string) (*entity.Tenant, error)

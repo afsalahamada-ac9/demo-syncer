@@ -151,7 +151,7 @@ func getAccount(service account.UseCase) http.Handler {
 			Type:      data.Type,
 		}
 
-		w.Header().Set(httpHeaderTenantID, "")
+		w.Header().Set(httpHeaderTenantID, r.Header.Get(httpHeaderTenantID))
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Unable to encode account"))

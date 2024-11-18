@@ -20,6 +20,29 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    image: api:dev
+    environment:
+      DB_USER: glad_user
+      DB_PASSWORD: glad1234
+      DB_DATABASE: glad
+      # TODO: localhost to be changed to DB hostname instead cluster
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_SSLMODE: disable # require
+      API_PORT: 8080
+    expose:
+      - 8080
+    ports:
+      - "8080:8080"
+    container_name: glad-api
+    network_mode: "bridge"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    links:
+      - postgres
+
   grafana:
     image: grafana/grafana
     ports:

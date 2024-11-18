@@ -39,6 +39,7 @@ CREATE TYPE center_mode AS ENUM ('in-person'
 -- Create tables
 CREATE TABLE IF NOT EXISTS tenant (
     id BIGSERIAL PRIMARY KEY,
+    -- TODO: Name need not be unique, but name and country together must be unique
     name VARCHAR(255) NOT NULL UNIQUE,
     country VARCHAR(128) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

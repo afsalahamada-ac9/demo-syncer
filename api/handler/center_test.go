@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	tenantAlice       entity.ID = 13790492210917015554
+	tenantAlice       entity.ID = 7264348473653242881
 	tenantNonExistent entity.ID = 0
 	aliceExtID                  = "000aliceExtID"
 )

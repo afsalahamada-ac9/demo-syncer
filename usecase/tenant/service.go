@@ -25,10 +25,10 @@ func NewService(r Repository) *Service {
 }
 
 // CreateTenant create a tenant
-func (s *Service) CreateTenant(name, password string) (entity.ID, error) {
+func (s *Service) CreateTenant(name, country string) (entity.ID, error) {
 	// TODO: Check whether tenant already exists with same name
 
-	t, err := entity.NewTenant(name, password)
+	t, err := entity.NewTenant(name, country)
 	if err != nil {
 		return t.ID, err
 	}
