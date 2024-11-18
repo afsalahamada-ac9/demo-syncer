@@ -29,7 +29,7 @@ func NewCoursePGSQL(db *sql.DB) *CoursePGSQL {
 func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
 		INSERT INTO course (id, tenant_id, ext_id, center_id, name, notes, timezone, location, status, ctype, max_attendees, num_attendees, is_auto_approve, created_at) 
-		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`)
 	if err != nil {
 		return e.ID, err
 	}
@@ -65,7 +65,7 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
 		status, ctype, max_attendees, num_attendees, id_auto_approve, created_at
 		FROM course
-		WHERE id = ?`)
+		WHERE id = $1;`)
 	if err != nil {
 		return nil, err
 	}
@@ -92,14 +92,13 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 // Update updates a course
 func (r *CoursePGSQL) Update(e *entity.Course) error {
 	e.UpdatedAt = time.Now()
-	var loc_json string
-	loc_json = "" // TODO: convert location to json_str
+	loc_json := "" // TODO: convert location to json_str
 
 	_, err := r.db.Exec(`
-		UPDATE course SET center_id = ?, name = ?, notes = ?, timezone = ?, location = ?,
-		status = ?, ctype = ?, max_attendees = ?, num_attendees = ?, is_auto_approve = ?,
-		updated_at = ?
-		WHERE id = ?`,
+		UPDATE course SET center_id = $1, name = $2, notes = $3, timezone = $4, location = $5,
+		status = $6, ctype = $7, max_attendees = $8, num_attendees = $9, is_auto_approve = $10,
+		updated_at = $11
+		WHERE id = $12;`,
 		e.CenterID, e.Name, e.Notes, e.Timezone, loc_json, int(e.Status), int(e.CType),
 		e.MaxAttendees, e.NumAttendees, e.IsAutoApprove, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
@@ -116,7 +115,7 @@ func (r *CoursePGSQL) Search(tenantID entity.ID,
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
 		status, ctype, max_attendees, num_attendees, id_auto_approve, created_at
 		FROM course
-		WHERE tenant_id = ? AND name LIKE ?`)
+		WHERE tenant_id = $1 AND name LIKE $2;`)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +152,7 @@ func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
 		status, ctype, max_attendees, num_attendees, id_auto_approve, created_at
 		FROM course
-		WHERE tenant_id = ?`)
+		WHERE tenant_id = $1;`)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +183,7 @@ func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
 
 // Delete deletes a course
 func (r *CoursePGSQL) Delete(id entity.ID) error {
-	res, err := r.db.Exec(`DELETE FROM course WHERE id = ?`, id)
+	res, err := r.db.Exec(`DELETE FROM course WHERE id = $1;`, id)
 	if err != nil {
 		return err
 	}
@@ -198,7 +197,7 @@ func (r *CoursePGSQL) Delete(id entity.ID) error {
 
 // Get total courses
 func (r *CoursePGSQL) GetCount(tenantID entity.ID) (int, error) {
-	stmt, err := r.db.Prepare(`SELECT count(*) FROM course WHERE tenant_id = ?`)
+	stmt, err := r.db.Prepare(`SELECT count(*) FROM course WHERE tenant_id = $1;`)
 	if err != nil {
 		return 0, err
 	}

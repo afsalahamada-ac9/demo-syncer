@@ -29,7 +29,7 @@ func NewCenterPGSQL(db *sql.DB) *CenterPGSQL {
 func (r *CenterPGSQL) Create(e *entity.Center) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
 		INSERT INTO center (id, tenant_id, ext_id, name, location, geo_location, capacity, mode, webpage, is_national_center, created_at) 
-		VALUES(?,?,?,?,?,?,?,?,?,?,?)`)
+		VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
 	if err != nil {
 		return e.ID, err
 	}
@@ -60,7 +60,7 @@ func (r *CenterPGSQL) Create(e *entity.Center) (entity.ID, error) {
 // Not all fields are required for v1
 func (r *CenterPGSQL) Get(id entity.ID) (*entity.Center, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, name, mode, created_at FROM center WHERE id = ?`)
+		SELECT id, tenant_id, ext_id, name, mode, created_at FROM center WHERE id = $1;`)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (r *CenterPGSQL) Get(id entity.ID) (*entity.Center, error) {
 func (r *CenterPGSQL) Update(e *entity.Center) error {
 	e.UpdatedAt = time.Now()
 	_, err := r.db.Exec(`
-		UPDATE center SET name = ?, mode = ?, updated_at = ? WHERE id = ?`,
+		UPDATE center SET name = $1, mode = $2, updated_at = $3 WHERE id = $4;`,
 		e.Name, int(e.Mode), e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (r *CenterPGSQL) Search(tenantID entity.ID,
 ) ([]*entity.Center, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, name, mode, created_at FROM center
-		WHERE tenant_id = ? AND name LIKE ?`)
+		WHERE tenant_id = $1 AND name LIKE $2;`)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (r *CenterPGSQL) Search(tenantID entity.ID,
 // List lists centers
 func (r *CenterPGSQL) List(tenantID entity.ID) ([]*entity.Center, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, name, mode, created_at FROM center WHERE tenant_id = ?`)
+		SELECT id, tenant_id, ext_id, name, mode, created_at FROM center WHERE tenant_id = $1;`)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (r *CenterPGSQL) List(tenantID entity.ID) ([]*entity.Center, error) {
 
 // Delete deletes a center
 func (r *CenterPGSQL) Delete(id entity.ID) error {
-	res, err := r.db.Exec(`DELETE FROM center WHERE id = ?`, id)
+	res, err := r.db.Exec(`DELETE FROM center WHERE id = $1;`, id)
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (r *CenterPGSQL) Delete(id entity.ID) error {
 
 // Get total centers
 func (r *CenterPGSQL) GetCount(tenantID entity.ID) (int, error) {
-	stmt, err := r.db.Prepare(`SELECT count(*) FROM center WHERE tenant_id = ?`)
+	stmt, err := r.db.Prepare(`SELECT count(*) FROM center WHERE tenant_id = $1;`)
 	if err != nil {
 		return 0, err
 	}

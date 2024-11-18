@@ -29,7 +29,7 @@ func NewAccountPGSQL(db *sql.DB) *AccountPGSQL {
 func (r *AccountPGSQL) Create(e *entity.Account) error {
 	stmt, err := r.db.Prepare(`
 		INSERT INTO account (id, ext_id, username, first_name, last_name, phone, email, type, created_at) 
-		VALUES(?,?,?,?,?)`)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (r *AccountPGSQL) Create(e *entity.Account) error {
 // Get a account
 func (r *AccountPGSQL) Get(username string) (*entity.Account, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, ext_id, type, created_at FROM account WHERE username = ?`)
+		SELECT id, ext_id, type, created_at FROM account WHERE username = $1;`)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (r *AccountPGSQL) Get(username string) (*entity.Account, error) {
 // Update a account
 func (r *AccountPGSQL) Update(e *entity.Account) error {
 	e.UpdatedAt = time.Now()
-	_, err := r.db.Exec(`UPDATE account SET username = ?, type = ?, updated_at = ? WHERE id = ?`,
+	_, err := r.db.Exec(`UPDATE account SET username = $1, type = $2, updated_at = $3 WHERE id = $4;`,
 		e.Username, int(e.Type), e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (r *AccountPGSQL) Update(e *entity.Account) error {
 // List accounts
 func (r *AccountPGSQL) List(tenantID entity.ID) ([]*entity.Account, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, ext_id, username, type, created_at FROM account`)
+		SELECT id, ext_id, username, type, created_at FROM account;`)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (r *AccountPGSQL) List(tenantID entity.ID) ([]*entity.Account, error) {
 // TODO: DeleteByID()
 // Delete a account
 func (r *AccountPGSQL) Delete(username string) error {
-	res, err := r.db.Exec(`DELETE FROM account WHERE username = ?`, username)
+	res, err := r.db.Exec(`DELETE FROM account WHERE username = $1;`, username)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (r *AccountPGSQL) Delete(username string) error {
 
 // Get total accounts
 func (r *AccountPGSQL) GetCount(tenantID entity.ID) (int, error) {
-	stmt, err := r.db.Prepare(`SELECT count(*) FROM account`)
+	stmt, err := r.db.Prepare(`SELECT count(*) FROM account;`)
 	if err != nil {
 		return 0, err
 	}
