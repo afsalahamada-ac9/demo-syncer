@@ -41,7 +41,7 @@ func (r *CenterPGSQL) Create(e *entity.Center) (entity.ID, error) {
 		e.Location,    // TODO: to be converted into json
 		e.GeoLocation, // TODO: to be converted into json
 		e.Capacity,
-		int(e.Mode),
+		e.Mode,
 		e.WebPage,
 		e.IsNationalCenter,
 		time.Now().Format("2006-01-02"),
@@ -67,7 +67,8 @@ func (r *CenterPGSQL) Get(id entity.ID) (*entity.Center, error) {
 	var c entity.Center
 	var ext_id sql.NullString
 	var name sql.NullString
-	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &name, &c.Mode, &c.CreatedAt)
+	var mode sql.NullString
+	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &name, &mode, &c.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -76,6 +77,7 @@ func (r *CenterPGSQL) Get(id entity.ID) (*entity.Center, error) {
 	}
 	c.ExtID = ext_id.String
 	c.Name = name.String
+	c.Mode = entity.CenterMode(mode.String)
 
 	return &c, nil
 }
@@ -85,7 +87,7 @@ func (r *CenterPGSQL) Update(e *entity.Center) error {
 	e.UpdatedAt = time.Now()
 	_, err := r.db.Exec(`
 		UPDATE center SET center_name = $1, mode = $2, updated_at = $3 WHERE id = $4;`,
-		e.Name, int(e.Mode), e.UpdatedAt.Format("2006-01-02"), e.ID)
+		e.Name, e.Mode, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
 	}
@@ -110,14 +112,16 @@ func (r *CenterPGSQL) Search(tenantID entity.ID,
 
 	var ext_id sql.NullString
 	var name sql.NullString
+	var mode sql.NullString
 	for rows.Next() {
 		var c entity.Center
-		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &c.Mode, &c.CreatedAt)
+		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &mode, &c.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
 		c.ExtID = ext_id.String
 		c.Name = name.String
+		c.Mode = entity.CenterMode(mode.String)
 		centers = append(centers, &c)
 	}
 
@@ -139,14 +143,16 @@ func (r *CenterPGSQL) List(tenantID entity.ID) ([]*entity.Center, error) {
 
 	var ext_id sql.NullString
 	var name sql.NullString
+	var mode sql.NullString
 	for rows.Next() {
 		var c entity.Center
-		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &c.Mode, &c.CreatedAt)
+		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &mode, &c.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
 		c.ExtID = ext_id.String
 		c.Name = name.String
+		c.Mode = entity.CenterMode(mode.String)
 		centers = append(centers, &c)
 	}
 	return centers, nil

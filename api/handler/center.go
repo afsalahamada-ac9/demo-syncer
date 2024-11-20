@@ -23,6 +23,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// TODO:
+// 	1. Implement pagination for center listing/search
+// 	2. Check the values required in the response
+// 	3. JSON based search and formatting requires some work
+// 	4. ENUM can be optimized by storing integer value in the mapping
+// 	5. Support for location and geolocation
+
 func listCenters(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error reading centers"
