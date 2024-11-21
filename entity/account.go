@@ -11,14 +11,14 @@ import (
 )
 
 // Account type
-type AccountType int
+type AccountType string
 
 const (
-	AccountTeacher AccountType = iota
-	AccountAssistantTeacher
-	AccountOrganizer
-	AccountMember
-	AccountUser
+	AccountTeacher          AccountType = "teacher"
+	AccountAssistantTeacher AccountType = "assistant-teacher"
+	AccountOrganizer        AccountType = "organizer"
+	AccountMember           AccountType = "member"
+	AccountUser             AccountType = "user"
 	// Add new types here
 )
 

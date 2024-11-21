@@ -31,6 +31,7 @@ CREATE TYPE timezone_type AS ENUM ('EST'
 CREATE TYPE account_type AS ENUM ('teacher'
     , 'assistant-teacher'
     , 'organizer'
+    , 'student'
     , 'member'
     , 'user');
 CREATE TYPE center_mode AS ENUM ('in-person'

@@ -41,7 +41,7 @@ func (r *AccountPGSQL) Create(e *entity.Account) error {
 		e.LastName,
 		e.Phone,
 		e.Email,
-		int(e.Type),
+		e.Type,
 		time.Now().Format("2006-01-02"),
 	)
 	if err != nil {
@@ -65,7 +65,8 @@ func (r *AccountPGSQL) Get(username string) (*entity.Account, error) {
 		return nil, err
 	}
 	var t entity.Account
-	err = stmt.QueryRow(username).Scan(&t.ID, &t.ExtID, &t.Type, &t.CreatedAt)
+	var acct_type sql.NullString
+	err = stmt.QueryRow(username).Scan(&t.ID, &t.ExtID, &acct_type, &t.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -73,6 +74,7 @@ func (r *AccountPGSQL) Get(username string) (*entity.Account, error) {
 		return nil, err
 	}
 	t.Username = username
+	t.Type = entity.AccountType(acct_type.String)
 	return &t, nil
 }
 
@@ -81,7 +83,7 @@ func (r *AccountPGSQL) Get(username string) (*entity.Account, error) {
 func (r *AccountPGSQL) Update(e *entity.Account) error {
 	e.UpdatedAt = time.Now()
 	_, err := r.db.Exec(`UPDATE account SET username = $1, type = $2, updated_at = $3 WHERE id = $4;`,
-		e.Username, int(e.Type), e.UpdatedAt.Format("2006-01-02"), e.ID)
+		e.Username, e.Type, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
 	}
@@ -102,13 +104,15 @@ func (r *AccountPGSQL) List(tenantID entity.ID) ([]*entity.Account, error) {
 	}
 
 	var username sql.NullString
+	var acct_type sql.NullString
 	for rows.Next() {
 		var t entity.Account
-		err = rows.Scan(&t.ID, &t.ExtID, &username, &t.Type, &t.CreatedAt)
+		err = rows.Scan(&t.ID, &t.ExtID, &username, &acct_type, &t.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
 		t.Username = username.String
+		t.Type = entity.AccountType(acct_type.String)
 		accounts = append(accounts, &t)
 	}
 	return accounts, nil
