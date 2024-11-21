@@ -42,8 +42,8 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 		e.Notes,
 		e.Timezone,
 		e.Location, // TODO: to be converted into json
-		int(e.Status),
-		int(e.CType),
+		e.Status,
+		e.CType,
 		e.MaxAttendees,
 		e.NumAttendees,
 		e.IsAutoApprove,
@@ -71,9 +71,9 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	}
 	var c entity.Course
 	var ext_id sql.NullString
-	var name, notes, timezone, loc_json sql.NullString
+	var name, notes, timezone, loc_json, status, ctype sql.NullString
 	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &name, &notes, &timezone, &loc_json,
-		&c.Status, &c.CType, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+		&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -84,6 +84,8 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	c.Name = name.String
 	c.Notes = notes.String
 	c.Timezone = timezone.String
+	c.Status = entity.CourseStatus(status.String)
+	c.CType = entity.CourseType(ctype.String)
 	c.Location = entity.CourseLocation{} // TODO: Convert to JSON object: loc_json.String
 
 	return &c, nil
@@ -99,7 +101,7 @@ func (r *CoursePGSQL) Update(e *entity.Course) error {
 		status = $6, ctype = $7, max_attendees = $8, num_attendees = $9, is_auto_approve = $10,
 		updated_at = $11
 		WHERE id = $12;`,
-		e.CenterID, e.Name, e.Notes, e.Timezone, loc_json, int(e.Status), int(e.CType),
+		e.CenterID, e.Name, e.Notes, e.Timezone, loc_json, (e.Status), (e.CType),
 		e.MaxAttendees, e.NumAttendees, e.IsAutoApprove, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
@@ -126,12 +128,12 @@ func (r *CoursePGSQL) Search(tenantID entity.ID,
 	}
 
 	var ext_id sql.NullString
-	var name, notes, timezone, loc_json sql.NullString
+	var name, notes, timezone, loc_json, status, ctype sql.NullString
 
 	for rows.Next() {
 		var c entity.Course
 		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &notes, &timezone, &loc_json,
-			&c.Status, &c.CType, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+			&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -139,6 +141,8 @@ func (r *CoursePGSQL) Search(tenantID entity.ID,
 		c.Name = name.String
 		c.Notes = notes.String
 		c.Timezone = timezone.String
+		c.Status = entity.CourseStatus(status.String)
+		c.CType = entity.CourseType(ctype.String)
 		c.Location = entity.CourseLocation{} // TODO: Convert to JSON object: loc_json.String
 		courses = append(courses, &c)
 	}
@@ -163,11 +167,11 @@ func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
 	}
 
 	var ext_id sql.NullString
-	var name, notes, timezone, loc_json sql.NullString
+	var name, notes, timezone, loc_json, status, ctype sql.NullString
 	for rows.Next() {
 		var c entity.Course
 		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &notes, &timezone, &loc_json,
-			&c.Status, &c.CType, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+			&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -175,6 +179,8 @@ func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
 		c.Name = name.String
 		c.Notes = notes.String
 		c.Timezone = timezone.String
+		c.Status = entity.CourseStatus(status.String)
+		c.CType = entity.CourseType(ctype.String)
 		c.Location = entity.CourseLocation{} // TODO: Convert to JSON object: loc_json.String
 		courses = append(courses, &c)
 	}

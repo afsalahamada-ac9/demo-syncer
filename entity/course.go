@@ -11,40 +11,47 @@ import (
 )
 
 // Course type
-type CourseType int
+type CourseType string
 
 const (
-	CourseInPerson CourseType = iota
-	CourseOnline
+	CourseInPerson CourseType = "in-person"
+	CourseOnline   CourseType = "online"
 	// Add new types here
 )
 
 // Course status
-type CourseStatus int
+type CourseStatus string
 
 const (
-	CourseDraft CourseStatus = iota
-	CourseArchived
-	CourseOpen
-	CourseExpenseSubmitted
-	CourseExpenseDeclined
-	CourseClosed
-	CourseActive
-	CourseDeclined
-	CourseSubmitted
-	CourseCanceled
-	CoursedInactive
+	CourseDraft            CourseStatus = "draft"
+	CourseArchived         CourseStatus = "archived"
+	CourseOpen             CourseStatus = "open"
+	CourseExpenseSubmitted CourseStatus = "expense-submitted"
+	CourseExpenseDeclined  CourseStatus = "expense-declined"
+	CourseClosed           CourseStatus = "closed"
+	CourseActive           CourseStatus = "active"
+	CourseDeclined         CourseStatus = "declined"
+	CourseSubmitted        CourseStatus = "submitted"
+	CourseCanceled         CourseStatus = "canceled"
+	CoursedInactive        CourseStatus = "inactive"
 	// Add new types here
 )
 
 // Course Location
 type CourseLocation struct {
-	Street1 string
-	Street2 string
-	City    string
-	State   string
-	Zip     string
-	Country string
+	Street1 string `json:"street"`
+	Street2 string `json:"street_2"`
+	City    string `json:"city"`
+	State   string `json:"state"`
+	Zip     string `json:"zip"`
+	Country string `json:"country"`
+}
+
+// Course date/time
+type CourseDateTime struct {
+	Date      string `json:"date"`      // Only date in YYYY-MM-DD format
+	StartTime string `json:"startTime"` // Only time in HH:MM:SS format (SS is optional, default 00)
+	EndTime   string `json:"endTime"`
 }
 
 // Course data
@@ -146,7 +153,7 @@ func NewCourse(tenantID ID,
 
 // Validate validate course
 func (c *Course) Validate() error {
-	if c.ExtID == "" || c.Name == "" {
+	if c.Name == "" {
 		return ErrInvalidEntity
 	}
 	return nil

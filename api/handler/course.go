@@ -84,16 +84,20 @@ func createCourse(service course.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding course"
 		var input struct {
-			ExtID        string                `json:"extId"`
-			CenterID     entity.ID             `json:"centerId"`
-			Name         string                `json:"name"`
-			Notes        string                `json:"notes"`
-			Timezone     string                `json:"timezone"`
-			Location     entity.CourseLocation `json:"location"`
-			Status       entity.CourseStatus   `json:"status"`
-			CType        entity.CourseType     `json:"ctype"`
-			MaxAttendees int32                 `json:"maxAttendees"`
-			// TODO: Organizer, Teacher, Contact, Notify, etc
+			ExtID        string
+			Name         string                  `json:"name"`
+			CenterID     entity.ID               `json:"centerId"`
+			Organizer    []entity.ID             `json:"organizer"`
+			Contact      []entity.ID             `json:"contact"`
+			Teacher      []entity.ID             `json:"teacher"`
+			Notes        string                  `json:"notes"`
+			Status       entity.CourseStatus     `json:"status"`
+			MaxAttendees int32                   `json:"maxAttendees"`
+			Dates        []entity.CourseDateTime `json:"dates"`
+			Timezone     string                  `json:"timezone"`
+			Location     entity.CourseLocation   `json:"location"`
+			CType        entity.CourseType       `json:"ctype"` // TODO: This is actually delivery type/mode
+			Notify       []entity.ID             `json:"notify"`
 		}
 
 		tenant := r.Header.Get(common.HttpHeaderTenantID)

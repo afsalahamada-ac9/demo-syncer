@@ -41,7 +41,7 @@ func (s *Service) CreateCourse(tenantID entity.ID,
 		location, status, ctype,
 		maxAttendees, numAttendees, isAutoApprove)
 	if err != nil {
-		return c.ID, err
+		return entity.IDInvalid, err
 	}
 	return s.repo.Create(c)
 }

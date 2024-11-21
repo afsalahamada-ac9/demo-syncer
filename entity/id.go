@@ -12,6 +12,10 @@ import (
 	"sudhagar/glad/pkg/uid"
 )
 
+const (
+	IDInvalid = 0
+)
+
 // ID entity ID
 type ID uint64
 
