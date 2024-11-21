@@ -8,6 +8,7 @@ package repository
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"sudhagar/glad/entity"
@@ -27,6 +28,11 @@ func NewCoursePGSQL(db *sql.DB) *CoursePGSQL {
 
 // Create creates a course
 func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
+	locationJSON, err := json.Marshal(e.Location)
+	if err != nil {
+		return e.ID, err
+	}
+
 	stmt, err := r.db.Prepare(`
 		INSERT INTO course (id, tenant_id, ext_id, center_id, name, notes, timezone, location, status, ctype, max_attendees, num_attendees, is_auto_approve, created_at) 
 		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`)
@@ -41,7 +47,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 		e.Name,
 		e.Notes,
 		e.Timezone,
-		e.Location, // TODO: to be converted into json
+		string(locationJSON),
 		e.Status,
 		e.CType,
 		e.MaxAttendees,
@@ -63,7 +69,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
-		status, ctype, max_attendees, num_attendees, id_auto_approve, created_at
+		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE id = $1;`)
 	if err != nil {
@@ -72,21 +78,28 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	var c entity.Course
 	var ext_id sql.NullString
 	var name, notes, timezone, loc_json, status, ctype sql.NullString
-	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &name, &notes, &timezone, &loc_json,
-		&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &name, &notes, &timezone,
+		&loc_json, &status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
 	}
+
+	if loc_json.Valid && loc_json.String != "" {
+		err = json.Unmarshal([]byte(loc_json.String), &c.Location)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	c.ExtID = ext_id.String
 	c.Name = name.String
 	c.Notes = notes.String
 	c.Timezone = timezone.String
 	c.Status = entity.CourseStatus(status.String)
 	c.CType = entity.CourseType(ctype.String)
-	c.Location = entity.CourseLocation{} // TODO: Convert to JSON object: loc_json.String
 
 	return &c, nil
 }
@@ -94,14 +107,17 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 // Update updates a course
 func (r *CoursePGSQL) Update(e *entity.Course) error {
 	e.UpdatedAt = time.Now()
-	loc_json := "" // TODO: convert location to json_str
+	locationJSON, err := json.Marshal(e.Location)
+	if err != nil {
+		return err
+	}
 
-	_, err := r.db.Exec(`
+	_, err = r.db.Exec(`
 		UPDATE course SET center_id = $1, name = $2, notes = $3, timezone = $4, location = $5,
 		status = $6, ctype = $7, max_attendees = $8, num_attendees = $9, is_auto_approve = $10,
 		updated_at = $11
 		WHERE id = $12;`,
-		e.CenterID, e.Name, e.Notes, e.Timezone, loc_json, (e.Status), (e.CType),
+		e.CenterID, e.Name, e.Notes, e.Timezone, string(locationJSON), (e.Status), (e.CType),
 		e.MaxAttendees, e.NumAttendees, e.IsAutoApprove, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
@@ -115,7 +131,7 @@ func (r *CoursePGSQL) Search(tenantID entity.ID,
 ) ([]*entity.Course, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
-		status, ctype, max_attendees, num_attendees, id_auto_approve, created_at
+		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE tenant_id = $1 AND name LIKE $2;`)
 	if err != nil {
@@ -132,7 +148,7 @@ func (r *CoursePGSQL) Search(tenantID entity.ID,
 
 	for rows.Next() {
 		var c entity.Course
-		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &notes, &timezone, &loc_json,
+		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &name, &notes, &timezone, &loc_json,
 			&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 		if err != nil {
 			return nil, err
@@ -143,7 +159,14 @@ func (r *CoursePGSQL) Search(tenantID entity.ID,
 		c.Timezone = timezone.String
 		c.Status = entity.CourseStatus(status.String)
 		c.CType = entity.CourseType(ctype.String)
-		c.Location = entity.CourseLocation{} // TODO: Convert to JSON object: loc_json.String
+
+		if loc_json.Valid && loc_json.String != "" {
+			err = json.Unmarshal([]byte(loc_json.String), &c.Location)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		courses = append(courses, &c)
 	}
 
@@ -154,7 +177,7 @@ func (r *CoursePGSQL) Search(tenantID entity.ID,
 func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
-		status, ctype, max_attendees, num_attendees, id_auto_approve, created_at
+		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE tenant_id = $1;`)
 	if err != nil {
@@ -170,7 +193,7 @@ func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
 	var name, notes, timezone, loc_json, status, ctype sql.NullString
 	for rows.Next() {
 		var c entity.Course
-		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &name, &notes, &timezone, &loc_json,
+		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &name, &notes, &timezone, &loc_json,
 			&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 		if err != nil {
 			return nil, err
@@ -181,7 +204,14 @@ func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
 		c.Timezone = timezone.String
 		c.Status = entity.CourseStatus(status.String)
 		c.CType = entity.CourseType(ctype.String)
-		c.Location = entity.CourseLocation{} // TODO: Convert to JSON object: loc_json.String
+
+		if loc_json.Valid && loc_json.String != "" {
+			err = json.Unmarshal([]byte(loc_json.String), &c.Location)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		courses = append(courses, &c)
 	}
 	return courses, nil
