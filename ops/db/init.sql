@@ -11,6 +11,13 @@ CREATE DATABASE glad
 \c glad;
 
 -- Create custom ENUM types (add these before the table creations)
+CREATE TYPE product_visibility AS ENUM ('Public'
+    , 'Unlisted'
+    );
+CREATE TYPE product_format AS ENUM ('In Person'
+    , 'Online'
+    , 'Destination Retreats'
+    );
 CREATE TYPE course_status AS ENUM ('draft'
     , 'archived'
     , 'open' 
@@ -21,21 +28,25 @@ CREATE TYPE course_status AS ENUM ('draft'
     , 'declined'
     , 'submitted'
     , 'canceled'
-    , 'inactive');
+    , 'inactive'
+    );
 CREATE TYPE course_type AS ENUM ('in-person'
     , 'online');
 CREATE TYPE timezone_type AS ENUM ('EST'
     , 'CST'
     , 'MST'
-    , 'PST');
+    , 'PST'
+    );
 CREATE TYPE account_type AS ENUM ('teacher'
     , 'assistant-teacher'
     , 'organizer'
     , 'student'
     , 'member'
-    , 'user');
+    , 'user'
+    );
 CREATE TYPE center_mode AS ENUM ('in-person'
-    , 'online');
+    , 'online'
+    );
 
 -- Create tables
 CREATE TABLE IF NOT EXISTS tenant (
@@ -49,6 +60,51 @@ CREATE TABLE IF NOT EXISTS tenant (
 );
 CREATE INDEX idx_tenant_name ON tenant(name);
 CREATE INDEX idx_tenant_country ON tenant(country);
+
+-- PRODUCT entity
+-- Note: In Salesforce, this is called as "master". Need to check with PIM experts, but to me
+-- Base product (in Salesforce, it is Product) and Product sounds easier to understand.
+-- Other possible terminologies are primary product, variants, SKU, etc.
+CREATE TABLE IF NOT EXISTS product (
+    id SERIAL PRIMARY KEY,
+    -- Note: ext_id is salesforce id
+    ext_id VARCHAR(32) NOT NULL UNIQUE,
+    -- Note: Do not want to delete tenant if product exists
+    -- Tenant can be mapped to organization entity
+    tenant_id BIGINT NOT NULL REFERENCES tenant(id),
+
+    -- Name of the product
+    name VARCHAR(80) NOT NULL UNIQUE,
+
+    -- User visible name of the product
+    title VARCHAR(255) NOT NULL,
+
+    -- Note: Though it appears like a numeric identifier, alpha prefix is present in Salesforce for
+    -- this field. Thus, it's marked as a string. Technically, this can be shorter (32 or 16 bytes)
+    -- in length.
+    ctype VARCHAR(100) NOT NULL,
+    
+    -- This maps to 'Product' entity in Salesforce
+    base_product_id VARCHAR(32),
+
+    -- Duration (in days)
+    duration_days INTEGER,
+
+    -- Only Public products are made visible on the site. We can filter based on this.
+    visibility product_visibility,
+
+    -- maximum attendees
+    max_attendees INTEGER,
+    format product_format,
+
+    is_deleted BOOLEAN DEFAULT FALSE,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_product_ext_id ON product(ext_id);
+CREATE INDEX idx_product_tenant_id ON product(tenant_id);
+CREATE INDEX idx_product_name ON product(name);
 
 -- CENTER entity
 CREATE TABLE IF NOT EXISTS center (
