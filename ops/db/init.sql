@@ -156,6 +156,7 @@ CREATE TABLE IF NOT EXISTS course (
 
     -- Note: Do not want to delete tenant if course exists
     tenant_id BIGINT NOT NULL REFERENCES tenant(id),
+    product_id BIGINT NOT NULL REFERENCES product(id),
 
     name VARCHAR(128) NOT NULL,
     notes VARCHAR(1024), -- TODO: check the size of this column
@@ -173,6 +174,7 @@ CREATE TABLE IF NOT EXISTS course (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_course_tenant_id ON course(tenant_id);
+CREATE INDEX idx_course_product_id ON course(product_id);
 CREATE INDEX idx_course_ext_id ON course(ext_id);
 
 -- ACCOUNT entity
