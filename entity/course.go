@@ -38,6 +38,7 @@ const (
 )
 
 // Course Location
+// TODO: json tags must be moved to presenter
 type CourseLocation struct {
 	Street1 string `json:"street"`
 	Street2 string `json:"street_2"`
