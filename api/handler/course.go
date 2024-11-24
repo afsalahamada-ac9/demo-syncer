@@ -135,10 +135,10 @@ func createCourse(service course.UseCase) http.Handler {
 			return
 		}
 		toJ := &presenter.Course{
-			ID:       id,
-			ExtID:    input.ExtID,
-			Name:     input.Name,
-			TenantID: tenantID,
+			ID:    id,
+			ExtID: input.ExtID,
+			// Name:     input.Name,
+			// TenantID: tenantID,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
@@ -179,6 +179,7 @@ func getCourse(service course.UseCase) http.Handler {
 			ID:    data.ID,
 			ExtID: data.ExtID,
 			Name:  data.Name,
+			CType: data.CType,
 			// TODO: More fields to be added
 		}
 

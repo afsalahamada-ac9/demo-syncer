@@ -4,7 +4,7 @@
  * This code may not be used, copied, modified, or distributed without explicit permission.
  */
 
-package entity
+package product
 
 import "sudhagar/glad/entity"
 
@@ -13,7 +13,7 @@ type Reader interface {
 	Get(id entity.ID) (*entity.Product, error)
 	List(tenantID entity.ID, page, limit int) ([]*entity.Product, error)
 	Search(tenantID entity.ID, query string) ([]*entity.Product, error)
-	GetCount(tenantID entity.ID) ([]*entity.Product, error)
+	GetCount(tenantID entity.ID) (int, error)
 }
 
 // Writer defines write-only operations for products

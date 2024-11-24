@@ -34,7 +34,7 @@ func (s *Service) CreateCenter(tenantID entity.ID,
 	c, err := entity.NewCenter(tenantID, extID, name, entity.CenterLocation{},
 		entity.CenterGeoLocation{}, 0, mode, "", false)
 	if err != nil {
-		return c.ID, err
+		return entity.IDInvalid, err
 	}
 	return s.repo.Create(c)
 }
