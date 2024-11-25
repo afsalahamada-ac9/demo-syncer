@@ -13,16 +13,21 @@ externalDocs:
 servers:
   - url: https://api.abovecloud9.ai/api/v1 # placeholder
 tags:
+  - name: account
+    description: Operations about accounts
   - name: config
     description: System configuration such as timezones supported, etc
   - name: center
     description: Operations about centers
   - name: course
     description: Operations about courses
+  - name: product
+    description: Operations about products
   - name: user
     description: Operations about users, login, logout
+
 paths:
-  /course:
+  /courses:
     put:
       tags:
         - course
@@ -91,7 +96,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearer: []
-  /course/findByUser:
+  /courses/findByUser:
     get:
       tags:
         - course
@@ -103,12 +108,9 @@ paths:
           in: query
           description: Comma-separated list of user IDs
           required: true
+          explode: false
           schema:
-            type: array
-            items:
-              type: string
-            style: form
-            explode: false
+            type: string
       responses:
         '200':
           description: successful operation
@@ -138,31 +140,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /course/master:
-    get:
-      tags:
-        - course
-      summary: Finds course masters
-      description: Retrieves all course masters configured
-      operationId: findCourseMasters
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CourseMaster'
-        '404':
-          description: Course Master not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      security:
-        - bearer: []
-  /course/{courseId}:
+  /courses/{courseId}:
     get:
       tags:
         - course
@@ -220,7 +198,7 @@ paths:
       security:
         - bearer: []
 
-  /center:
+  /centers:
     get:
       tags:
         - center
@@ -267,17 +245,17 @@ paths:
                 items:
                   $ref: '#/components/schemas/Config'
 
-  /user:
+  /accounts:
     get:
       tags:
-        - user
-      summary: Finds user using search string
-      description: Retrives users that match the given search string. This should be paginated.
-      operationId: searchUsers
+        - account
+      summary: Finds user account using search string
+      description: Retrives user accounts that match the given search string. This should be paginated.
+      operationId: searchAccounts
       parameters:
         - name: q
           in: query
-          description: User names that need to be considered for filter
+          description: Account names that need to be considered for filter
           required: true
           schema:
             type: string
@@ -289,9 +267,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/Account'
         '404':
-          description: User not found
+          description: Account not found
           content:
             application/json:
               schema:
@@ -299,7 +277,7 @@ paths:
       security:
         - bearer: []
 
-  /user/login:
+  /users/login:
     get:
       tags:
         - user
@@ -338,7 +316,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /user/logout:
+  /users/logout:
     get:
       tags:
         - user
@@ -349,7 +327,7 @@ paths:
       responses:
         default:
           description: successful operation
-  /user/{username}:
+  /users/{username}:
     get:
       tags:
         - user
@@ -383,6 +361,105 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /products:
+    get:
+      tags:
+        - product
+      summary: List all products
+      description: Returns a list of all available products
+      operationId: listProducts
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer: []
+    
+    post:
+      tags:
+        - product
+      summary: Create a new product
+      description: Add a new product to the system
+      operationId: createProduct
+      requestBody:
+        description: Product object to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseProduct'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer: []
+
+  /products/{id}:
+    get:
+      tags:
+        - product
+      summary: Get product by ID
+      description: Returns a single product by its ID
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          description: ID of the product to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer: []
+
 components:
   schemas:
     DateArray:
@@ -401,10 +478,10 @@ components:
         date:
           type: string
           format: date
-        start_time:
+        startTime:
           type: string
           format: time
-        end_time:
+        endTime:
           type: string
           format: time
     Timezone:
@@ -428,19 +505,24 @@ components:
           example: 'co0198772'
         name:
           type: string
-        organizers:
+        organizer:
           type: array
           items:
-            $ref: '#/components/schemas/Account'
-        contacts:
-          description: Contact person for the course
+            type: integer
+            format: int64
+            example: 10000000
+        contact:
           type: array
           items:
-            $ref: '#/components/schemas/Account'  
-        teachers:
+            type: integer
+            format: int64
+            example: 10000000
+        teacher:
           type: array
           items:
-            $ref: '#/components/schemas/Account'
+            type: integer
+            format: int64
+            example: 10000000
         notes:
           type: string
           description: Course notes
@@ -470,8 +552,10 @@ components:
           $ref: '#/components/schemas/Timezone'
         location:
           $ref: '#/components/schemas/Address'
-        center:
-          $ref: '#/components/schemas/Center'
+        centerId:
+          type: integer
+          format: int64
+          example: 10000000
         type:
           type: string
           description: Course delivery type
@@ -482,7 +566,9 @@ components:
         notify:
           type: array
           items:
-            $ref: '#/components/schemas/Account'
+            type: integer
+            format: int64
+            example: 10000000
         numAttendees: # Cannot be more than maxAttendees
           type: integer
           format: int32
@@ -490,21 +576,11 @@ components:
         attendees:
           type: array
           items:
-            $ref: '#/components/schemas/User'
+            type: integer
+            format: int64
+            example: 10000000
         autoApprove:
           type: boolean
-    CourseMaster: # TBD: Need to understand how this is used and whether this can be managed internally
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 40000000
-        extId:
-          type: string
-          example: 'cm0198772'
-        name:
-          type: string
     Center: # TBD: Should we have CenterDetail and Center?
       type: object
       properties:
@@ -639,8 +715,64 @@ components:
               type: string
             details:
               type: string
-            trace_id:
+            traceId:
               type: string
+    BaseProduct:
+      type: object
+      required:
+        - name
+        - title
+        - ctype
+        - baseProductId
+      properties:
+        extId:
+          type: string
+          nullable: true
+          example: "Art of Living Course"
+        name:
+          type: string
+          example: "Art of Living Course - Part 1"
+        title:
+          type: string
+          example: "Art of Living Course Part 1 - In person"
+        ctype:
+          type: string
+          example: "12345"
+        baseProductId:
+          type: string
+          example: "54321"
+        durationDays:
+          type: number
+          format: int
+          example: 3
+        visibility:
+          type: string
+          nullable: true
+          enum: [Public, Unlisted, null]
+          example: "Public"
+        maxAttendees:
+          type: number
+          format: int
+          example: 100
+        format:
+          type: string
+          enum: [In Person, Online, Destination Retreats]
+          example: "In Person"
+        isDeleted:
+          type: boolean
+          example: 0
+    Product:
+      allOf: # Combines the BaseProduct and the inline model
+        - $ref: "#/components/schemas/BaseProduct"
+        - type: object
+          required:
+            - rootCause
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 10000000
+
   requestBodies:
     UserArray:
       description: List of user object

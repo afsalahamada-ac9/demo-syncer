@@ -20,6 +20,7 @@ import (
 	"sudhagar/glad/usecase/account"
 	"sudhagar/glad/usecase/center"
 	"sudhagar/glad/usecase/course"
+	"sudhagar/glad/usecase/product"
 	"sudhagar/glad/usecase/tenant"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -53,6 +54,9 @@ func main() {
 	}
 	defer db.Close()
 
+	productRepo := repository.NewProductPGSQL(db)
+	productService := product.NewService(productRepo)
+
 	centerRepo := repository.NewCenterPGSQL(db)
 	centerService := center.NewService(centerRepo)
 
@@ -64,14 +68,6 @@ func main() {
 
 	courseRepo := repository.NewCoursePGSQL(db)
 	courseService := course.NewService(courseRepo)
-
-	// contactRepo := repository.NewContactMySQL(db)
-	// contactService := contact.NewService(contactRepo)
-
-	// labelRepo := repository.NewLabelMySQL(db)
-	// labelService := label.NewService(labelRepo)
-
-	// labelerUseCase := labeler.NewService(contactService, labelService)
 
 	metricService, err := metric.NewPrometheusService()
 	if err != nil {
@@ -97,14 +93,8 @@ func main() {
 	// course
 	handler.MakeCourseHandlers(r, *n, courseService)
 
-	// contact
-	// handler.MakeContactHandlers(r, *n, contactService)
-
-	// // label
-	// handler.MakeLabelHandlers(r, *n, labelService)
-
-	// // labeler
-	// handler.MakeLabelerHandlers(r, *n, labelerUseCase)
+	// product
+	handler.MakeProductHandlers(r, *n, productService)
 
 	http.Handle("/", r)
 	http.Handle("/metrics", promhttp.Handler())

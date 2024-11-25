@@ -25,10 +25,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	aliceCenterID = 13790493495087075501
-)
-
 func Test_listCourses(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
