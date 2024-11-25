@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sudhagar/glad/entity"
+	infra "sudhagar/glad/infrastructure"
 )
 
 func ImportSFData(w http.ResponseWriter, r *http.Request) {
@@ -31,9 +32,13 @@ func ImportSFData(w http.ResponseWriter, r *http.Request) {
 		log.Println("error parsing the response", err)
 	}
 	var result []entity.SF
+	log.Println(string(parse))
 	err = json.Unmarshal(parse, &result)
 	if err != nil {
 		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(result)
+	for _, record := range result {
+		infra.DbModifier(record.Value)
+	}
 }
