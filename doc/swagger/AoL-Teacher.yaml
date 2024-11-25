@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: AoL Teacher Interface
   description: |-
-    This is an AoL Teacher API specification.
+    AoL Teacher API specification.
 
   contact:
     email: sudhagar@abovecloud9.ai
@@ -45,10 +45,22 @@ paths:
                 $ref: '#/components/schemas/Course'
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '405':
           description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearer: []
     post:
@@ -73,6 +85,10 @@ paths:
                 $ref: '#/components/schemas/Course'
         '405':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearer: []
   /course/findByUser:
@@ -80,29 +96,48 @@ paths:
       tags:
         - course
       summary: Finds courses by user identifier
-      description: Multiple user ids can be provided using comma separated strings
+      description: Returns courses associated with given user IDs
       operationId: findCoursesByUser
       parameters:
         - name: userID
           in: query
-          description: User ids that need to be considered for filter
+          description: Comma-separated list of user IDs
           required: true
-          explode: false
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+            style: form
+            explode: false
       responses:
         '200':
           description: successful operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Course'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Course not found
-      security:
-        - bearer: []
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /course/master:
     get:
       tags:
@@ -121,6 +156,10 @@ paths:
                   $ref: '#/components/schemas/CourseMaster'
         '404':
           description: Course Master not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearer: []
   /course/{courseId}:
@@ -146,8 +185,16 @@ paths:
                 $ref: '#/components/schemas/Course'
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearer: []
     delete:
@@ -166,6 +213,10 @@ paths:
       responses:
         '400':
           description: Invalid Course id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearer: []
 
@@ -187,6 +238,10 @@ paths:
                   $ref: '#/components/schemas/Center'
         '404':
           description: Center not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /config:
     get:
@@ -237,6 +292,10 @@ paths:
                   $ref: '#/components/schemas/User'
         '404':
           description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearer: []
 
@@ -275,6 +334,10 @@ paths:
                 type: string
         '400':
           description: Invalid username/password supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /user/logout:
     get:
       tags:
@@ -309,8 +372,16 @@ paths:
                 $ref: '#/components/schemas/User'
         '400':
           description: Invalid username supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -552,18 +623,24 @@ components:
         phone:
           type: string
           example: '********'
-    ApiResponse:
+    # HTTP status code indicates whether the request is a success or failure
+    # In case of failre, error object will contain the details. In case of success
+    # schema defined in the spec above will be returned.
+    ErrorResponse:
       type: object
       properties:
-        code:
-          type: integer
-          format: int32
-        description:
-          type: string
-        details:
-          type: string
-        traceId:
-          type: string
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+            message:
+              type: string
+            details:
+              type: string
+            trace_id:
+              type: string
   requestBodies:
     UserArray:
       description: List of user object
