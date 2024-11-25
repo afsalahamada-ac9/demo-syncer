@@ -72,11 +72,9 @@ func listCenters(service center.UseCase) http.Handler {
 		var toJ []*presenter.Center
 		for _, d := range data {
 			toJ = append(toJ, &presenter.Center{
-				ID:       d.ID,
-				TenantID: d.TenantID,
-				ExtID:    d.ExtID,
-				Name:     d.Name,
-				Mode:     d.Mode,
+				ID:   d.ID,
+				Name: d.Name,
+				Mode: d.Mode,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -123,11 +121,9 @@ func createCenter(service center.UseCase) http.Handler {
 			return
 		}
 		toJ := &presenter.Center{
-			ID:       id,
-			ExtID:    input.ExtID,
-			Name:     input.Name,
-			Mode:     input.Mode,
-			TenantID: tenantID,
+			ID:   id,
+			Name: input.Name,
+			Mode: input.Mode,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
@@ -165,10 +161,9 @@ func getCenter(service center.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Center{
-			ID:    data.ID,
-			ExtID: data.ExtID,
-			Name:  data.Name,
-			Mode:  data.Mode,
+			ID:   data.ID,
+			Name: data.Name,
+			Mode: data.Mode,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())
@@ -245,11 +240,9 @@ func updateCenter(service center.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Center{
-			ID:       input.ID,
-			TenantID: tenantID,
-			ExtID:    input.ExtID,
-			Name:     input.Name,
-			Mode:     input.Mode,
+			ID:   input.ID,
+			Name: input.Name,
+			Mode: input.Mode,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, tenant)

@@ -13,10 +13,7 @@ import (
 // Center data - TenantID is returned in the HTTP header
 // X-GLAD-TenantID
 type Center struct {
-	ID       entity.ID         `json:"id"`
-	TenantID entity.ID         `json:"tenantId"`
-	ExtID    string            `json:"extId"`
-	Name     string            `json:"name"`
-	Mode     entity.CenterMode `json:"mode"`
-	Content  string            `json:"content"`
+	ID   entity.ID         `json:"id"`
+	Name string            `json:"name"`
+	Mode entity.CenterMode `json:"mode"`
 }
