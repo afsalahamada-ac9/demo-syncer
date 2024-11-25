@@ -49,9 +49,9 @@ func (s *Service) CreateAccount(
 	return s.repo.Create(account)
 }
 
-// GetAccount get a account
-func (s *Service) GetAccount(username string) (*entity.Account, error) {
-	account, err := s.repo.Get(username)
+// GetAccount retrieves an account
+func (s *Service) GetAccount(id entity.ID) (*entity.Account, error) {
+	account, err := s.repo.Get(id)
 	if account == nil {
 		return nil, entity.ErrNotFound
 	}
@@ -62,7 +62,20 @@ func (s *Service) GetAccount(username string) (*entity.Account, error) {
 	return account, nil
 }
 
-// ListAccounts list account
+// GetAccountByName retrieves an account using username
+func (s *Service) GetAccountByName(tenantID entity.ID, username string) (*entity.Account, error) {
+	account, err := s.repo.GetByName(tenantID, username)
+	if account == nil {
+		return nil, entity.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return account, nil
+}
+
+// ListAccounts list accounts
 func (s *Service) ListAccounts(tenantID entity.ID) ([]*entity.Account, error) {
 	accounts, err := s.repo.List(tenantID)
 	if err != nil {
@@ -84,9 +97,9 @@ func (s *Service) UpdateAccount(t *entity.Account) error {
 	return s.repo.Update(t)
 }
 
-// DeleteAccount Delete a account
-func (s *Service) DeleteAccount(username string) error {
-	account, err := s.GetAccount(username)
+// DeleteAccount Deletes an account
+func (s *Service) DeleteAccount(id entity.ID) error {
+	account, err := s.GetAccount(id)
 	if account == nil {
 		return entity.ErrNotFound
 	}
@@ -94,7 +107,20 @@ func (s *Service) DeleteAccount(username string) error {
 		return err
 	}
 
-	return s.repo.Delete(username)
+	return s.repo.Delete(id)
+}
+
+// DeleteAccount Deletes an account using username
+func (s *Service) DeleteAccountByName(tenantID entity.ID, username string) error {
+	account, err := s.GetAccountByName(tenantID, username)
+	if account == nil {
+		return entity.ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	return s.repo.DeleteByName(tenantID, username)
 }
 
 // GetCount gets total account count
@@ -105,4 +131,16 @@ func (s *Service) GetCount(tenantID entity.ID) int {
 	}
 
 	return count
+}
+
+// SearchAccounts search accounts
+func (s *Service) SearchAccounts(tenantID entity.ID, query string) ([]*entity.Account, error) {
+	accounts, err := s.repo.Search(tenantID, query)
+	if err != nil {
+		return nil, err
+	}
+	if len(accounts) == 0 {
+		return nil, entity.ErrNotFound
+	}
+	return accounts, nil
 }

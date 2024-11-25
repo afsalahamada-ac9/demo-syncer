@@ -24,9 +24,9 @@ const (
 
 // Account data
 type Account struct {
-	ID ID
-	// TenantID ID
-	ExtID string
+	ID       ID
+	TenantID ID
+	ExtID    string
 
 	Username  string
 	FirstName string
@@ -52,6 +52,7 @@ func NewAccount(tenantID ID,
 ) (*Account, error) {
 	t := &Account{
 		ID:        NewID(),
+		TenantID:  tenantID,
 		ExtID:     extID,
 		Username:  username,
 		FirstName: first_name,

@@ -7,6 +7,7 @@
 package account
 
 import (
+	"strings"
 	"sudhagar/glad/entity"
 )
 
@@ -29,10 +30,21 @@ func (r *inmem) Create(e *entity.Account) error {
 	return nil
 }
 
-// Get an account
-func (r *inmem) Get(username string) (*entity.Account, error) {
+// Get retrieves an account
+func (r *inmem) Get(id entity.ID) (*entity.Account, error) {
 	for _, j := range r.m {
-		if j.Username == username {
+		if j.ID == id {
+			return r.m[j.ID], nil
+		}
+	}
+
+	return nil, entity.ErrNotFound
+}
+
+// Get retrieves an account using username
+func (r *inmem) GetByName(tenantID entity.ID, username string) (*entity.Account, error) {
+	for _, j := range r.m {
+		if j.Username == username && j.TenantID == tenantID {
 			return r.m[j.ID], nil
 		}
 	}
@@ -57,7 +69,7 @@ func (r *inmem) Update(e *entity.Account) error {
 	return nil
 }
 
-// List accounts
+// List list accounts
 func (r *inmem) List(tenantID entity.ID) ([]*entity.Account, error) {
 	var d []*entity.Account
 	for _, j := range r.m {
@@ -67,9 +79,21 @@ func (r *inmem) List(tenantID entity.ID) ([]*entity.Account, error) {
 	return d, nil
 }
 
-// Delete an account
-func (r *inmem) Delete(username string) error {
-	account, err := r.Get(username)
+// Delete deletes an account
+func (r *inmem) Delete(id entity.ID) error {
+	account, err := r.Get(id)
+	if err != nil {
+		return err
+	}
+
+	r.m[account.ID] = nil
+	delete(r.m, account.ID)
+	return nil
+}
+
+// DeleteByName deletes an account using username
+func (r *inmem) DeleteByName(tenantID entity.ID, username string) error {
+	account, err := r.GetByName(tenantID, username)
 	if err != nil {
 		return err
 	}
@@ -82,9 +106,22 @@ func (r *inmem) Delete(username string) error {
 // GetCount gets total accounts for a given tenant
 func (r *inmem) GetCount(tenantID entity.ID) (int, error) {
 	count := 0
-	for _, _ = range r.m {
-		// TenantID check removed
-		count++
+	for _, j := range r.m {
+		if j.TenantID == tenantID {
+			count++
+		}
 	}
 	return count, nil
+}
+
+// Search search accounts
+func (r *inmem) Search(tenantID entity.ID, query string) ([]*entity.Account, error) {
+	var d []*entity.Account
+	for _, j := range r.m {
+		if j.TenantID == tenantID &&
+			strings.Contains(strings.ToLower(j.Username), query) {
+			d = append(d, j)
+		}
+	}
+	return d, nil
 }

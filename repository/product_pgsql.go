@@ -183,7 +183,7 @@ func (r *ProductPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Prod
 	return r.scanRows(rows)
 }
 
-// Delete soft deletes a product
+// Delete deletes a product
 func (r *ProductPGSQL) Delete(id entity.ID) error {
 	res, err := r.db.Exec(`DELETE FROM product WHERE id = $1;`, id)
 	if err != nil {

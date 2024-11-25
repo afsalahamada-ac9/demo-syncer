@@ -130,18 +130,24 @@ func Test_getAccount(t *testing.T) {
 	assert.Equal(t, "/v1/accounts/{username}", path)
 	tmpl := &entity.Account{
 		ID:       accountIDPrimary,
+		TenantID: tenantAlice,
 		ExtID:    aliceExtID,
 		Username: accountUsernamePrimary,
 		Type:     entity.AccountTeacher,
 	}
 	service.EXPECT().
-		GetAccount(tmpl.Username).
+		GetAccountByName(tmpl.TenantID, tmpl.Username).
 		Return(tmpl, nil)
+
 	handler := getAccount(service)
 	r.Handle("/v1/accounts/{username}", handler)
 	ts := httptest.NewServer(r)
 	defer ts.Close()
-	res, err := http.Get(ts.URL + "/v1/accounts/" + tmpl.Username)
+
+	client := &http.Client{}
+	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/v1/accounts/"+tmpl.Username, nil)
+	req.Header.Set(common.HttpHeaderTenantID, tenantAlice.String())
+	res, err := client.Do(req)
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 
@@ -153,7 +159,7 @@ func Test_getAccount(t *testing.T) {
 	assert.Equal(t, tmpl.ID, d.ID)
 	assert.Equal(t, tmpl.Username, d.Username)
 	assert.Equal(t, tmpl.Type, d.Type)
-	// assert.Equal(t, tenantAlice.String(), res.Header.Get(common.HttpHeaderTenantID))
+	assert.Equal(t, tenantAlice.String(), res.Header.Get(common.HttpHeaderTenantID))
 }
 
 func Test_deleteAccount(t *testing.T) {
@@ -168,9 +174,10 @@ func Test_deleteAccount(t *testing.T) {
 	assert.Equal(t, "/v1/accounts/{username}", path)
 
 	username := accountUsernamePrimary
-	service.EXPECT().DeleteAccount(username).Return(nil)
+	service.EXPECT().DeleteAccountByName(tenantAlice, username).Return(nil)
 	handler := deleteAccount(service)
 	req, _ := http.NewRequest("DELETE", "/v1/accounts/"+username, nil)
+	req.Header.Set(common.HttpHeaderTenantID, tenantAlice.String())
 	r.Handle("/v1/accounts/{username}", handler).Methods("DELETE", "OPTIONS")
 	rr := httptest.NewRecorder()
 	r.ServeHTTP(rr, req)
@@ -189,9 +196,10 @@ func Test_deleteAccountNonExistent(t *testing.T) {
 	assert.Equal(t, "/v1/accounts/{username}", path)
 
 	username := accountUsernamePrimary
-	service.EXPECT().DeleteAccount(username).Return(entity.ErrNotFound)
+	service.EXPECT().DeleteAccountByName(tenantAlice, username).Return(entity.ErrNotFound)
 	handler := deleteAccount(service)
 	req, _ := http.NewRequest("DELETE", "/v1/accounts/"+username, nil)
+	req.Header.Set(common.HttpHeaderTenantID, tenantAlice.String())
 	r.Handle("/v1/accounts/{username}", handler).Methods("DELETE", "OPTIONS")
 	rr := httptest.NewRecorder()
 	r.ServeHTTP(rr, req)

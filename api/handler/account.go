@@ -29,6 +29,7 @@ func listAccounts(service account.UseCase) http.Handler {
 		var data []*entity.Account
 		var err error
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
+		search := r.URL.Query().Get("q")
 
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
@@ -37,7 +38,15 @@ func listAccounts(service account.UseCase) http.Handler {
 			return
 		}
 
-		data, err = service.ListAccounts(tenantID)
+		switch {
+		case search == "":
+			// TODO: Implement page and limit in the query and that should be bound
+			// by the values supported by the server
+			data, err = service.ListAccounts(tenantID)
+		default:
+			data, err = service.SearchAccounts(tenantID, search)
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -45,6 +54,8 @@ func listAccounts(service account.UseCase) http.Handler {
 			return
 		}
 
+		// TODO: For search, this count should be equal to the number of records
+		// that match the given search query
 		total := service.GetCount(tenantID)
 		w.Header().Set(httpHeaderTotalCount, strconv.Itoa(total))
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
@@ -53,7 +64,6 @@ func listAccounts(service account.UseCase) http.Handler {
 		for _, d := range data {
 			toJ = append(toJ, &presenter.Account{
 				ID:        d.ID,
-				ExtID:     d.ExtID,
 				Username:  d.Username,
 				FirstName: d.FirstName,
 				LastName:  d.LastName,
@@ -125,10 +135,19 @@ func listAccounts(service account.UseCase) http.Handler {
 
 func getAccount(service account.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tenant := r.Header.Get(common.HttpHeaderTenantID)
+
+		tenantID, err := entity.StringToID(tenant)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Unable to parse tenant id"))
+			return
+		}
+
 		errorMessage := "Error reading account"
 		vars := mux.Vars(r)
 		username := vars["username"]
-		data, err := service.GetAccount(username)
+		data, err := service.GetAccountByName(tenantID, username)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage + ":" + err.Error()))
@@ -143,7 +162,6 @@ func getAccount(service account.UseCase) http.Handler {
 
 		toJ := &presenter.Account{
 			ID:        data.ID,
-			ExtID:     data.ExtID,
 			Username:  data.Username,
 			FirstName: data.FirstName,
 			LastName:  data.LastName,
@@ -162,10 +180,19 @@ func getAccount(service account.UseCase) http.Handler {
 
 func deleteAccount(service account.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tenant := r.Header.Get(common.HttpHeaderTenantID)
+
+		tenantID, err := entity.StringToID(tenant)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Unable to parse tenant id"))
+			return
+		}
+
 		errorMessage := "Error removing account"
 		vars := mux.Vars(r)
 		username := vars["username"]
-		err := service.DeleteAccount(username)
+		err = service.DeleteAccountByName(tenantID, username)
 		switch err {
 		case nil:
 			w.WriteHeader(http.StatusOK)
@@ -216,7 +243,6 @@ func updateAccount(service account.UseCase) http.Handler {
 
 		toJ := &presenter.Account{
 			ID:        input.ID,
-			ExtID:     input.ExtID,
 			Username:  input.Username,
 			FirstName: input.FirstName,
 			LastName:  input.LastName,

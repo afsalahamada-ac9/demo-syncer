@@ -96,7 +96,7 @@ func Test_SearchAndFind(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		saved, err := m.GetAccount(account1.Username)
+		saved, err := m.GetAccountByName(tenantAlice, account1.Username)
 		assert.Nil(t, err)
 		assert.Equal(t, account1.ExtID, saved.ExtID)
 		assert.Equal(t, account1.Type, saved.Type)
@@ -121,14 +121,14 @@ func Test_Update(t *testing.T) {
 	)
 	assert.Nil(t, err)
 
-	saved, _ := m.GetAccount(account.Username)
+	saved, _ := m.GetAccountByName(tenantAlice, account.Username)
 	saved.Username = "starred"
 	assert.Nil(t, m.UpdateAccount(saved))
 
-	_, err = m.GetAccount(account.Username)
+	_, err = m.GetAccountByName(tenantAlice, account.Username)
 	assert.Equal(t, entity.ErrNotFound, err)
 
-	updated, err := m.GetAccount(saved.Username)
+	updated, err := m.GetAccountByName(tenantAlice, saved.Username)
 	assert.Nil(t, err)
 	assert.Equal(t, "starred", updated.Username)
 }
@@ -153,12 +153,12 @@ func TestDelete(t *testing.T) {
 		account2.Type,
 	)
 
-	err := m.DeleteAccount(account1.Username)
+	err := m.DeleteAccountByName(tenantAlice, account1.Username)
 	assert.Equal(t, entity.ErrNotFound, err)
 
-	err = m.DeleteAccount(account2.Username)
+	err = m.DeleteAccountByName(tenantAlice, account2.Username)
 	assert.Nil(t, err)
 
-	_, err = m.GetAccount(account2.Username)
+	_, err = m.GetAccountByName(tenantAlice, account2.Username)
 	assert.Equal(t, entity.ErrNotFound, err)
 }

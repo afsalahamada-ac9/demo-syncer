@@ -12,8 +12,10 @@ import (
 
 // Reader interface
 type Reader interface {
-	Get(username string) (*entity.Account, error)
+	GetByName(tenantID entity.ID, username string) (*entity.Account, error)
+	Get(id entity.ID) (*entity.Account, error)
 	List(tenantID entity.ID) ([]*entity.Account, error)
+	Search(tenantID entity.ID, query string) ([]*entity.Account, error)
 	GetCount(tenantId entity.ID) (int, error)
 }
 
@@ -21,7 +23,8 @@ type Reader interface {
 type Writer interface {
 	Create(e *entity.Account) error
 	Update(e *entity.Account) error
-	Delete(username string) error
+	Delete(id entity.ID) error
+	DeleteByName(tenantID entity.ID, username string) error
 }
 
 // Repository interface
@@ -41,9 +44,12 @@ type UseCase interface {
 		phone string,
 		email string,
 		at entity.AccountType) error
-	GetAccount(username string) (*entity.Account, error)
+	GetAccount(id entity.ID) (*entity.Account, error)
+	GetAccountByName(tenantID entity.ID, username string) (*entity.Account, error)
 	ListAccounts(tenantID entity.ID) ([]*entity.Account, error)
 	UpdateAccount(e *entity.Account) error
-	DeleteAccount(username string) error
+	DeleteAccount(id entity.ID) error
+	DeleteAccountByName(tenantID entity.ID, username string) error
 	GetCount(tenantId entity.ID) int
+	SearchAccounts(tenantID entity.ID, query string) ([]*entity.Account, error)
 }

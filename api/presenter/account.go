@@ -13,13 +13,11 @@ import (
 // Account data - TenantID is returned in the HTTP header (may be not, as account is global?)
 // X-GLAD-TenantID
 type Account struct {
-	ID entity.ID `json:"id"`
-	// TenantID entity.ID            `json:"tenantId"`
-	ExtID     string             `json:"extId"`
+	ID        entity.ID          `json:"id"`
 	Username  string             `json:"username"`
-	FirstName string             `json:"firstName"`
-	LastName  string             `json:"lastName"`
-	Phone     string             `json:"phone"`
-	Email     string             `json:"email"`
+	FirstName string             `json:"firstName,omitempty"`
+	LastName  string             `json:"lastName,omitempty"`
+	Phone     string             `json:"phone,omitempty"`
+	Email     string             `json:"email,omitempty"`
 	Type      entity.AccountType `json:"type"`
 }
