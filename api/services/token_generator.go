@@ -25,7 +25,7 @@ func GenerateTokens() (string, error) {
 		log.Println("error creating the request", err)
 		return "", err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded") // this format encodes data as key-value pairs similar to query parameters in a url
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
