@@ -29,7 +29,7 @@ func listCourses(service course.UseCase) http.Handler {
 		var data []*entity.Course
 		var err error
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
-		search := r.URL.Query().Get("search")
+		search := r.URL.Query().Get(httpParamQuery)
 
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {

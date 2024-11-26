@@ -75,7 +75,7 @@ func Test_listCenters_NotFound(t *testing.T) {
 
 	client := &http.Client{}
 	req, _ := http.NewRequest(http.MethodGet,
-		ts.URL+"?search=non-existent",
+		ts.URL+"?q=non-existent",
 		nil)
 	req.Header.Set(common.HttpHeaderTenantID, tenantAlice.String())
 	res, err := client.Do(req)
@@ -101,7 +101,7 @@ func Test_listCenters_Search(t *testing.T) {
 
 	client := &http.Client{}
 	req, _ := http.NewRequest(http.MethodGet,
-		ts.URL+"?search=default",
+		ts.URL+"?q=default",
 		nil)
 	req.Header.Set(common.HttpHeaderTenantID, tenantAlice.String())
 	res, err := client.Do(req)

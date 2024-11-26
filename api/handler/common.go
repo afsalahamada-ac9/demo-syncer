@@ -7,10 +7,11 @@
 package handler
 
 const (
-	apiQueryParamKeyIndex string = "index"
-	apiQueryParamKeyLimit string = "limit"
-	httpHeaderTotalCount         = "X-Total-Count"
-	httpParamQuery               = "q"
-	httpParamPage                = "page"
-	httpParamLimit               = "limit"
+	apiQueryParamKeyIndex  string = "index"
+	apiQueryParamKeyLimit  string = "limit"
+	httpHeaderTotalCount          = "X-Total-Count"
+	httpParamQuery                = "q"
+	httpParamPage                 = "page"
+	httpParamLimit                = "limit"
+	maxHttpPaginationLimit        = 50
 )

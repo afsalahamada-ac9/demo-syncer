@@ -29,7 +29,7 @@ func listAccounts(service account.UseCase) http.Handler {
 		var data []*entity.Account
 		var err error
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
-		search := r.URL.Query().Get("q")
+		search := r.URL.Query().Get(httpParamQuery)
 
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {

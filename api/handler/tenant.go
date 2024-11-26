@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// TODO: Add pagination support
 func listTenants(service tenant.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error reading tenants"

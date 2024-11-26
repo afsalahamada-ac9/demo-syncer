@@ -24,12 +24,10 @@ import (
 )
 
 // TODO:
-// 	1. Implement pagination for center listing/search
-// 	2. Check the values required in the response: Name and Center Name (both are needed) Need export from SF with Center Name
-// 	3. JSON based search and formatting requires some work
-// 	4. ENUM can be optimized by storing integer value in the mapping
-// 	5. Support for location and geolocation
-//  6. Add is enabled to the DB and get it exported from SF
+// 	- Implement pagination for center listing/search
+// 	- JSON based search and formatting requires some work
+// 	- ENUM can be optimized by storing integer value in the mapping
+// 	- Support for location and geolocation
 
 func listCenters(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +35,7 @@ func listCenters(service center.UseCase) http.Handler {
 		var data []*entity.Center
 		var err error
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
-		search := r.URL.Query().Get("search")
+		search := r.URL.Query().Get(httpParamQuery)
 
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
