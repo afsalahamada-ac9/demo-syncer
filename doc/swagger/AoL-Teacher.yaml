@@ -591,6 +591,9 @@ components:
         extId:
           type: string
           example: 'ce0198772'
+        extName: # Note: Should avoid using this in the future. Let's start with deprecated
+          type: string
+          example: 'L-000001'
         name:
           type: string
           example: 'Happiness Center'

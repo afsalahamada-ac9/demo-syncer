@@ -25,10 +25,11 @@ import (
 
 // TODO:
 // 	1. Implement pagination for center listing/search
-// 	2. Check the values required in the response
+// 	2. Check the values required in the response: Name and Center Name (both are needed) Need export from SF with Center Name
 // 	3. JSON based search and formatting requires some work
 // 	4. ENUM can be optimized by storing integer value in the mapping
 // 	5. Support for location and geolocation
+//  6. Add is enabled to the DB and get it exported from SF
 
 func listCenters(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,9 +73,10 @@ func listCenters(service center.UseCase) http.Handler {
 		var toJ []*presenter.Center
 		for _, d := range data {
 			toJ = append(toJ, &presenter.Center{
-				ID:   d.ID,
-				Name: d.Name,
-				Mode: d.Mode,
+				ID:      d.ID,
+				Name:    d.Name,
+				Mode:    d.Mode,
+				ExtName: d.ExtName,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -89,9 +91,11 @@ func createCenter(service center.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding center"
 		var input struct {
-			ExtID string            `json:"extId"`
-			Name  string            `json:"name"`
-			Mode  entity.CenterMode `json:"mode"`
+			ExtID     string            `json:"extId"`
+			ExtName   string            `json:"extName"`
+			Name      string            `json:"name"`
+			Mode      entity.CenterMode `json:"mode"`
+			IsEnabled bool              `json:"isEnabled"`
 		}
 
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
@@ -113,8 +117,10 @@ func createCenter(service center.UseCase) http.Handler {
 		id, err := service.CreateCenter(
 			tenantID,
 			input.ExtID,
+			input.ExtName,
 			input.Name,
-			input.Mode)
+			input.Mode,
+			input.IsEnabled)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage + ":" + err.Error()))
@@ -161,9 +167,10 @@ func getCenter(service center.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Center{
-			ID:   data.ID,
-			Name: data.Name,
-			Mode: data.Mode,
+			ID:      data.ID,
+			Name:    data.Name,
+			Mode:    data.Mode,
+			ExtName: data.ExtName,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())

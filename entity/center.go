@@ -41,6 +41,7 @@ type Center struct {
 	TenantID ID
 	ExtID    string
 
+	ExtName     string
 	Name        string
 	Location    CenterLocation
 	GeoLocation CenterGeoLocation
@@ -50,6 +51,7 @@ type Center struct {
 
 	WebPage          string
 	IsNationalCenter bool
+	IsEnabled        bool
 
 	// meta data
 	CreatedAt time.Time
@@ -111,17 +113,21 @@ func (g *CenterGeoLocation) Validate() error {
 // NewCenter create a new center
 func NewCenter(tenantID ID,
 	extID string,
+	extName string,
 	name string,
 	location CenterLocation,
 	geoLocation CenterGeoLocation,
 	capacity int32,
 	mode CenterMode,
 	webPage string,
-	isNationalCenter bool) (*Center, error) {
+	isNationalCenter bool,
+	isEnabled bool,
+) (*Center, error) {
 	c := &Center{
 		ID:               NewID(),
 		TenantID:         tenantID,
 		ExtID:            extID,
+		ExtName:          extName,
 		Name:             name,
 		Location:         location,
 		GeoLocation:      geoLocation,
@@ -129,6 +135,7 @@ func NewCenter(tenantID ID,
 		Mode:             mode,
 		WebPage:          webPage,
 		IsNationalCenter: isNationalCenter,
+		IsEnabled:        isEnabled,
 		CreatedAt:        time.Now(),
 	}
 	err := c.Validate()

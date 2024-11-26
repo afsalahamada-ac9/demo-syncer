@@ -28,11 +28,13 @@ func NewService(r Repository) *Service {
 // CreateCenter creates a center
 func (s *Service) CreateCenter(tenantID entity.ID,
 	extID,
+	extName,
 	name string,
 	mode entity.CenterMode,
+	isEnabled bool,
 ) (entity.ID, error) {
-	c, err := entity.NewCenter(tenantID, extID, name, entity.CenterLocation{},
-		entity.CenterGeoLocation{}, 0, mode, "", false)
+	c, err := entity.NewCenter(tenantID, extID, extName, name, entity.CenterLocation{},
+		entity.CenterGeoLocation{}, 0, mode, "", false, isEnabled)
 	if err != nil {
 		return entity.IDInvalid, err
 	}

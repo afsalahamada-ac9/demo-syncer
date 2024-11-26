@@ -126,6 +126,8 @@ func Test_createCenter(t *testing.T) {
 		CreateCenter(gomock.Any(),
 			gomock.Any(),
 			gomock.Any(),
+			gomock.Any(),
+			gomock.Any(),
 			gomock.Any()).
 		Return(id, nil)
 	h := createCenter(service)

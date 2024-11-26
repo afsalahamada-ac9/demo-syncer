@@ -44,6 +44,7 @@ func listAccounts(service account.UseCase) http.Handler {
 			// by the values supported by the server
 			data, err = service.ListAccounts(tenantID)
 		default:
+			// TODO: Do we need to filter/search by type? I think so.
 			data, err = service.SearchAccounts(tenantID, search)
 		}
 

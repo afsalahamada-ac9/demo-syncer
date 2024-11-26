@@ -36,7 +36,7 @@ type UseCase interface {
 	GetCenter(id entity.ID) (*entity.Center, error)
 	SearchCenters(tenantID entity.ID, query string) ([]*entity.Center, error)
 	ListCenters(tenantID entity.ID) ([]*entity.Center, error)
-	CreateCenter(tenantID entity.ID, extID, name string, mode entity.CenterMode) (entity.ID, error)
+	CreateCenter(tenantID entity.ID, extID, extName, name string, mode entity.CenterMode, isEnabled bool) (entity.ID, error)
 	UpdateCenter(e *entity.Center) error
 	DeleteCenter(id entity.ID) error
 	GetCount(id entity.ID) int

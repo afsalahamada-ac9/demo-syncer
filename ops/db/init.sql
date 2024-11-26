@@ -114,8 +114,12 @@ CREATE TABLE IF NOT EXISTS center (
     -- Note: Do not want to delete tenant if center exists
     tenant_id BIGINT NOT NULL REFERENCES tenant(id),
 
-    -- Note: 'name' is needed in SalesForce. Set as 'L-<id>'
-    center_name VARCHAR(80) NOT NULL,
+    -- Note: 'ext_name' is needed in SalesForce. Formula field - Auto generated in SF.
+    -- Note: Currently this field is used in typeahead. So, keeping this for now.
+    ext_name VARCHAR(80) NOT NULL UNIQUE,
+
+    -- Note: This is the human readable name for the center
+    name VARCHAR(255),
     
     -- Note: location format: {"street_1": ..., "street_2": ..., "city": ..., "state": ..., "zip": ..., "country": ...}
     -- When multitenancy is introduced, then country can be removed.
@@ -128,12 +132,14 @@ CREATE TABLE IF NOT EXISTS center (
     mode center_mode DEFAULT 'in-person',
     webpage VARCHAR(255),
     is_national_center BOOLEAN DEFAULT FALSE,
+    is_enabled BOOLEAN,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_center_ext_id ON center(ext_id);
 CREATE INDEX idx_center_tenant_id ON center(tenant_id);
+CREATE INDEX idx_center_name ON center(name);
 CREATE INDEX idx_center_center_name ON center(center_name);
 
 CREATE TABLE IF NOT EXISTS center_contact (
