@@ -13,7 +13,7 @@ import (
 func ExportRDSData(w http.ResponseWriter, r *http.Request) {
 	sendToSf, err := ioutil.ReadAll(r.Body)
 	sf_api := "https://aol-dev--awspoc.sandbox.my.salesforce.com/services/apexrest/handleAolEvent"
-	jsonData, err := json.Marshal(sendToSf)
+	jsonData, err := json.Marshal(sendToSf) // since jsonData is of type []byte, we've to parse it as *bytes.Buffer which implements io.Reader(which is the expected type of the body)
 	//log.Println(string(sendToSf), string(jsonData))
 	if err != nil {
 		log.Println("there is an error in the input file", err)

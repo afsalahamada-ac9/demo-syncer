@@ -7,6 +7,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	api "sudhagar/glad/api/endpoints"
@@ -18,5 +19,8 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/sync/import", api.ImportSFData)
 	router.HandleFunc("/sync/export", api.ExportRDSData)
-	log.Println(http.ListenAndServe(":4010", router))
+	PORT := 4010
+	url := fmt.Sprintf(":%d", PORT)
+	log.Println("listening at port", PORT)
+	log.Println(http.ListenAndServe(url, router))
 }
