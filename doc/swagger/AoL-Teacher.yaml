@@ -117,17 +117,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "success"
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
         '400':
           description: Bad request
           content:
@@ -374,12 +366,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
         '500':
           description: Internal server error
           content:
@@ -500,9 +489,6 @@ components:
           type: integer
           format: int64
           example: 10000000
-        extId:
-          type: string
-          example: 'co0198772'
         name:
           type: string
         organizer:
@@ -588,9 +574,6 @@ components:
           type: integer
           format: int64
           example: 20000000
-        extId:
-          type: string
-          example: 'ce0198772'
         extName: # Note: Should avoid using this in the future. Let's start with deprecated
           type: string
           example: 'L-000001'
@@ -666,9 +649,6 @@ components:
           type: integer
           format: int64
           example: 30000000
-        extId:
-          type: string
-          example: 'ac1977'
         firstName:
           type: string
           example: John
@@ -728,10 +708,6 @@ components:
         - ctype
         - baseProductId
       properties:
-        extId:
-          type: string
-          nullable: true
-          example: "Art of Living Course"
         name:
           type: string
           example: "Art of Living Course - Part 1"

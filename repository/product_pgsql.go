@@ -127,18 +127,35 @@ func (r *ProductPGSQL) Update(e *entity.Product) error {
 }
 
 // Search searches products
-func (r *ProductPGSQL) Search(tenantID entity.ID, query string) ([]*entity.Product, error) {
-	stmt, err := r.db.Prepare(`
+func (r *ProductPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error) {
+	query := `
 		SELECT id, tenant_id, ext_id, name, title, ctype, base_product_id,
 			duration_days, visibility, max_attendees, format, is_deleted, created_at
 		FROM product 
 		WHERE tenant_id = $1 AND (LOWER(name) LIKE LOWER($2) OR LOWER(title) LIKE LOWER($2))
-		AND is_deleted = false;`)
+		AND is_deleted = false`
+
+	// Add pagination if specified
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` LIMIT $3 OFFSET $4;`
+		stmt, err := r.db.Prepare(query)
+		if err != nil {
+			return nil, err
+		}
+		rows, err := stmt.Query(tenantID, "%"+q+"%", limit, offset)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return r.scanRows(rows)
+	}
+
+	stmt, err := r.db.Prepare(query + ";")
 	if err != nil {
 		return nil, err
 	}
-
-	rows, err := stmt.Query(tenantID, "%"+query+"%")
+	rows, err := stmt.Query(tenantID, "%"+q+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -153,12 +170,12 @@ func (r *ProductPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Prod
 		SELECT id, tenant_id, ext_id, name, title, ctype, base_product_id,
 			duration_days, visibility, max_attendees, format, is_deleted, created_at
 		FROM product 
-		WHERE tenant_id = $1 AND is_deleted = false;`
+		WHERE tenant_id = $1 AND is_deleted = false`
 
 	// Add pagination if specified
 	if page > 0 && limit > 0 {
 		offset := (page - 1) * limit
-		query += ` LIMIT $2 OFFSET $3`
+		query += ` LIMIT $2 OFFSET $3;`
 		stmt, err := r.db.Prepare(query)
 		if err != nil {
 			return nil, err
@@ -171,7 +188,7 @@ func (r *ProductPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Prod
 		return r.scanRows(rows)
 	}
 
-	stmt, err := r.db.Prepare(query)
+	stmt, err := r.db.Prepare(query + ";")
 	if err != nil {
 		return nil, err
 	}

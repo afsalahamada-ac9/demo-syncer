@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TODO: Add test cases to test page and limit functionality
 func Test_listProducts(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
@@ -50,7 +51,7 @@ func Test_listProducts(t *testing.T) {
 	}
 	service.EXPECT().GetCount(tmpl.TenantID).Return(1)
 	service.EXPECT().
-		ListProducts(tmpl.TenantID).
+		ListProducts(tmpl.TenantID, gomock.Any(), gomock.Any()).
 		Return([]*entity.Product{tmpl}, nil)
 
 	ts := httptest.NewServer(listProducts(service))
@@ -73,12 +74,12 @@ func Test_listProducts_NotFound(t *testing.T) {
 	tenantID := tenantAlice
 	service.EXPECT().GetCount(tenantID).Return(0)
 	service.EXPECT().
-		SearchProducts(tenantID, "non-existent").
+		SearchProducts(tenantID, "non-existent", gomock.Any(), gomock.Any()).
 		Return(nil, entity.ErrNotFound)
 
 	client := &http.Client{}
 	req, _ := http.NewRequest(http.MethodGet,
-		ts.URL+"?search=non-existent",
+		ts.URL+"?q=non-existent",
 		nil)
 	req.Header.Set(common.HttpHeaderTenantID, tenantAlice.String())
 	res, err := client.Do(req)
@@ -103,14 +104,14 @@ func Test_listProducts_Search(t *testing.T) {
 	}
 	service.EXPECT().GetCount(tmpl.TenantID).Return(1)
 	service.EXPECT().
-		SearchProducts(tmpl.TenantID, "product").
+		SearchProducts(tmpl.TenantID, "product", gomock.Any(), gomock.Any()).
 		Return([]*entity.Product{tmpl}, nil)
 	ts := httptest.NewServer(listProducts(service))
 	defer ts.Close()
 
 	client := &http.Client{}
 	req, _ := http.NewRequest(http.MethodGet,
-		ts.URL+"?search=product",
+		ts.URL+"?q=product",
 		nil)
 	req.Header.Set(common.HttpHeaderTenantID, tenantAlice.String())
 	res, err := client.Do(req)

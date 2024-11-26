@@ -80,18 +80,18 @@ func (mr *MockReaderMockRecorder) List(tenantID, page, limit interface{}) *gomoc
 }
 
 // Search mocks base method.
-func (m *MockReader) Search(tenantID entity.ID, query string) ([]*entity.Product, error) {
+func (m *MockReader) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Search", tenantID, query)
+	ret := m.ctrl.Call(m, "Search", tenantID, q, page, limit)
 	ret0, _ := ret[0].([]*entity.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Search indicates an expected call of Search.
-func (mr *MockReaderMockRecorder) Search(tenantID, query interface{}) *gomock.Call {
+func (mr *MockReaderMockRecorder) Search(tenantID, q, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockReader)(nil).Search), tenantID, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockReader)(nil).Search), tenantID, q, page, limit)
 }
 
 // MockWriter is a mock of Writer interface.
@@ -258,18 +258,18 @@ func (mr *MockRepositoryMockRecorder) List(tenantID, page, limit interface{}) *g
 }
 
 // Search mocks base method.
-func (m *MockRepository) Search(tenantID entity.ID, query string) ([]*entity.Product, error) {
+func (m *MockRepository) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Search", tenantID, query)
+	ret := m.ctrl.Call(m, "Search", tenantID, q, page, limit)
 	ret0, _ := ret[0].([]*entity.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Search indicates an expected call of Search.
-func (mr *MockRepositoryMockRecorder) Search(tenantID, query interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Search(tenantID, q, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockRepository)(nil).Search), tenantID, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockRepository)(nil).Search), tenantID, q, page, limit)
 }
 
 // Update mocks base method.
@@ -368,33 +368,33 @@ func (mr *MockUseCaseMockRecorder) GetProduct(id interface{}) *gomock.Call {
 }
 
 // ListProducts mocks base method.
-func (m *MockUseCase) ListProducts(tenantID entity.ID) ([]*entity.Product, error) {
+func (m *MockUseCase) ListProducts(tenantID entity.ID, page, limit int) ([]*entity.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListProducts", tenantID)
+	ret := m.ctrl.Call(m, "ListProducts", tenantID, page, limit)
 	ret0, _ := ret[0].([]*entity.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListProducts indicates an expected call of ListProducts.
-func (mr *MockUseCaseMockRecorder) ListProducts(tenantID interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) ListProducts(tenantID, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListProducts", reflect.TypeOf((*MockUseCase)(nil).ListProducts), tenantID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListProducts", reflect.TypeOf((*MockUseCase)(nil).ListProducts), tenantID, page, limit)
 }
 
 // SearchProducts mocks base method.
-func (m *MockUseCase) SearchProducts(tenantID entity.ID, query string) ([]*entity.Product, error) {
+func (m *MockUseCase) SearchProducts(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchProducts", tenantID, query)
+	ret := m.ctrl.Call(m, "SearchProducts", tenantID, q, page, limit)
 	ret0, _ := ret[0].([]*entity.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SearchProducts indicates an expected call of SearchProducts.
-func (mr *MockUseCaseMockRecorder) SearchProducts(tenantID, query interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) SearchProducts(tenantID, q, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchProducts", reflect.TypeOf((*MockUseCase)(nil).SearchProducts), tenantID, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchProducts", reflect.TypeOf((*MockUseCase)(nil).SearchProducts), tenantID, q, page, limit)
 }
 
 // UpdateProduct mocks base method.

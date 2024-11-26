@@ -104,7 +104,7 @@ func (r *inmem) Delete(id entity.ID) error {
 }
 
 // Search searches for products in memory
-func (r *inmem) Search(tenantID entity.ID, query string) ([]*entity.Product, error) {
+func (r *inmem) Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Product, error) {
 	r.mut.RLock()
 	defer r.mut.RUnlock()
 
@@ -117,6 +117,20 @@ func (r *inmem) Search(tenantID entity.ID, query string) ([]*entity.Product, err
 			products = append(products, product)
 		}
 	}
+
+	// Handle pagination if needed
+	if page > 0 && limit > 0 {
+		start := (page - 1) * limit
+		end := start + limit
+		if start > len(products) {
+			return []*entity.Product{}, nil
+		}
+		if end > len(products) {
+			end = len(products)
+		}
+		return products[start:end], nil
+	}
+
 	return products, nil
 }
 

@@ -52,6 +52,7 @@ func Test_CreateProduct(t *testing.T) {
 	assert.False(t, tmpl.CreatedAt.IsZero())
 }
 
+// TODO: Add test cases for page and limit
 func Test_SearchAndFind(t *testing.T) {
 	repo := NewInmem()
 	m := NewService(repo)
@@ -90,24 +91,24 @@ func Test_SearchAndFind(t *testing.T) {
 	)
 
 	t.Run("search", func(t *testing.T) {
-		res, err := m.SearchProducts(tmpl1.TenantID, "default1")
+		res, err := m.SearchProducts(tmpl1.TenantID, "default1", 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(res))
 		assert.Equal(t, tmpl1.ExtID, res[0].ExtID)
 		assert.Equal(t, tmpl1.Format, res[0].Format)
 
 		// 'default' query value matches both product names
-		res, err = m.SearchProducts(tmpl1.TenantID, "default")
+		res, err = m.SearchProducts(tmpl1.TenantID, "default", 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(res))
 
-		res, err = m.SearchProducts(tmpl1.TenantID, "non-existent")
+		res, err = m.SearchProducts(tmpl1.TenantID, "non-existent", 0, 0)
 		assert.Equal(t, entity.ErrNotFound, err)
 		assert.Nil(t, res)
 	})
 
 	t.Run("list all", func(t *testing.T) {
-		all, err := m.ListProducts(tmpl1.TenantID)
+		all, err := m.ListProducts(tmpl1.TenantID, 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(all))
 	})

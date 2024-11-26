@@ -64,8 +64,8 @@ func (s *Service) GetProduct(id entity.ID) (*entity.Product, error) {
 }
 
 // SearchProducts search product
-func (s *Service) SearchProducts(tenantID entity.ID, query string) ([]*entity.Product, error) {
-	products, err := s.repo.Search(tenantID, strings.ToLower(query))
+func (s *Service) SearchProducts(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error) {
+	products, err := s.repo.Search(tenantID, strings.ToLower(q), page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -76,8 +76,8 @@ func (s *Service) SearchProducts(tenantID entity.ID, query string) ([]*entity.Pr
 }
 
 // ListProducts list products
-func (s *Service) ListProducts(tenantID entity.ID) ([]*entity.Product, error) {
-	products, err := s.repo.List(tenantID, 0, 0)
+func (s *Service) ListProducts(tenantID entity.ID, page, limit int) ([]*entity.Product, error) {
+	products, err := s.repo.List(tenantID, page, limit)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ import "sudhagar/glad/entity"
 type Reader interface {
 	Get(id entity.ID) (*entity.Product, error)
 	List(tenantID entity.ID, page, limit int) ([]*entity.Product, error)
-	Search(tenantID entity.ID, query string) ([]*entity.Product, error)
+	Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error)
 	GetCount(tenantID entity.ID) (int, error)
 }
 
@@ -32,8 +32,8 @@ type Repository interface {
 // UseCase defines the interface for product business logic
 type UseCase interface {
 	GetProduct(id entity.ID) (*entity.Product, error)
-	SearchProducts(tenantID entity.ID, query string) ([]*entity.Product, error)
-	ListProducts(tenantID entity.ID) ([]*entity.Product, error)
+	SearchProducts(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error)
+	ListProducts(tenantID entity.ID, page, limit int) ([]*entity.Product, error)
 	CreateProduct(tenantID entity.ID,
 		extID string,
 		name string,

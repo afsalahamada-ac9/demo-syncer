@@ -27,7 +27,9 @@ func listProducts(service product.UseCase) http.Handler {
 		var data []*entity.Product
 		var err error
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
-		search := r.URL.Query().Get("search")
+		search := r.URL.Query().Get(httpParamQuery)
+		page, _ := strconv.Atoi(r.URL.Query().Get(httpParamPage))
+		limit, _ := strconv.Atoi(r.URL.Query().Get(httpParamLimit))
 
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
@@ -38,9 +40,9 @@ func listProducts(service product.UseCase) http.Handler {
 
 		switch {
 		case search == "":
-			data, err = service.ListProducts(tenantID)
+			data, err = service.ListProducts(tenantID, page, limit)
 		default:
-			data, err = service.SearchProducts(tenantID, search)
+			data, err = service.SearchProducts(tenantID, search, page, limit)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
