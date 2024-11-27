@@ -22,9 +22,9 @@ func NewProductPGSQL(db *sql.DB) *ProductPGSQL {
 // Create creates a product
 func (r *ProductPGSQL) Create(e *entity.Product) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
-		INSERT INTO product (id, ext_id, tenant_id, name, title, ctype, base_product_id, 
-			duration_days, visibility, max_attendees, format, is_deleted, created_at)
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`)
+		INSERT INTO product (id, ext_id, tenant_id, ext_name, title, ctype, base_product_ext_id, 
+			duration_days, visibility, max_attendees, format, created_at)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
 	if err != nil {
 		return e.ID, err
 	}
@@ -32,15 +32,14 @@ func (r *ProductPGSQL) Create(e *entity.Product) (entity.ID, error) {
 		e.ID,
 		e.ExtID,
 		e.TenantID,
-		e.Name,
+		e.ExtName,
 		e.Title,
 		e.CType,
-		e.BaseProductID,
+		e.BaseProductExtID,
 		e.DurationDays,
 		string(e.Visibility),
 		e.MaxAttendees,
 		string(e.Format),
-		e.IsDeleted,
 		time.Now().Format("2006-01-02"),
 	)
 	if err != nil {
@@ -56,30 +55,29 @@ func (r *ProductPGSQL) Create(e *entity.Product) (entity.ID, error) {
 // Get retrieves a product
 func (r *ProductPGSQL) Get(id entity.ID) (*entity.Product, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, name, title, ctype, base_product_id, 
-			duration_days, visibility, max_attendees, format, is_deleted, created_at 
+		SELECT id, tenant_id, ext_id, ext_name, title, ctype, base_product_ext_id, 
+			duration_days, visibility, max_attendees, format, created_at 
 		FROM product WHERE id = $1;`)
 	if err != nil {
 		return nil, err
 	}
 
 	var p entity.Product
-	var ext_id, base_product_id, visibility, format sql.NullString
+	var ext_id, base_product_ext_id, visibility, format sql.NullString
 	var duration_days, max_attendees sql.NullInt32
 
 	err = stmt.QueryRow(id).Scan(
 		&p.ID,
 		&p.TenantID,
 		&ext_id,
-		&p.Name,
+		&p.ExtName,
 		&p.Title,
 		&p.CType,
-		&base_product_id,
+		&base_product_ext_id,
 		&duration_days,
 		&visibility,
 		&max_attendees,
 		&format,
-		&p.IsDeleted,
 		&p.CreatedAt,
 	)
 	if err != nil {
@@ -90,7 +88,7 @@ func (r *ProductPGSQL) Get(id entity.ID) (*entity.Product, error) {
 	}
 
 	p.ExtID = ext_id.String
-	p.BaseProductID = base_product_id.String
+	p.BaseProductExtID = base_product_ext_id.String
 	p.DurationDays = duration_days.Int32
 	p.Visibility = entity.ProductVisibility(visibility.String)
 	p.MaxAttendees = max_attendees.Int32
@@ -104,19 +102,18 @@ func (r *ProductPGSQL) Update(e *entity.Product) error {
 	e.UpdatedAt = time.Now()
 	_, err := r.db.Exec(`
 		UPDATE product 
-		SET name = $1, title = $2, ctype = $3, base_product_id = $4,
+		SET ext_name = $1, title = $2, ctype = $3, base_product_ext_id = $4,
 			duration_days = $5, visibility = $6, max_attendees = $7,
-			format = $8, is_deleted = $9, updated_at = $10
+			format = $8, updated_at = $10
 		WHERE id = $11;`,
-		e.Name,
+		e.ExtName,
 		e.Title,
 		e.CType,
-		e.BaseProductID,
+		e.BaseProductExtID,
 		e.DurationDays,
 		string(e.Visibility),
 		e.MaxAttendees,
 		string(e.Format),
-		e.IsDeleted,
 		e.UpdatedAt.Format("2006-01-02"),
 		e.ID,
 	)
@@ -129,11 +126,10 @@ func (r *ProductPGSQL) Update(e *entity.Product) error {
 // Search searches products
 func (r *ProductPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error) {
 	query := `
-		SELECT id, tenant_id, ext_id, name, title, ctype, base_product_id,
-			duration_days, visibility, max_attendees, format, is_deleted, created_at
+		SELECT id, tenant_id, ext_id, ext_name, title, ctype, base_product_ext_id,
+			duration_days, visibility, max_attendees, format, created_at
 		FROM product 
-		WHERE tenant_id = $1 AND (LOWER(name) LIKE LOWER($2) OR LOWER(title) LIKE LOWER($2))
-		AND is_deleted = false
+		WHERE tenant_id = $1 AND (LOWER(ext_name) LIKE LOWER($2) OR LOWER(title) LIKE LOWER($2))
 	`
 
 	// Add pagination if specified
@@ -169,10 +165,10 @@ func (r *ProductPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 // List lists products
 func (r *ProductPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Product, error) {
 	query := `
-		SELECT id, tenant_id, ext_id, name, title, ctype, base_product_id,
-			duration_days, visibility, max_attendees, format, is_deleted, created_at
+		SELECT id, tenant_id, ext_id, ext_name, title, ctype, base_product_ext_id,
+			duration_days, visibility, max_attendees, format, created_at
 		FROM product 
-		WHERE tenant_id = $1 AND is_deleted = false
+		WHERE tenant_id = $1
 	`
 
 	// Add pagination if specified
@@ -224,7 +220,7 @@ func (r *ProductPGSQL) GetCount(tenantID entity.ID) (int, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT COUNT(*) 
 		FROM product 
-		WHERE tenant_id = $1 AND is_deleted = false;
+		WHERE tenant_id = $1;
 	`)
 	if err != nil {
 		return 0, err
@@ -245,22 +241,21 @@ func (r *ProductPGSQL) scanRows(rows *sql.Rows) ([]*entity.Product, error) {
 
 	for rows.Next() {
 		var p entity.Product
-		var ext_id, base_product_id, visibility, format sql.NullString
+		var ext_id, base_product_ext_id, visibility, format sql.NullString
 		var duration_days, max_attendees sql.NullInt32
 
 		err := rows.Scan(
 			&p.ID,
 			&p.TenantID,
 			&ext_id,
-			&p.Name,
+			&p.ExtName,
 			&p.Title,
 			&p.CType,
-			&base_product_id,
+			&base_product_ext_id,
 			&duration_days,
 			&visibility,
 			&max_attendees,
 			&format,
-			&p.IsDeleted,
 			&p.CreatedAt,
 		)
 		if err != nil {
@@ -268,7 +263,7 @@ func (r *ProductPGSQL) scanRows(rows *sql.Rows) ([]*entity.Product, error) {
 		}
 
 		p.ExtID = ext_id.String
-		p.BaseProductID = base_product_id.String
+		p.BaseProductExtID = base_product_ext_id.String
 		p.DurationDays = duration_days.Int32
 		p.Visibility = entity.ProductVisibility(visibility.String)
 		p.MaxAttendees = max_attendees.Int32

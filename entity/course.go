@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-// Course type
-type CourseType string
+// Course mode
+type CourseMode string
 
 const (
-	CourseInPerson CourseType = "in-person"
-	CourseOnline   CourseType = "online"
+	CourseInPerson CourseMode = "in-person"
+	CourseOnline   CourseMode = "online"
 	// Add new types here
 )
 
@@ -71,8 +71,7 @@ type Course struct {
 
 	Status CourseStatus
 
-	// TODO: CType to be renamed to delivery mode or method
-	CType CourseType
+	Mode CourseMode
 
 	MaxAttendees int32
 	NumAttendees int32
@@ -125,7 +124,7 @@ func NewCourse(tenantID ID,
 	timezone string,
 	location CourseLocation,
 	status CourseStatus,
-	ctype CourseType,
+	mode CourseMode,
 	maxAttendees int32,
 	numAttendees int32,
 	isAutoApprove bool) (*Course, error) {
@@ -139,7 +138,7 @@ func NewCourse(tenantID ID,
 		Timezone:      timezone,
 		Location:      location,
 		Status:        status,
-		CType:         ctype,
+		Mode:          mode,
 		MaxAttendees:  maxAttendees,
 		NumAttendees:  numAttendees,
 		IsAutoApprove: isAutoApprove,

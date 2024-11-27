@@ -41,7 +41,7 @@ func Test_listProducts(t *testing.T) {
 		ID:           entity.NewID(),
 		TenantID:     tenantAlice,
 		ExtID:        aliceExtID,
-		Name:         "product-1",
+		ExtName:      "product-1",
 		Title:        "Product One",
 		CType:        "TYPE-1",
 		DurationDays: 7,
@@ -94,7 +94,7 @@ func Test_listProducts_Search(t *testing.T) {
 	tmpl := &entity.Product{
 		ID:           entity.NewID(),
 		TenantID:     tenantAlice,
-		Name:         "product-1",
+		ExtName:      "product-1",
 		Title:        "Product One",
 		CType:        "TYPE-1",
 		DurationDays: 7,
@@ -144,7 +144,6 @@ func Test_createProduct(t *testing.T) {
 			gomock.Any(),
 			gomock.Any(),
 			gomock.Any(),
-			gomock.Any(),
 		).
 		Return(id, nil)
 	h := createProduct(service)
@@ -153,25 +152,25 @@ func Test_createProduct(t *testing.T) {
 	defer ts.Close()
 
 	payload := struct {
-		ExtID         string                   `json:"extId"`
-		Name          string                   `json:"name"`
-		Title         string                   `json:"title"`
-		CType         string                   `json:"ctype"`
-		BaseProductID string                   `json:"baseProductId"`
-		DurationDays  int32                    `json:"durationDays"`
-		Visibility    entity.ProductVisibility `json:"visibility"`
-		MaxAttendees  int32                    `json:"maxAttendees"`
-		Format        entity.ProductFormat     `json:"format"`
+		ExtID            string                   `json:"extId"`
+		ExtName          string                   `json:"Extname"`
+		Title            string                   `json:"title"`
+		CType            string                   `json:"ctype"`
+		BaseProductExtID string                   `json:"baseProductExtId"`
+		DurationDays     int32                    `json:"durationDays"`
+		Visibility       entity.ProductVisibility `json:"visibility"`
+		MaxAttendees     int32                    `json:"maxAttendees"`
+		Format           entity.ProductFormat     `json:"format"`
 	}{
-		ExtID:         aliceExtID,
-		Name:          "product-1",
-		Title:         "Product One",
-		CType:         "TYPE-1",
-		BaseProductID: "BASE-1",
-		DurationDays:  7,
-		Visibility:    entity.ProductVisibilityPublic,
-		MaxAttendees:  100,
-		Format:        entity.ProductFormatInPerson,
+		ExtID:            aliceExtID,
+		ExtName:          "product-1",
+		Title:            "Product One",
+		CType:            "TYPE-1",
+		BaseProductExtID: "BASE-1",
+		DurationDays:     7,
+		Visibility:       entity.ProductVisibilityPublic,
+		MaxAttendees:     100,
+		Format:           entity.ProductFormatInPerson,
 	}
 	payloadBytes, err := json.Marshal(payload)
 	assert.Nil(t, err)
@@ -190,10 +189,10 @@ func Test_createProduct(t *testing.T) {
 	var tmpl *presenter.Product
 	json.NewDecoder(res.Body).Decode(&tmpl)
 	assert.Equal(t, id, tmpl.ID)
-	assert.Equal(t, payload.Name, tmpl.Name)
+	assert.Equal(t, payload.ExtName, tmpl.ExtName)
 	assert.Equal(t, payload.Title, tmpl.Title)
 	assert.Equal(t, payload.CType, tmpl.CType)
-	assert.Equal(t, payload.BaseProductID, tmpl.BaseProductID)
+	assert.Equal(t, payload.BaseProductExtID, tmpl.BaseProductExtID)
 	assert.Equal(t, payload.DurationDays, tmpl.DurationDays)
 	assert.Equal(t, payload.Visibility, tmpl.Visibility)
 	assert.Equal(t, payload.MaxAttendees, tmpl.MaxAttendees)
@@ -216,7 +215,7 @@ func Test_getProduct(t *testing.T) {
 		ID:           entity.NewID(),
 		TenantID:     tenantAlice,
 		ExtID:        aliceExtID,
-		Name:         "product-1",
+		ExtName:      "product-1",
 		Title:        "Product One",
 		CType:        "TYPE-1",
 		DurationDays: 7,
@@ -239,7 +238,7 @@ func Test_getProduct(t *testing.T) {
 	json.NewDecoder(res.Body).Decode(&d)
 	assert.NotNil(t, d)
 	assert.Equal(t, tmpl.ID, d.ID)
-	assert.Equal(t, tmpl.Name, d.Name)
+	assert.Equal(t, tmpl.ExtName, d.ExtName)
 	assert.Equal(t, tmpl.Title, d.Title)
 	assert.Equal(t, tmpl.CType, d.CType)
 	assert.Equal(t, tmpl.DurationDays, d.DurationDays)
@@ -307,7 +306,7 @@ func Test_updateProduct(t *testing.T) {
 		ID:           id,
 		TenantID:     tenantAlice,
 		ExtID:        aliceExtID,
-		Name:         "updated-product",
+		ExtName:      "updated-product",
 		Title:        "Updated Product",
 		CType:        "TYPE-2",
 		DurationDays: 14,
@@ -342,7 +341,7 @@ func Test_updateProduct(t *testing.T) {
 
 	// Verify the response contains the updated values
 	assert.Equal(t, id, response.ID)
-	assert.Equal(t, updatePayload.Name, response.Name)
+	assert.Equal(t, updatePayload.ExtName, response.ExtName)
 	assert.Equal(t, updatePayload.Title, response.Title)
 	assert.Equal(t, updatePayload.CType, response.CType)
 	assert.Equal(t, updatePayload.DurationDays, response.DurationDays)
@@ -387,8 +386,8 @@ func Test_updateProduct_MissingTenant(t *testing.T) {
 
 	id := entity.NewID()
 	updatePayload := &entity.Product{
-		ID:   id,
-		Name: "updated-product",
+		ID:      id,
+		ExtName: "updated-product",
 	}
 
 	handler := updateProduct(service)

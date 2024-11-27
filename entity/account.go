@@ -24,9 +24,10 @@ const (
 
 // Account data
 type Account struct {
-	ID       ID
-	TenantID ID
-	ExtID    string
+	ID        ID
+	TenantID  ID
+	ExtID     string
+	CognitoID string
 
 	Username  string
 	FirstName string
@@ -43,6 +44,7 @@ type Account struct {
 // NewAccount create a new account
 func NewAccount(tenantID ID,
 	extID string,
+	cognitoID string,
 	username string,
 	first_name string,
 	last_name string,
@@ -54,6 +56,7 @@ func NewAccount(tenantID ID,
 		ID:        NewID(),
 		TenantID:  tenantID,
 		ExtID:     extID,
+		CognitoID: cognitoID,
 		Username:  username,
 		FirstName: first_name,
 		LastName:  last_name,

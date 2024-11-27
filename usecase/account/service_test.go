@@ -25,6 +25,9 @@ const (
 	aliceExtID                = "001aliceExtID"
 	alice2ExtID               = "002aliceExtID"
 
+	aliceCognitoID  = "aws:cognito:alice"
+	alice2CognitoID = "aws:cognito:alice2"
+
 	// todo: add multi-tenant support
 	// tenantBob entity.ID = 13790492210917015555
 )
@@ -34,6 +37,7 @@ func newFixtureAccount() *entity.Account {
 		ID: accountIDAlice,
 		// TenantID:  tenantAlice,
 		ExtID:     aliceExtID,
+		CognitoID: aliceCognitoID,
 		Username:  accountUsernameAlice,
 		FirstName: "Alice",
 		LastName:  "Wonderland",
@@ -50,6 +54,7 @@ func Test_Create(t *testing.T) {
 	account := newFixtureAccount()
 	err := m.CreateAccount(tenantAlice,
 		account.ExtID,
+		account.CognitoID,
 		account.Username,
 		account.FirstName,
 		account.LastName,
@@ -69,9 +74,11 @@ func Test_SearchAndFind(t *testing.T) {
 	account2.ID = accountID2Alice
 	account2.Username = accountUsername2Alice
 	account2.ExtID = alice2ExtID
+	account2.CognitoID = alice2CognitoID
 
 	_ = m.CreateAccount(tenantAlice,
 		account1.ExtID,
+		account1.CognitoID,
 		account1.Username,
 		account1.FirstName,
 		account1.LastName,
@@ -81,6 +88,7 @@ func Test_SearchAndFind(t *testing.T) {
 	)
 	_ = m.CreateAccount(tenantAlice,
 		account2.ExtID,
+		account2.CognitoID,
 		account2.Username,
 		account2.FirstName,
 		account2.LastName,
@@ -112,6 +120,7 @@ func Test_Update(t *testing.T) {
 	account := newFixtureAccount()
 	err := m.CreateAccount(tenantAlice,
 		account.ExtID,
+		account.CognitoID,
 		account.Username,
 		account.FirstName,
 		account.LastName,
@@ -145,6 +154,7 @@ func TestDelete(t *testing.T) {
 	account2.ExtID = alice2ExtID
 	_ = m.CreateAccount(tenantAlice,
 		account2.ExtID,
+		account2.CognitoID,
 		account2.Username,
 		account2.FirstName,
 		account2.LastName,

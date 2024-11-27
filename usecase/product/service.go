@@ -22,27 +22,26 @@ func NewService(r Repository) *Service {
 // CreateProduct creates a product
 func (s *Service) CreateProduct(tenantID entity.ID,
 	extID string,
-	name string,
+	extName string,
 	title string,
 	ctype string,
-	baseProductID string,
+	baseProductExtID string,
 	durationDays int32,
 	visibility entity.ProductVisibility,
 	maxAttendees int32,
 	format entity.ProductFormat,
-	isDeleted bool,
 ) (entity.ID, error) {
 	p, err := entity.NewProduct(tenantID,
 		extID,
-		name,
+		extName,
 		title,
 		ctype,
-		baseProductID,
+		baseProductExtID,
 		durationDays,
 		visibility,
 		maxAttendees,
 		format,
-		isDeleted)
+	)
 	if err != nil {
 		return entity.IDInvalid, err
 	}

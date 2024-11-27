@@ -30,7 +30,7 @@ CREATE TYPE course_status AS ENUM ('draft'
     , 'canceled'
     , 'inactive'
     );
-CREATE TYPE course_type AS ENUM ('in-person'
+CREATE TYPE course_mode AS ENUM ('in-person'
     , 'online');
 CREATE TYPE timezone_type AS ENUM ('EST'
     , 'CST'
@@ -73,8 +73,8 @@ CREATE TABLE IF NOT EXISTS product (
     -- Tenant can be mapped to organization entity
     tenant_id BIGINT NOT NULL REFERENCES tenant(id),
 
-    -- Name of the product
-    name VARCHAR(80) NOT NULL UNIQUE,
+    -- ext_name is the salesforce's internal name
+    ext_name VARCHAR(80) NOT NULL UNIQUE,
 
     -- User visible name of the product
     title VARCHAR(255) NOT NULL,
@@ -84,8 +84,8 @@ CREATE TABLE IF NOT EXISTS product (
     -- in length.
     ctype VARCHAR(100) NOT NULL,
     
-    -- This maps to 'Product' entity in Salesforce
-    base_product_id VARCHAR(32),
+    -- This maps to 'Product' entity in Salesforce via SF's id
+    base_product_ext_id VARCHAR(32),
 
     -- Duration (in days)
     duration_days INTEGER,
@@ -97,14 +97,15 @@ CREATE TABLE IF NOT EXISTS product (
     max_attendees INTEGER,
     format product_format,
 
-    is_deleted BOOLEAN DEFAULT FALSE,
+    -- is_deleted is an internal field in Salesforce. Hence, need not be synced
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_product_ext_id ON product(ext_id);
 CREATE INDEX idx_product_tenant_id ON product(tenant_id);
-CREATE INDEX idx_product_name ON product(name);
+CREATE INDEX idx_product_name ON product(ext_name);
+CREATE INDEX idx_product_title ON product(title);
 
 -- CENTER entity
 CREATE TABLE IF NOT EXISTS center (
@@ -173,7 +174,7 @@ CREATE TABLE IF NOT EXISTS course (
     -- When multitenancy is introduced, then country can be removed.
     location JSONB,
     center_id BIGINT NOT NULL REFERENCES center(id) ON DELETE RESTRICT,
-    ctype course_type NOT NULL DEFAULT 'in-person',
+    mode course_mode NOT NULL DEFAULT 'in-person',
     num_attendees INTEGER DEFAULT 0,
     is_auto_approve BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -192,6 +193,9 @@ CREATE TABLE IF NOT EXISTS account (
     -- Note: Do not want to delete tenant if course exists
     tenant_id BIGINT NOT NULL REFERENCES tenant(id),
 
+    -- Authentication id: for US, it's AWS Cognito id
+    cognito_id VARCHAR(255),
+
     -- Note: username is to link the account with the logged in user
     username VARCHAR(128) NOT NULL,
     first_name VARCHAR(40),
@@ -209,6 +213,7 @@ CREATE INDEX idx_account_tenant_id ON account(tenant_id);
 CREATE INDEX idx_account_ext_id ON account(ext_id);
 CREATE INDEX idx_account_username ON account(username);
 CREATE INDEX idx_account_type ON account(type);
+CREATE INDEX idx_account_cognito_id ON account(cognito_id);
 -- TODO: Need indexes for email and phone?
 
 -- Notes: Max 3 organizers per course

@@ -45,7 +45,7 @@ func newFixtureCourse() *entity.Course {
 			Zip:     "12345-6789",
 		},
 		Status:        entity.CourseActive,
-		CType:         entity.CourseInPerson,
+		Mode:          entity.CourseInPerson,
 		MaxAttendees:  50,
 		NumAttendees:  12,
 		IsAutoApprove: true,
@@ -59,7 +59,7 @@ func Test_Create(t *testing.T) {
 	tmpl := newFixtureCourse()
 	_, err := m.CreateCourse(tmpl.TenantID, tmpl.ExtID, tmpl.CenterID,
 		tmpl.Name, tmpl.Notes, tmpl.Timezone,
-		tmpl.Location, tmpl.Status, tmpl.CType,
+		tmpl.Location, tmpl.Status, tmpl.Mode,
 		tmpl.MaxAttendees, tmpl.NumAttendees, tmpl.IsAutoApprove)
 	assert.Nil(t, err)
 	assert.False(t, tmpl.CreatedAt.IsZero())
@@ -75,11 +75,11 @@ func Test_SearchAndFind(t *testing.T) {
 
 	tID, _ := m.CreateCourse(tmpl1.TenantID, tmpl1.ExtID, tmpl1.CenterID,
 		tmpl1.Name, tmpl1.Notes, tmpl1.Timezone,
-		tmpl1.Location, tmpl1.Status, tmpl1.CType,
+		tmpl1.Location, tmpl1.Status, tmpl1.Mode,
 		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
 	_, _ = m.CreateCourse(tmpl2.TenantID, tmpl2.ExtID, tmpl2.CenterID,
 		tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
-		tmpl1.Location, tmpl1.Status, tmpl1.CType,
+		tmpl1.Location, tmpl1.Status, tmpl1.Mode,
 		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
 
 	t.Run("search", func(t *testing.T) {
@@ -123,18 +123,18 @@ func Test_Update(t *testing.T) {
 	tmpl := newFixtureCourse()
 	id, err := m.CreateCourse(tmpl.TenantID, tmpl.ExtID, tmpl.CenterID,
 		tmpl.Name, tmpl.Notes, tmpl.Timezone,
-		tmpl.Location, tmpl.Status, tmpl.CType,
+		tmpl.Location, tmpl.Status, tmpl.Mode,
 		tmpl.MaxAttendees, tmpl.NumAttendees, tmpl.IsAutoApprove)
 
 	assert.Nil(t, err)
 
 	saved, _ := m.GetCourse(id)
-	saved.CType = entity.CourseOnline
+	saved.Mode = entity.CourseOnline
 	assert.Nil(t, m.UpdateCourse(saved))
 
 	updated, err := m.GetCourse(id)
 	assert.Nil(t, err)
-	assert.Equal(t, entity.CourseOnline, updated.CType)
+	assert.Equal(t, entity.CourseOnline, updated.Mode)
 }
 
 func TestDelete(t *testing.T) {
@@ -146,7 +146,7 @@ func TestDelete(t *testing.T) {
 	tmpl2.ExtID = bobExtID
 	t2ID, _ := m.CreateCourse(tmpl2.TenantID, tmpl2.ExtID, tmpl2.CenterID,
 		tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
-		tmpl1.Location, tmpl1.Status, tmpl1.CType,
+		tmpl1.Location, tmpl1.Status, tmpl1.Mode,
 		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
 
 	err := m.DeleteCourse(tmpl1.ID)

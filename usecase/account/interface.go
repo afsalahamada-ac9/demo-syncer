@@ -38,6 +38,7 @@ type UseCase interface {
 	CreateAccount(
 		tenantID entity.ID,
 		extID string,
+		cognitoID string,
 		username string,
 		first_name string,
 		last_name string,

@@ -13,13 +13,13 @@ import (
 // Product data - TenantID is returned in the HTTP header
 // X-GLAD-TenantID
 type Product struct {
-	ID            entity.ID                `json:"id"`
-	Name          string                   `json:"name"`
-	Title         string                   `json:"title"`
-	CType         string                   `json:"ctype"`
-	BaseProductID string                   `json:"baseProductId,omitempty"`
-	DurationDays  int32                    `json:"durationDays,omitempty"`
-	Visibility    entity.ProductVisibility `json:"visibility,omitempty"`
-	MaxAttendees  int32                    `json:"maxAttendees,omitempty"`
-	Format        entity.ProductFormat     `json:"format,omitempty"`
+	ID               entity.ID                `json:"id"`
+	ExtName          string                   `json:"extName"`
+	Title            string                   `json:"title"`
+	CType            string                   `json:"ctype"`
+	BaseProductExtID string                   `json:"baseProductExtId,omitempty"`
+	DurationDays     int32                    `json:"durationDays,omitempty"`
+	Visibility       entity.ProductVisibility `json:"visibility,omitempty"`
+	MaxAttendees     int32                    `json:"maxAttendees,omitempty"`
+	Format           entity.ProductFormat     `json:"format,omitempty"`
 }

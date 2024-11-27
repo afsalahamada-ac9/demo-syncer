@@ -36,15 +36,14 @@ type UseCase interface {
 	ListProducts(tenantID entity.ID, page, limit int) ([]*entity.Product, error)
 	CreateProduct(tenantID entity.ID,
 		extID string,
-		name string,
+		extName string,
 		title string,
 		ctype string,
-		baseProductID string,
+		baseProductExtID string,
 		durationDays int32,
 		visibility entity.ProductVisibility,
 		maxAttendees int32,
 		format entity.ProductFormat,
-		isDeleted bool,
 	) (entity.ID, error)
 	UpdateProduct(e *entity.Product) error
 	DeleteProduct(id entity.ID) error

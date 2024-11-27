@@ -139,12 +139,12 @@ func Test_createCourse(t *testing.T) {
 		TenantID entity.ID         `json:"tenant_id"`
 		ExtID    string            `json:"extId"`
 		Name     string            `json:"name"`
-		CType    entity.CourseType `json:"ctype"`
+		Mode     entity.CourseMode `json:"mode"`
 		// CenterID entity.ID         `json:"center_id"`
 	}{TenantID: tenantAlice,
 		ExtID: aliceExtID,
 		Name:  "default-0",
-		CType: (entity.CourseInPerson),
+		Mode:  (entity.CourseInPerson),
 		// CenterID: aliceCenterID,
 	}
 	payloadBytes, err := json.Marshal(payload)
@@ -166,7 +166,7 @@ func Test_createCourse(t *testing.T) {
 	assert.Equal(t, id, tmpl.ID)
 	assert.Equal(t, payload.ExtID, tmpl.ExtID)
 	// assert.Equal(t, payload.Name, tmpl.Name)
-	// assert.Equal(t, payload.CType, tmpl.CType)
+	// assert.Equal(t, payload.Mode, tmpl.Mode)
 	assert.Equal(t, tenantAlice.String(), res.Header.Get(common.HttpHeaderTenantID))
 }
 
@@ -185,7 +185,7 @@ func Test_getCourse(t *testing.T) {
 		TenantID: tenantAlice,
 		ExtID:    aliceExtID,
 		Name:     "default-0",
-		CType:    entity.CourseInPerson,
+		Mode:     entity.CourseInPerson,
 	}
 	service.EXPECT().
 		GetCourse(tmpl.ID).
@@ -206,7 +206,7 @@ func Test_getCourse(t *testing.T) {
 	assert.Equal(t, tmpl.ID, d.ID)
 	assert.Equal(t, tmpl.ExtID, d.ExtID)
 	assert.Equal(t, tmpl.Name, d.Name)
-	assert.Equal(t, tmpl.CType, d.CType)
+	assert.Equal(t, tmpl.Mode, d.Mode)
 	assert.Equal(t, tenantAlice.String(), res.Header.Get(common.HttpHeaderTenantID))
 }
 

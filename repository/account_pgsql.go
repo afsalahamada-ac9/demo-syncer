@@ -28,8 +28,8 @@ func NewAccountPGSQL(db *sql.DB) *AccountPGSQL {
 // Create creates an account
 func (r *AccountPGSQL) Create(e *entity.Account) error {
 	stmt, err := r.db.Prepare(`
-		INSERT INTO account (id, tenant_id, ext_id, username, first_name, last_name, phone, email, type, created_at) 
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`)
+		INSERT INTO account (id, tenant_id, ext_id, cognito_id, username, first_name, last_name, phone, email, type, created_at)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`)
 	if err != nil {
 		return err
 	}
@@ -37,6 +37,7 @@ func (r *AccountPGSQL) Create(e *entity.Account) error {
 		e.ID,
 		e.TenantID,
 		e.ExtID,
+		e.CognitoID,
 		e.Username,
 		e.FirstName,
 		e.LastName,
@@ -59,13 +60,13 @@ func (r *AccountPGSQL) Create(e *entity.Account) error {
 // GetByName retrieves an account using username
 func (r *AccountPGSQL) GetByName(tenantID entity.ID, username string) (*entity.Account, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, ext_id, type, created_at FROM account WHERE tenant_id = $1 AND username = $2;`)
+		SELECT id, ext_id, cognito_id, type, created_at FROM account WHERE tenant_id = $1 AND username = $2;`)
 	if err != nil {
 		return nil, err
 	}
 	var t entity.Account
-	var acct_type sql.NullString
-	err = stmt.QueryRow(tenantID, username).Scan(&t.ID, &t.ExtID, &acct_type, &t.CreatedAt)
+	var acct_type, cognito_id sql.NullString
+	err = stmt.QueryRow(tenantID, username).Scan(&t.ID, &t.ExtID, &cognito_id, &acct_type, &t.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -73,6 +74,7 @@ func (r *AccountPGSQL) GetByName(tenantID entity.ID, username string) (*entity.A
 		return nil, err
 	}
 	t.Username = username
+	t.CognitoID = cognito_id.String
 	t.Type = entity.AccountType(acct_type.String)
 	return &t, nil
 }
@@ -80,8 +82,8 @@ func (r *AccountPGSQL) GetByName(tenantID entity.ID, username string) (*entity.A
 // Update updates an account
 func (r *AccountPGSQL) Update(e *entity.Account) error {
 	e.UpdatedAt = time.Now()
-	_, err := r.db.Exec(`UPDATE account SET username = $1, type = $2, updated_at = $3 WHERE id = $4;`,
-		e.Username, e.Type, e.UpdatedAt.Format("2006-01-02"), e.ID)
+	_, err := r.db.Exec(`UPDATE account SET username = $1, type = $2, cognito_id = $3, updated_at = $4 WHERE id = $5;`,
+		e.Username, e.Type, e.CognitoID, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
 	}
@@ -99,7 +101,7 @@ func (r *AccountPGSQL) List(tenantID entity.ID, page, limit int, at entity.Accou
 	query := `
 		SELECT id, tenant_id, ext_id, username, first_name, last_name,
 		phone, email, type, created_at
-		FROM account 
+		FROM account
 		WHERE tenant_id = $1
 			AND type::TEXT ILIKE $2
 	`
@@ -178,7 +180,7 @@ func (r *AccountPGSQL) GetCount(tenantID entity.ID) (int, error) {
 // Get retrieves an account
 func (r *AccountPGSQL) Get(id entity.ID) (*entity.Account, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, username, first_name, last_name, 
+		SELECT id, tenant_id, ext_id, username, first_name, last_name,
 			phone, email, type, created_at
 		FROM account WHERE id = $1;`)
 	if err != nil {
@@ -231,10 +233,10 @@ func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int, at 
 	query := `
 		SELECT id, tenant_id, ext_id, username, first_name, last_name,
 		phone, email, type, created_at
-		FROM account 
-		WHERE tenant_id = $1 
+		FROM account
+		WHERE tenant_id = $1
 			AND (
-				LOWER(username) LIKE LOWER($2) 
+				LOWER(username) LIKE LOWER($2)
 			)
 			AND type::TEXT ILIKE $3
 	`

@@ -22,7 +22,7 @@ type Course struct {
 	Timezone     string                `json:"timezone"`
 	Location     entity.CourseLocation `json:"location"` // TODO: To be defined in here in presenter
 	Status       entity.CourseStatus   `json:"status"`
-	CType        entity.CourseType     `json:"ctype"`
+	Mode         entity.CourseMode     `json:"mode"`
 	MaxAttendees int32                 `json:"maxAttendees"`
 	NumAttendees int32                 `json:"numAttendees"`
 }

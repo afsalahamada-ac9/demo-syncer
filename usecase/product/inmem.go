@@ -68,7 +68,7 @@ func (r *inmem) List(tenantID entity.ID, page, limit int) ([]*entity.Product, er
 
 	var products []*entity.Product
 	for _, product := range r.m {
-		if !product.IsDeleted && product.TenantID == tenantID {
+		if product.TenantID == tenantID {
 			products = append(products, product)
 		}
 	}
@@ -94,8 +94,7 @@ func (r *inmem) Delete(id entity.ID) error {
 	r.mut.Lock()
 	defer r.mut.Unlock()
 
-	if product, ok := r.m[id]; ok {
-		product.IsDeleted = true
+	if _, ok := r.m[id]; ok {
 		r.m[id] = nil
 		delete(r.m, id)
 		return nil
@@ -110,9 +109,8 @@ func (r *inmem) Search(tenantID entity.ID, query string, page, limit int) ([]*en
 
 	var products []*entity.Product
 	for _, product := range r.m {
-		if !product.IsDeleted &&
-			product.TenantID == tenantID &&
-			(strings.Contains(strings.ToLower(product.Name), strings.ToLower(query)) ||
+		if product.TenantID == tenantID &&
+			(strings.Contains(strings.ToLower(product.ExtName), strings.ToLower(query)) ||
 				strings.Contains(strings.ToLower(product.Title), strings.ToLower(query))) {
 			products = append(products, product)
 		}
@@ -141,7 +139,7 @@ func (r *inmem) GetCount(tenantID entity.ID) (int, error) {
 
 	count := 0
 	for _, product := range r.m {
-		if !product.IsDeleted && product.TenantID == tenantID {
+		if product.TenantID == tenantID {
 			count++
 		}
 	}

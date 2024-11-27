@@ -28,49 +28,46 @@ const (
 // Product represents a product entity
 // TODO: json tags must be moved to presenter
 type Product struct {
-	ID            ID                `json:"id"`
-	ExtID         string            `json:"extId"`
-	TenantID      ID                `json:"tenantId"`
-	Name          string            `json:"name"`
-	Title         string            `json:"title"`
-	CType         string            `json:"ctype"`
-	BaseProductID string            `json:"baseProductId,omitempty"`
-	DurationDays  int32             `json:"durationDays,omitempty"`
-	Visibility    ProductVisibility `json:"visibility,omitempty"`
-	MaxAttendees  int32             `json:"maxAttendees,omitempty"`
-	Format        ProductFormat     `json:"format,omitempty"`
-	IsDeleted     bool              `json:"isDeleted"`
-	CreatedAt     time.Time         `json:"createdAt"`
-	UpdatedAt     time.Time         `json:"updatedAt"`
+	ID               ID                `json:"id"`
+	ExtID            string            `json:"extId"`
+	TenantID         ID                `json:"tenantId"`
+	ExtName          string            `json:"extName"`
+	Title            string            `json:"title"`
+	CType            string            `json:"ctype"`
+	BaseProductExtID string            `json:"baseProductExtId,omitempty"`
+	DurationDays     int32             `json:"durationDays,omitempty"`
+	Visibility       ProductVisibility `json:"visibility,omitempty"`
+	MaxAttendees     int32             `json:"maxAttendees,omitempty"`
+	Format           ProductFormat     `json:"format,omitempty"`
+	CreatedAt        time.Time         `json:"createdAt"`
+	UpdatedAt        time.Time         `json:"updatedAt"`
 }
 
 // NewProduct creates a new product with the given parameters
 func NewProduct(tenantID ID,
 	extID string,
-	name string,
+	extName string,
 	title string,
 	ctype string,
-	baseProductID string,
+	baseProductExtID string,
 	durationDays int32,
 	visibility ProductVisibility,
 	maxAttendees int32,
 	format ProductFormat,
-	isDeleted bool,
 ) (*Product, error) {
 	p := &Product{
-		ID:            NewID(),
-		ExtID:         extID,
-		TenantID:      tenantID,
-		Name:          name,
-		Title:         title,
-		CType:         ctype,
-		BaseProductID: baseProductID,
-		DurationDays:  durationDays,
-		Visibility:    visibility,
-		MaxAttendees:  maxAttendees,
-		Format:        format,
-		IsDeleted:     false,
-		CreatedAt:     time.Now(),
+		ID:               NewID(),
+		ExtID:            extID,
+		TenantID:         tenantID,
+		ExtName:          extName,
+		Title:            title,
+		CType:            ctype,
+		BaseProductExtID: baseProductExtID,
+		DurationDays:     durationDays,
+		Visibility:       visibility,
+		MaxAttendees:     maxAttendees,
+		Format:           format,
+		CreatedAt:        time.Now(),
 	}
 
 	err := p.Validate()
@@ -87,7 +84,7 @@ func (p *Product) Validate() error {
 		return ErrInvalidEntity
 	}
 
-	if p.Name == "" {
+	if p.ExtName == "" {
 		return ErrInvalidEntity
 	}
 

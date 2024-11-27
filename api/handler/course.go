@@ -70,7 +70,7 @@ func listCourses(service course.UseCase) http.Handler {
 				TenantID: d.TenantID,
 				ExtID:    d.ExtID,
 				Name:     d.Name,
-				CType:    d.CType,
+				Mode:     d.Mode,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -97,7 +97,7 @@ func createCourse(service course.UseCase) http.Handler {
 			Dates        []entity.CourseDateTime `json:"dates"`
 			Timezone     string                  `json:"timezone"`
 			Location     entity.CourseLocation   `json:"location"`
-			CType        entity.CourseType       `json:"ctype"` // TODO: This is actually delivery type/mode
+			Mode         entity.CourseMode       `json:"mode"`
 			Notify       []entity.ID             `json:"notify"`
 		}
 
@@ -126,7 +126,7 @@ func createCourse(service course.UseCase) http.Handler {
 			input.Timezone,
 			input.Location,
 			input.Status,
-			input.CType,
+			input.Mode,
 			input.MaxAttendees,
 			// numAttendees, isAutoApprove
 			0, false)
@@ -180,7 +180,7 @@ func getCourse(service course.UseCase) http.Handler {
 			ID:    data.ID,
 			ExtID: data.ExtID,
 			Name:  data.Name,
-			CType: data.CType,
+			Mode:  data.Mode,
 			// TODO: More fields to be added
 		}
 

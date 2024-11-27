@@ -32,13 +32,13 @@ func (s *Service) CreateCourse(tenantID entity.ID,
 	name, notes, timezone string,
 	location entity.CourseLocation,
 	status entity.CourseStatus,
-	ctype entity.CourseType,
+	mode entity.CourseMode,
 	maxAttendees, numAttendees int32,
 	isAutoApprove bool,
 ) (entity.ID, error) {
 	c, err := entity.NewCourse(tenantID, extID, centerID,
 		name, notes, timezone,
-		location, status, ctype,
+		location, status, mode,
 		maxAttendees, numAttendees, isAutoApprove)
 	if err != nil {
 		return entity.IDInvalid, err

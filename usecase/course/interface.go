@@ -42,7 +42,7 @@ type UseCase interface {
 		name, notes, timezone string,
 		location entity.CourseLocation,
 		status entity.CourseStatus,
-		ctype entity.CourseType,
+		mode entity.CourseMode,
 		maxAttendees, numAttendees int32,
 		isAutoApprove bool,
 	) (entity.ID, error)

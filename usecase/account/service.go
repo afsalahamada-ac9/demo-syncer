@@ -24,10 +24,11 @@ func NewService(r Repository) *Service {
 	}
 }
 
-// CreateAccount create a account
+// CreateAccount creates an account
 func (s *Service) CreateAccount(
 	tenantID entity.ID,
 	extID string,
+	cognitoID string,
 	username string,
 	first_name string,
 	last_name string,
@@ -37,6 +38,7 @@ func (s *Service) CreateAccount(
 ) error {
 	account, err := entity.NewAccount(tenantID,
 		extID,
+		cognitoID,
 		username,
 		first_name,
 		last_name,

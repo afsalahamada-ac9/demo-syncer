@@ -21,7 +21,7 @@ func newFixtureProduct() *entity.Product {
 		ID:           productDefault,
 		TenantID:     tenantAlice,
 		ExtID:        aliceExtID,
-		Name:         "default1",
+		ExtName:      "default1",
 		Title:        "Default Product 1",
 		CType:        "workshop",
 		Format:       entity.ProductFormatInPerson,
@@ -38,15 +38,14 @@ func Test_CreateProduct(t *testing.T) {
 	_, err := m.CreateProduct(
 		tmpl.TenantID,
 		tmpl.ExtID,
-		tmpl.Name,
+		tmpl.ExtName,
 		tmpl.Title,
 		tmpl.CType,
-		tmpl.BaseProductID,
+		tmpl.BaseProductExtID,
 		tmpl.DurationDays,
 		tmpl.Visibility,
 		tmpl.MaxAttendees,
 		tmpl.Format,
-		tmpl.IsDeleted,
 	)
 	assert.Nil(t, err)
 	assert.False(t, tmpl.CreatedAt.IsZero())
@@ -58,36 +57,34 @@ func Test_SearchAndFind(t *testing.T) {
 	m := NewService(repo)
 	tmpl1 := newFixtureProduct()
 	tmpl2 := newFixtureProduct()
-	tmpl2.Name = "default2"
+	tmpl2.ExtName = "default2"
 	tmpl2.Title = "Default Product 2"
 	tmpl2.ExtID = bobExtID
 
 	_, _ = m.CreateProduct(
 		tmpl1.TenantID,
 		tmpl1.ExtID,
-		tmpl1.Name,
+		tmpl1.ExtName,
 		tmpl1.Title,
 		tmpl1.CType,
-		tmpl1.BaseProductID,
+		tmpl1.BaseProductExtID,
 		tmpl1.DurationDays,
 		tmpl1.Visibility,
 		tmpl1.MaxAttendees,
 		tmpl1.Format,
-		tmpl1.IsDeleted,
 	)
 
 	tID, _ := m.CreateProduct(
 		tmpl2.TenantID,
 		tmpl2.ExtID,
-		tmpl2.Name,
+		tmpl2.ExtName,
 		tmpl2.Title,
 		tmpl2.CType,
-		tmpl2.BaseProductID,
+		tmpl2.BaseProductExtID,
 		tmpl2.DurationDays,
 		tmpl2.Visibility,
 		tmpl2.MaxAttendees,
 		tmpl2.Format,
-		tmpl2.IsDeleted,
 	)
 
 	t.Run("search", func(t *testing.T) {
@@ -119,7 +116,7 @@ func Test_SearchAndFind(t *testing.T) {
 		assert.Equal(t, tmpl2.TenantID, saved.TenantID)
 		assert.Equal(t, tmpl2.ExtID, saved.ExtID)
 		assert.Equal(t, tmpl2.Format, saved.Format)
-		assert.Equal(t, tmpl2.Name, saved.Name)
+		assert.Equal(t, tmpl2.ExtName, saved.ExtName)
 		assert.Equal(t, tmpl2.Title, saved.Title)
 	})
 }
@@ -131,15 +128,14 @@ func Test_UpdateProduct(t *testing.T) {
 	id, err := m.CreateProduct(
 		tmpl.TenantID,
 		tmpl.ExtID,
-		tmpl.Name,
+		tmpl.ExtName,
 		tmpl.Title,
 		tmpl.CType,
-		tmpl.BaseProductID,
+		tmpl.BaseProductExtID,
 		tmpl.DurationDays,
 		tmpl.Visibility,
 		tmpl.MaxAttendees,
 		tmpl.Format,
-		tmpl.IsDeleted,
 	)
 	assert.Nil(t, err)
 
@@ -163,15 +159,14 @@ func TestDeleteProduct(t *testing.T) {
 	id2, _ := m.CreateProduct(
 		tmpl2.TenantID,
 		tmpl2.ExtID,
-		tmpl2.Name,
+		tmpl2.ExtName,
 		tmpl2.Title,
 		tmpl2.CType,
-		tmpl2.BaseProductID,
+		tmpl2.BaseProductExtID,
 		tmpl2.DurationDays,
 		tmpl2.Visibility,
 		tmpl2.MaxAttendees,
 		tmpl2.Format,
-		tmpl2.IsDeleted,
 	)
 
 	err := m.DeleteProduct(tmpl1.ID)

@@ -34,7 +34,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 	}
 
 	stmt, err := r.db.Prepare(`
-		INSERT INTO course (id, tenant_id, ext_id, center_id, name, notes, timezone, location, status, ctype, max_attendees, num_attendees, is_auto_approve, created_at) 
+		INSERT INTO course (id, tenant_id, ext_id, center_id, name, notes, timezone, location, status, mode, max_attendees, num_attendees, is_auto_approve, created_at)
 		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`)
 	if err != nil {
 		return e.ID, err
@@ -49,7 +49,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 		e.Timezone,
 		string(locationJSON),
 		e.Status,
-		e.CType,
+		e.Mode,
 		e.MaxAttendees,
 		e.NumAttendees,
 		e.IsAutoApprove,
@@ -69,7 +69,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
-		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
+		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE id = $1;`)
 	if err != nil {
@@ -77,9 +77,9 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	}
 	var c entity.Course
 	var ext_id sql.NullString
-	var name, notes, timezone, loc_json, status, ctype sql.NullString
+	var name, notes, timezone, loc_json, status, mode sql.NullString
 	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &name, &notes, &timezone,
-		&loc_json, &status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+		&loc_json, &status, &mode, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -99,7 +99,7 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	c.Notes = notes.String
 	c.Timezone = timezone.String
 	c.Status = entity.CourseStatus(status.String)
-	c.CType = entity.CourseType(ctype.String)
+	c.Mode = entity.CourseMode(mode.String)
 
 	return &c, nil
 }
@@ -114,10 +114,10 @@ func (r *CoursePGSQL) Update(e *entity.Course) error {
 
 	_, err = r.db.Exec(`
 		UPDATE course SET center_id = $1, name = $2, notes = $3, timezone = $4, location = $5,
-		status = $6, ctype = $7, max_attendees = $8, num_attendees = $9, is_auto_approve = $10,
+		status = $6, mode = $7, max_attendees = $8, num_attendees = $9, is_auto_approve = $10,
 		updated_at = $11
 		WHERE id = $12;`,
-		e.CenterID, e.Name, e.Notes, e.Timezone, string(locationJSON), (e.Status), (e.CType),
+		e.CenterID, e.Name, e.Notes, e.Timezone, string(locationJSON), (e.Status), (e.Mode),
 		e.MaxAttendees, e.NumAttendees, e.IsAutoApprove, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
@@ -129,7 +129,7 @@ func (r *CoursePGSQL) Update(e *entity.Course) error {
 func (r *CoursePGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Course, error) {
 	query := `
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
-		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
+		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE tenant_id = $1 AND name LIKE $2
 	`
@@ -169,7 +169,7 @@ func (r *CoursePGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*
 func (r *CoursePGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Course, error) {
 	query := `
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
-		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
+		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE tenant_id = $1`
 
@@ -238,7 +238,7 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 	var courses []*entity.Course
 	for rows.Next() {
 		var course entity.Course
-		var ext_id, name, notes, timezone, loc_json, status, ctype sql.NullString
+		var ext_id, name, notes, timezone, loc_json, status, mode sql.NullString
 		err := rows.Scan(
 			&course.ID,
 			&course.TenantID,
@@ -249,7 +249,7 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 			&timezone,
 			&loc_json,
 			&status,
-			&ctype,
+			&mode,
 			&course.MaxAttendees,
 			&course.NumAttendees,
 			&course.IsAutoApprove,
@@ -264,7 +264,7 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 		course.Notes = notes.String
 		course.Timezone = timezone.String
 		course.Status = entity.CourseStatus(status.String)
-		course.CType = entity.CourseType(ctype.String)
+		course.Mode = entity.CourseMode(mode.String)
 
 		if loc_json.Valid && loc_json.String != "" {
 			err = json.Unmarshal([]byte(loc_json.String), &course.Location)

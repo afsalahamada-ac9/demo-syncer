@@ -63,15 +63,15 @@ func listProducts(service product.UseCase) http.Handler {
 		var toJ []*presenter.Product
 		for _, d := range data {
 			toJ = append(toJ, &presenter.Product{
-				ID:            d.ID,
-				Name:          d.Name,
-				Title:         d.Title,
-				CType:         d.CType,
-				BaseProductID: d.BaseProductID,
-				DurationDays:  d.DurationDays,
-				Visibility:    d.Visibility,
-				MaxAttendees:  d.MaxAttendees,
-				Format:        d.Format,
+				ID:               d.ID,
+				ExtName:          d.ExtName,
+				Title:            d.Title,
+				CType:            d.CType,
+				BaseProductExtID: d.BaseProductExtID,
+				DurationDays:     d.DurationDays,
+				Visibility:       d.Visibility,
+				MaxAttendees:     d.MaxAttendees,
+				Format:           d.Format,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -85,15 +85,15 @@ func createProduct(service product.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding product"
 		var input struct {
-			ExtID         string                   `json:"extId"`
-			Name          string                   `json:"name"`
-			Title         string                   `json:"title"`
-			CType         string                   `json:"ctype"`
-			BaseProductID string                   `json:"baseProductId"`
-			DurationDays  int32                    `json:"durationDays"`
-			Visibility    entity.ProductVisibility `json:"visibility"`
-			MaxAttendees  int32                    `json:"maxAttendees"`
-			Format        entity.ProductFormat     `json:"format"`
+			ExtID            string                   `json:"extId"`
+			ExtName          string                   `json:"extName"`
+			Title            string                   `json:"title"`
+			CType            string                   `json:"ctype"`
+			BaseProductExtID string                   `json:"baseProductExtId"`
+			DurationDays     int32                    `json:"durationDays"`
+			Visibility       entity.ProductVisibility `json:"visibility"`
+			MaxAttendees     int32                    `json:"maxAttendees"`
+			Format           entity.ProductFormat     `json:"format"`
 		}
 
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
@@ -115,15 +115,14 @@ func createProduct(service product.UseCase) http.Handler {
 		id, err := service.CreateProduct(
 			tenantID,
 			input.ExtID,
-			input.Name,
+			input.ExtName,
 			input.Title,
 			input.CType,
-			input.BaseProductID,
+			input.BaseProductExtID,
 			input.DurationDays,
 			input.Visibility,
 			input.MaxAttendees,
 			input.Format,
-			false, // isDeleted defaults to false for new products
 		)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -132,15 +131,15 @@ func createProduct(service product.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Product{
-			ID:            id,
-			Name:          input.Name,
-			Title:         input.Title,
-			CType:         input.CType,
-			BaseProductID: input.BaseProductID,
-			DurationDays:  input.DurationDays,
-			Visibility:    input.Visibility,
-			MaxAttendees:  input.MaxAttendees,
-			Format:        input.Format,
+			ID:               id,
+			ExtName:          input.ExtName,
+			Title:            input.Title,
+			CType:            input.CType,
+			BaseProductExtID: input.BaseProductExtID,
+			DurationDays:     input.DurationDays,
+			Visibility:       input.Visibility,
+			MaxAttendees:     input.MaxAttendees,
+			Format:           input.Format,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
@@ -177,15 +176,15 @@ func getProduct(service product.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Product{
-			ID:            data.ID,
-			Name:          data.Name,
-			Title:         data.Title,
-			CType:         data.CType,
-			BaseProductID: data.BaseProductID,
-			DurationDays:  data.DurationDays,
-			Visibility:    data.Visibility,
-			MaxAttendees:  data.MaxAttendees,
-			Format:        data.Format,
+			ID:               data.ID,
+			ExtName:          data.ExtName,
+			Title:            data.Title,
+			CType:            data.CType,
+			BaseProductExtID: data.BaseProductExtID,
+			DurationDays:     data.DurationDays,
+			Visibility:       data.Visibility,
+			MaxAttendees:     data.MaxAttendees,
+			Format:           data.Format,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())
@@ -262,15 +261,15 @@ func updateProduct(service product.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Product{
-			ID:            input.ID,
-			Name:          input.Name,
-			Title:         input.Title,
-			CType:         input.CType,
-			BaseProductID: input.BaseProductID,
-			DurationDays:  input.DurationDays,
-			Visibility:    input.Visibility,
-			MaxAttendees:  input.MaxAttendees,
-			Format:        input.Format,
+			ID:               input.ID,
+			ExtName:          input.ExtName,
+			Title:            input.Title,
+			CType:            input.CType,
+			BaseProductExtID: input.BaseProductExtID,
+			DurationDays:     input.DurationDays,
+			Visibility:       input.Visibility,
+			MaxAttendees:     input.MaxAttendees,
+			Format:           input.Format,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
