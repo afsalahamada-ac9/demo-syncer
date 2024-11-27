@@ -133,7 +133,8 @@ func (r *ProductPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 			duration_days, visibility, max_attendees, format, is_deleted, created_at
 		FROM product 
 		WHERE tenant_id = $1 AND (LOWER(name) LIKE LOWER($2) OR LOWER(title) LIKE LOWER($2))
-		AND is_deleted = false`
+		AND is_deleted = false
+	`
 
 	// Add pagination if specified
 	if page > 0 && limit > 0 {
@@ -155,12 +156,13 @@ func (r *ProductPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 	if err != nil {
 		return nil, err
 	}
+
 	rows, err := stmt.Query(tenantID, "%"+q+"%")
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
+	defer rows.Close()
 	return r.scanRows(rows)
 }
 
@@ -170,7 +172,8 @@ func (r *ProductPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Prod
 		SELECT id, tenant_id, ext_id, name, title, ctype, base_product_id,
 			duration_days, visibility, max_attendees, format, is_deleted, created_at
 		FROM product 
-		WHERE tenant_id = $1 AND is_deleted = false`
+		WHERE tenant_id = $1 AND is_deleted = false
+	`
 
 	// Add pagination if specified
 	if page > 0 && limit > 0 {
@@ -192,10 +195,12 @@ func (r *ProductPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Prod
 	if err != nil {
 		return nil, err
 	}
+
 	rows, err := stmt.Query(tenantID)
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 	return r.scanRows(rows)
 }
@@ -219,7 +224,8 @@ func (r *ProductPGSQL) GetCount(tenantID entity.ID) (int, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT COUNT(*) 
 		FROM product 
-		WHERE tenant_id = $1 AND is_deleted = false;`)
+		WHERE tenant_id = $1 AND is_deleted = false;
+	`)
 	if err != nil {
 		return 0, err
 	}
@@ -229,6 +235,7 @@ func (r *ProductPGSQL) GetCount(tenantID entity.ID) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return count, nil
 }
 

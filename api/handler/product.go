@@ -59,6 +59,7 @@ func listProducts(service product.UseCase) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
+
 		var toJ []*presenter.Product
 		for _, d := range data {
 			toJ = append(toJ, &presenter.Product{

@@ -104,12 +104,18 @@ func (r *CenterPGSQL) Search(tenantID entity.ID,
 	q string, page, limit int,
 ) ([]*entity.Center, error) {
 	query := `
-		SELECT id, tenant_id, ext_id, ext_name, name, mode, created_at FROM center
-		WHERE tenant_id = $1 AND name LIKE $2`
+		SELECT id, tenant_id, ext_id, ext_name, name, capacity, mode, created_at
+		FROM center
+		WHERE is_enabled = TRUE
+			AND tenant_id = $1
+			AND (LOWER(name) LIKE LOWER($2)
+				OR LOWER(ext_name) LIKE LOWER($2)
+			)
+	`
 
 	if page > 0 && limit > 0 {
 		offset := (page - 1) * limit
-		query += ` limit $3 offset $4;`
+		query += ` LIMIT $3 OFFSET $4;`
 		stmt, err := r.db.Prepare(query)
 		if err != nil {
 			return nil, err
@@ -134,42 +140,44 @@ func (r *CenterPGSQL) Search(tenantID entity.ID,
 	}
 
 	defer rows.Close()
-
 	return r.scanRows(rows)
-
 }
 
 // List lists centers
 func (r *CenterPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Center, error) {
-	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, ext_name, name, mode, created_at FROM center
-		WHERE tenant_id = $1;`)
+	query := `
+		SELECT id, tenant_id, ext_id, ext_name, name, capacity, mode, created_at
+		FROM center
+		WHERE is_enabled = TRUE AND tenant_id = $1
+	`
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` LIMIT $2 OFFSET $3;`
+		stmt, err := r.db.Prepare(query)
+		if err != nil {
+			return nil, err
+		}
+
+		rows, err := stmt.Query(tenantID, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return r.scanRows(rows)
+	}
+
+	stmt, err := r.db.Prepare(query + ";")
 	if err != nil {
 		return nil, err
 	}
-	var centers []*entity.Center
+
 	rows, err := stmt.Query(tenantID)
 	if err != nil {
 		return nil, err
 	}
 
-	var extID sql.NullString
-	var extName sql.NullString
-	var name sql.NullString
-	var mode sql.NullString
-	for rows.Next() {
-		var c entity.Center
-		err = rows.Scan(&c.ID, &c.TenantID, &extID, &extName, &name, &mode, &c.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		c.ExtID = extID.String
-		c.ExtName = extName.String
-		c.Name = name.String
-		c.Mode = entity.CenterMode(mode.String)
-		centers = append(centers, &c)
-	}
-	return centers, nil
+	defer rows.Close()
+	return r.scanRows(rows)
 }
 
 // Delete deletes a center
@@ -205,7 +213,7 @@ func (r *CenterPGSQL) scanRows(rows *sql.Rows) ([]*entity.Center, error) {
 	var centers []*entity.Center
 	for rows.Next() {
 		var center entity.Center
-		var ext_id, ext_name, name, webpage sql.NullString
+		var ext_id, ext_name, name sql.NullString
 		var capacity sql.NullInt32
 
 		err := rows.Scan(
@@ -214,13 +222,8 @@ func (r *CenterPGSQL) scanRows(rows *sql.Rows) ([]*entity.Center, error) {
 			&ext_id,
 			&ext_name,
 			&name,
-			&center.Location,
-			&center.GeoLocation,
 			&capacity,
 			&center.Mode,
-			&webpage,
-			&center.IsNationalCenter,
-			&center.IsEnabled,
 			&center.CreatedAt,
 		)
 
@@ -232,7 +235,6 @@ func (r *CenterPGSQL) scanRows(rows *sql.Rows) ([]*entity.Center, error) {
 		center.ExtName = ext_name.String
 		center.Name = name.String
 		center.Capacity = capacity.Int32
-		center.WebPage = webpage.String
 
 		centers = append(centers, &center)
 

@@ -53,7 +53,8 @@ func (r *TenantPGSQL) Create(e *entity.Tenant) (entity.ID, error) {
 // Get a Tenant
 func (r *TenantPGSQL) Get(id entity.ID) (*entity.Tenant, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, name, country, created_at FROM tenant WHERE id = $1;`)
+		SELECT id, name, country, created_at FROM tenant WHERE id = $1;
+	`)
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +115,7 @@ func (r *TenantPGSQL) List(page, limit int) ([]*entity.Tenant, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		rows, err := stmt.Query(limit, offset)
 		if err != nil {
 			return nil, err
@@ -127,10 +129,12 @@ func (r *TenantPGSQL) List(page, limit int) ([]*entity.Tenant, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	rows, err := stmt.Query()
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 	return r.scanRows(rows)
 
@@ -165,12 +169,11 @@ func (r *TenantPGSQL) scanRows(rows *sql.Rows) ([]*entity.Tenant, error) {
 
 	for rows.Next() {
 		var tenant entity.Tenant
-		var name, country, authtoken sql.NullString
+		var name, country sql.NullString
 		err := rows.Scan(
 			&tenant.ID,
 			&name,
 			&country,
-			&authtoken,
 			&tenant.CreatedAt,
 		)
 
@@ -180,9 +183,9 @@ func (r *TenantPGSQL) scanRows(rows *sql.Rows) ([]*entity.Tenant, error) {
 
 		tenant.Name = name.String
 		tenant.Country = country.String
-		tenant.AuthToken = authtoken.String
 
 		tenants = append(tenants, &tenant)
 	}
+
 	return tenants, nil
 }

@@ -91,7 +91,10 @@ func (r *AccountPGSQL) Update(e *entity.Account) error {
 // List accounts
 func (r *AccountPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Account, error) {
 	query := `
-		SELECT id, ext_id, username, type, created_at FROM account`
+		SELECT id, ext_id, username, type, created_at
+		FROM account
+		WHERE tenant_id = $1
+	`
 	if page > 0 && limit > 0 {
 		offset := (page - 1) * limit
 		query += ` LIMIT $2 OFFSET $3;`
@@ -212,13 +215,14 @@ func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 	// OR LOWER(email) LIKE LOWER($2)
 
 	query := `
-	SELECT id, tenant_id, ext_id, username, first_name, last_name,
-	phone, email, type, created_at
-	FROM account 
-	WHERE tenant_id = $1 
-	AND (
-		LOWER(username) LIKE LOWER($2) 
-		)`
+		SELECT id, tenant_id, ext_id, username, first_name, last_name,
+		phone, email, type, created_at
+		FROM account 
+		WHERE tenant_id = $1 
+			AND (
+				LOWER(username) LIKE LOWER($2) 
+			)
+	`
 
 	if page > 0 && limit > 0 {
 		offset := (page - 1) * limit
@@ -228,7 +232,7 @@ func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 		if err != nil {
 			return nil, err
 		}
-		rows, err := stmt.Query(tenantID, "%"+q+"%", limit, offset)
+		rows, err := stmt.Query(tenantID, q+"%", limit, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -241,7 +245,7 @@ func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(tenantID, "%"+q+"%")
+	rows, err := stmt.Query(tenantID, q+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +258,7 @@ func (r *AccountPGSQL) scanRows(rows *sql.Rows) ([]*entity.Account, error) {
 	var accounts []*entity.Account
 	for rows.Next() {
 		var account entity.Account
-		var ext_id, username, first_name, last_name, phone, email sql.NullString
+		var ext_id, username, first_name, last_name, phone, email, acct_type sql.NullString
 
 		err := rows.Scan(
 			&account.ID,
@@ -265,19 +269,23 @@ func (r *AccountPGSQL) scanRows(rows *sql.Rows) ([]*entity.Account, error) {
 			&last_name,
 			&phone,
 			&email,
+			&acct_type,
+			&account.CreatedAt,
 		)
-
 		if err != nil {
 			return nil, err
 		}
+
 		account.ExtID = ext_id.String
 		account.Username = username.String
 		account.FirstName = first_name.String
 		account.LastName = last_name.String
 		account.Phone = phone.String
 		account.Email = email.String
+		account.Type = entity.AccountType(acct_type.String)
 
 		accounts = append(accounts, &account)
 	}
+
 	return accounts, nil
 }
