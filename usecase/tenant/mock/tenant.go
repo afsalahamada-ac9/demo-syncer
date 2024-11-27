@@ -80,18 +80,18 @@ func (mr *MockReaderMockRecorder) GetCount() *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockReader) List() ([]*entity.Tenant, error) {
+func (m *MockReader) List(page, limit int) ([]*entity.Tenant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List")
+	ret := m.ctrl.Call(m, "List", page, limit)
 	ret0, _ := ret[0].([]*entity.Tenant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockReaderMockRecorder) List() *gomock.Call {
+func (mr *MockReaderMockRecorder) List(page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockReader)(nil).List))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockReader)(nil).List), page, limit)
 }
 
 // MockWriter is a mock of Writer interface.
@@ -258,18 +258,18 @@ func (mr *MockRepositoryMockRecorder) GetCount() *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockRepository) List() ([]*entity.Tenant, error) {
+func (m *MockRepository) List(page, limit int) ([]*entity.Tenant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List")
+	ret := m.ctrl.Call(m, "List", page, limit)
 	ret0, _ := ret[0].([]*entity.Tenant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockRepositoryMockRecorder) List() *gomock.Call {
+func (mr *MockRepositoryMockRecorder) List(page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRepository)(nil).List))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRepository)(nil).List), page, limit)
 }
 
 // Update mocks base method.
@@ -368,18 +368,18 @@ func (mr *MockUseCaseMockRecorder) GetTenant(id interface{}) *gomock.Call {
 }
 
 // ListTenants mocks base method.
-func (m *MockUseCase) ListTenants() ([]*entity.Tenant, error) {
+func (m *MockUseCase) ListTenants(page, limit int) ([]*entity.Tenant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListTenants")
+	ret := m.ctrl.Call(m, "ListTenants", page, limit)
 	ret0, _ := ret[0].([]*entity.Tenant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListTenants indicates an expected call of ListTenants.
-func (mr *MockUseCaseMockRecorder) ListTenants() *gomock.Call {
+func (mr *MockUseCaseMockRecorder) ListTenants(page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTenants", reflect.TypeOf((*MockUseCase)(nil).ListTenants))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTenants", reflect.TypeOf((*MockUseCase)(nil).ListTenants), page, limit)
 }
 
 // Login mocks base method.

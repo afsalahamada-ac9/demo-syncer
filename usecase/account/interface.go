@@ -14,8 +14,8 @@ import (
 type Reader interface {
 	GetByName(tenantID entity.ID, username string) (*entity.Account, error)
 	Get(id entity.ID) (*entity.Account, error)
-	List(tenantID entity.ID) ([]*entity.Account, error)
-	Search(tenantID entity.ID, query string) ([]*entity.Account, error)
+	List(tenantID entity.ID, page, limit int) ([]*entity.Account, error)
+	Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Account, error)
 	GetCount(tenantId entity.ID) (int, error)
 }
 
@@ -46,10 +46,10 @@ type UseCase interface {
 		at entity.AccountType) error
 	GetAccount(id entity.ID) (*entity.Account, error)
 	GetAccountByName(tenantID entity.ID, username string) (*entity.Account, error)
-	ListAccounts(tenantID entity.ID) ([]*entity.Account, error)
+	ListAccounts(tenantID entity.ID, page, limit int) ([]*entity.Account, error)
 	UpdateAccount(e *entity.Account) error
 	DeleteAccount(id entity.ID) error
 	DeleteAccountByName(tenantID entity.ID, username string) error
 	GetCount(tenantId entity.ID) int
-	SearchAccounts(tenantID entity.ID, query string) ([]*entity.Account, error)
+	SearchAccounts(tenantID entity.ID, query string, page, limit int) ([]*entity.Account, error)
 }

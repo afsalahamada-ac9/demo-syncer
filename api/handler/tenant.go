@@ -28,8 +28,9 @@ func listTenants(service tenant.UseCase) http.Handler {
 		errorMessage := "Error reading tenants"
 		var data []*entity.Tenant
 		var err error
-
-		data, err = service.ListTenants()
+		page, _ := strconv.Atoi(r.URL.Query().Get(httpParamPage))
+		limit, _ := strconv.Atoi(r.URL.Query().Get(httpParamLimit))
+		data, err = service.ListTenants(page, limit)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)

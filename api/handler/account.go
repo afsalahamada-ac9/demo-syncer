@@ -31,6 +31,9 @@ func listAccounts(service account.UseCase) http.Handler {
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
 		search := r.URL.Query().Get(httpParamQuery)
 
+		page, _ := strconv.Atoi(r.URL.Query().Get(httpParamPage))
+		limit, _ := strconv.Atoi(r.URL.Query().Get(httpParamLimit))
+
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -42,10 +45,10 @@ func listAccounts(service account.UseCase) http.Handler {
 		case search == "":
 			// TODO: Implement page and limit in the query and that should be bound
 			// by the values supported by the server
-			data, err = service.ListAccounts(tenantID)
+			data, err = service.ListAccounts(tenantID, page, limit)
 		default:
 			// TODO: Do we need to filter/search by type? I think so.
-			data, err = service.SearchAccounts(tenantID, search)
+			data, err = service.SearchAccounts(tenantID, search, page, limit)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -60,6 +63,12 @@ func listAccounts(service account.UseCase) http.Handler {
 		total := service.GetCount(tenantID)
 		w.Header().Set(httpHeaderTotalCount, strconv.Itoa(total))
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
+
+		if data == nil {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(errorMessage))
+			return
+		} // note: check this
 
 		var toJ []*presenter.Account
 		for _, d := range data {

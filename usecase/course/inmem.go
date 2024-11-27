@@ -51,27 +51,40 @@ func (r *inmem) Update(e *entity.Course) error {
 
 // Search courses
 func (r *inmem) Search(tenantID entity.ID,
-	query string,
+	query string, page, limit int,
 ) ([]*entity.Course, error) {
-	var d []*entity.Course
+	var courses []*entity.Course
 	for _, j := range r.m {
 		if j.TenantID == tenantID &&
 			strings.Contains(strings.ToLower(j.Name), query) {
-			d = append(d, j)
+			courses = append(courses, j)
 		}
 	}
-	return d, nil
+
+	if page > 0 && limit > 0 {
+		start := (page - 1) * limit
+		end := start + limit
+		if start > len(courses) {
+			return []*entity.Course{}, nil
+		}
+		if end > len(courses) {
+			end = len(courses)
+		}
+		return courses[start:end], nil
+	}
+
+	return courses, nil
 }
 
 // List courses
-func (r *inmem) List(tenantID entity.ID) ([]*entity.Course, error) {
-	var d []*entity.Course
+func (r *inmem) List(tenantID entity.ID, page, limit int) ([]*entity.Course, error) {
+	var courses []*entity.Course
 	for _, j := range r.m {
 		if j.TenantID == tenantID {
-			d = append(d, j)
+			courses = append(courses, j)
 		}
 	}
-	return d, nil
+	return courses, nil
 }
 
 // Delete a course

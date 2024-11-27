@@ -61,9 +61,9 @@ func (s *Service) GetCourse(id entity.ID) (*entity.Course, error) {
 
 // SearchCourses search course
 func (s *Service) SearchCourses(tenantID entity.ID,
-	query string,
+	query string, page, limit int,
 ) ([]*entity.Course, error) {
-	courses, err := s.repo.Search(tenantID, strings.ToLower(query))
+	courses, err := s.repo.Search(tenantID, strings.ToLower(query), page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +74,8 @@ func (s *Service) SearchCourses(tenantID entity.ID,
 }
 
 // ListCourses list course
-func (s *Service) ListCourses(tenantID entity.ID) ([]*entity.Course, error) {
-	courses, err := s.repo.List(tenantID)
+func (s *Service) ListCourses(tenantID entity.ID, page, limit int) ([]*entity.Course, error) {
+	courses, err := s.repo.List(tenantID, page, limit)
 	if err != nil {
 		return nil, err
 	}

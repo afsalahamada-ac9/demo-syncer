@@ -101,42 +101,46 @@ func (r *CenterPGSQL) Update(e *entity.Center) error {
 
 // Search searches centers
 func (r *CenterPGSQL) Search(tenantID entity.ID,
-	query string,
+	q string, page, limit int,
 ) ([]*entity.Center, error) {
-	stmt, err := r.db.Prepare(`
+	query := `
 		SELECT id, tenant_id, ext_id, ext_name, name, mode, created_at FROM center
-		WHERE tenant_id = $1 AND name LIKE $2;`)
-	if err != nil {
-		return nil, err
-	}
-	var centers []*entity.Center
-	rows, err := stmt.Query(tenantID, "%"+query+"%")
-	if err != nil {
-		return nil, err
-	}
+		WHERE tenant_id = $1 AND name LIKE $2`
 
-	var extID sql.NullString
-	var extName sql.NullString
-	var name sql.NullString
-	var mode sql.NullString
-	for rows.Next() {
-		var c entity.Center
-		err = rows.Scan(&c.ID, &c.TenantID, &extID, &extName, &name, &mode, &c.CreatedAt)
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` limit $3 offset $4;`
+		stmt, err := r.db.Prepare(query)
 		if err != nil {
 			return nil, err
 		}
-		c.ExtID = extID.String
-		c.ExtName = extName.String
-		c.Name = name.String
-		c.Mode = entity.CenterMode(mode.String)
-		centers = append(centers, &c)
+
+		rows, err := stmt.Query(tenantID, "%"+q+"%", limit, offset)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return r.scanRows(rows)
 	}
 
-	return centers, nil
+	stmt, err := r.db.Prepare(query + ";")
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(tenantID, "%"+q+"%")
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	return r.scanRows(rows)
+
 }
 
 // List lists centers
-func (r *CenterPGSQL) List(tenantID entity.ID) ([]*entity.Center, error) {
+func (r *CenterPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Center, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, ext_name, name, mode, created_at FROM center
 		WHERE tenant_id = $1;`)
@@ -195,4 +199,43 @@ func (r *CenterPGSQL) GetCount(tenantID entity.ID) (int, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *CenterPGSQL) scanRows(rows *sql.Rows) ([]*entity.Center, error) {
+	var centers []*entity.Center
+	for rows.Next() {
+		var center entity.Center
+		var ext_id, ext_name, name, webpage sql.NullString
+		var capacity sql.NullInt32
+
+		err := rows.Scan(
+			&center.ID,
+			&center.TenantID,
+			&ext_id,
+			&ext_name,
+			&name,
+			&center.Location,
+			&center.GeoLocation,
+			&capacity,
+			&center.Mode,
+			&webpage,
+			&center.IsNationalCenter,
+			&center.IsEnabled,
+			&center.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		center.ExtID = ext_id.String
+		center.ExtName = ext_name.String
+		center.Name = name.String
+		center.Capacity = capacity.Int32
+		center.WebPage = webpage.String
+
+		centers = append(centers, &center)
+
+	}
+	return centers, nil
 }

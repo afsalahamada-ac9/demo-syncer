@@ -49,7 +49,7 @@ func Test_SearchAndFind(t *testing.T) {
 	_, _ = m.CreateTenant(t2.Name, t2.Country)
 
 	t.Run("list all", func(t *testing.T) {
-		all, err := m.ListTenants()
+		all, err := m.ListTenants(0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(all))
 	})

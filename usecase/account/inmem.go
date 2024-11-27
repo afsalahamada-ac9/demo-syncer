@@ -70,11 +70,22 @@ func (r *inmem) Update(e *entity.Account) error {
 }
 
 // List list accounts
-func (r *inmem) List(tenantID entity.ID) ([]*entity.Account, error) {
+func (r *inmem) List(tenantID entity.ID, page, limit int) ([]*entity.Account, error) {
 	var d []*entity.Account
 	for _, j := range r.m {
 		// TenantID check removed
 		d = append(d, j)
+	}
+	if page > 0 && limit > 0 {
+		start := (page - 1) * limit
+		end := start + limit
+		if start > len(d) {
+			return []*entity.Account{}, nil
+		}
+		if end > len(d) {
+			end = len(d)
+		}
+		return d[start:end], nil
 	}
 	return d, nil
 }
@@ -115,13 +126,25 @@ func (r *inmem) GetCount(tenantID entity.ID) (int, error) {
 }
 
 // Search search accounts
-func (r *inmem) Search(tenantID entity.ID, query string) ([]*entity.Account, error) {
+func (r *inmem) Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Account, error) {
 	var d []*entity.Account
 	for _, j := range r.m {
 		if j.TenantID == tenantID &&
 			strings.Contains(strings.ToLower(j.Username), query) {
 			d = append(d, j)
 		}
+	}
+
+	if page > 0 && limit > 0 {
+		start := (page - 1) * limit
+		end := start + limit
+		if start > len(d) {
+			return []*entity.Account{}, nil
+		}
+		if end > len(d) {
+			end = len(d)
+		}
+		return d[start:end], nil
 	}
 	return d, nil
 }

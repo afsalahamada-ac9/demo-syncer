@@ -127,94 +127,74 @@ func (r *CoursePGSQL) Update(e *entity.Course) error {
 
 // Search searches courses
 func (r *CoursePGSQL) Search(tenantID entity.ID,
-	query string,
+	q string, page, limit int,
 ) ([]*entity.Course, error) {
-	stmt, err := r.db.Prepare(`
+	query := `
 		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
 		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
-		WHERE tenant_id = $1 AND name LIKE $2;`)
-	if err != nil {
-		return nil, err
-	}
-	var courses []*entity.Course
-	rows, err := stmt.Query(tenantID, "%"+query+"%")
-	if err != nil {
-		return nil, err
-	}
+		WHERE tenant_id = $1 AND name LIKE $2`
 
-	var ext_id sql.NullString
-	var name, notes, timezone, loc_json, status, ctype sql.NullString
-
-	for rows.Next() {
-		var c entity.Course
-		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &name, &notes, &timezone, &loc_json,
-			&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` LIMIT $3 OFFSET $4;`
+		stmt, err := r.db.Prepare(query)
 		if err != nil {
 			return nil, err
 		}
-		c.ExtID = ext_id.String
-		c.Name = name.String
-		c.Notes = notes.String
-		c.Timezone = timezone.String
-		c.Status = entity.CourseStatus(status.String)
-		c.CType = entity.CourseType(ctype.String)
-
-		if loc_json.Valid && loc_json.String != "" {
-			err = json.Unmarshal([]byte(loc_json.String), &c.Location)
-			if err != nil {
-				return nil, err
-			}
+		rows, err := stmt.Query(tenantID, "%"+q+"%", limit, offset)
+		if err != nil {
+			return nil, err
 		}
-
-		courses = append(courses, &c)
+		defer rows.Close()
+		return r.scanRows(rows)
 	}
 
-	return courses, nil
-}
-
-// List lists courses
-func (r *CoursePGSQL) List(tenantID entity.ID) ([]*entity.Course, error) {
-	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
-		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
-		FROM course
-		WHERE tenant_id = $1;`)
+	stmt, err := r.db.Prepare(query + ";")
 	if err != nil {
 		return nil, err
 	}
-	var courses []*entity.Course
+	rows, err := stmt.Query(tenantID, "%"+q+"%")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return r.scanRows(rows)
+}
+
+// List lists courses
+func (r *CoursePGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Course, error) {
+	query := `
+		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
+		status, ctype, max_attendees, num_attendees, is_auto_approve, created_at
+		FROM course
+		WHERE tenant_id = $1`
+
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` LIMIT $2 OFFSET $3;`
+		stmt, err := r.db.Prepare(query)
+		if err != nil {
+			return nil, err
+		}
+		rows, err := stmt.Query(tenantID, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return r.scanRows(rows)
+	}
+	stmt, err := r.db.Prepare(query + ";")
+	if err != nil {
+		return nil, err
+	}
 	rows, err := stmt.Query(tenantID)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+	return r.scanRows(rows)
 
-	var ext_id sql.NullString
-	var name, notes, timezone, loc_json, status, ctype sql.NullString
-	for rows.Next() {
-		var c entity.Course
-		err = rows.Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &name, &notes, &timezone, &loc_json,
-			&status, &ctype, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		c.ExtID = ext_id.String
-		c.Name = name.String
-		c.Notes = notes.String
-		c.Timezone = timezone.String
-		c.Status = entity.CourseStatus(status.String)
-		c.CType = entity.CourseType(ctype.String)
-
-		if loc_json.Valid && loc_json.String != "" {
-			err = json.Unmarshal([]byte(loc_json.String), &c.Location)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		courses = append(courses, &c)
-	}
-	return courses, nil
 }
 
 // Delete deletes a course
@@ -244,4 +224,42 @@ func (r *CoursePGSQL) GetCount(tenantID entity.ID) (int, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
+	var courses []*entity.Course
+	for rows.Next() {
+		var course entity.Course
+		var ext_id, name, notes, timezone, is_auto_approve, created_at sql.NullString
+		var max_attendees, num_attendees sql.NullInt32
+		err := rows.Scan(
+			&course.ID,
+			&course.TenantID,
+			&course.CenterID,
+			&ext_id,
+			&name,
+			&notes,
+			&timezone,
+			&course.Location,
+			&course.Status,
+			&course.CType,
+			&max_attendees,
+			&num_attendees,
+			&is_auto_approve,
+			&created_at,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		course.ExtID = ext_id.String
+		course.Name = name.String
+		course.Notes = notes.String
+		course.Timezone = timezone.String
+		course.NumAttendees = num_attendees.Int32
+		course.MaxAttendees = max_attendees.Int32
+
+		courses = append(courses, &course)
+	}
+	return courses, nil
 }

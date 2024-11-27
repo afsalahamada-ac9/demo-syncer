@@ -45,7 +45,7 @@ func Test_listTenants(t *testing.T) {
 	}
 	service.EXPECT().GetCount().Return(1)
 	service.EXPECT().
-		ListTenants().
+		ListTenants(gomock.Any(), gomock.Any()).
 		Return([]*entity.Tenant{tenant}, nil)
 	ts := httptest.NewServer(listTenants(service))
 	defer ts.Close()

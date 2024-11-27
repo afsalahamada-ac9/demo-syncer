@@ -56,9 +56,9 @@ func (s *Service) GetCenter(id entity.ID) (*entity.Center, error) {
 
 // SearchCenters search center
 func (s *Service) SearchCenters(tenantID entity.ID,
-	query string,
+	query string, page, limit int,
 ) ([]*entity.Center, error) {
-	centers, err := s.repo.Search(tenantID, strings.ToLower(query))
+	centers, err := s.repo.Search(tenantID, strings.ToLower(query), page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +69,8 @@ func (s *Service) SearchCenters(tenantID entity.ID,
 }
 
 // ListCenters list center
-func (s *Service) ListCenters(tenantID entity.ID) ([]*entity.Center, error) {
-	centers, err := s.repo.List(tenantID)
+func (s *Service) ListCenters(tenantID entity.ID, page, limit int) ([]*entity.Center, error) {
+	centers, err := s.repo.List(tenantID, page, limit)
 	if err != nil {
 		return nil, err
 	}

@@ -65,33 +65,33 @@ func (mr *MockReaderMockRecorder) GetCount(id interface{}) *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockReader) List(tenantID entity.ID) ([]*entity.Center, error) {
+func (m *MockReader) List(tenantID entity.ID, page, limit int) ([]*entity.Center, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", tenantID)
+	ret := m.ctrl.Call(m, "List", tenantID, page, limit)
 	ret0, _ := ret[0].([]*entity.Center)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockReaderMockRecorder) List(tenantID interface{}) *gomock.Call {
+func (mr *MockReaderMockRecorder) List(tenantID, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockReader)(nil).List), tenantID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockReader)(nil).List), tenantID, page, limit)
 }
 
 // Search mocks base method.
-func (m *MockReader) Search(tenantID entity.ID, query string) ([]*entity.Center, error) {
+func (m *MockReader) Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Center, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Search", tenantID, query)
+	ret := m.ctrl.Call(m, "Search", tenantID, query, page, limit)
 	ret0, _ := ret[0].([]*entity.Center)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Search indicates an expected call of Search.
-func (mr *MockReaderMockRecorder) Search(tenantID, query interface{}) *gomock.Call {
+func (mr *MockReaderMockRecorder) Search(tenantID, query, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockReader)(nil).Search), tenantID, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockReader)(nil).Search), tenantID, query, page, limit)
 }
 
 // MockWriter is a mock of Writer interface.
@@ -243,33 +243,33 @@ func (mr *MockRepositoryMockRecorder) GetCount(id interface{}) *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockRepository) List(tenantID entity.ID) ([]*entity.Center, error) {
+func (m *MockRepository) List(tenantID entity.ID, page, limit int) ([]*entity.Center, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", tenantID)
+	ret := m.ctrl.Call(m, "List", tenantID, page, limit)
 	ret0, _ := ret[0].([]*entity.Center)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockRepositoryMockRecorder) List(tenantID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) List(tenantID, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRepository)(nil).List), tenantID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRepository)(nil).List), tenantID, page, limit)
 }
 
 // Search mocks base method.
-func (m *MockRepository) Search(tenantID entity.ID, query string) ([]*entity.Center, error) {
+func (m *MockRepository) Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Center, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Search", tenantID, query)
+	ret := m.ctrl.Call(m, "Search", tenantID, query, page, limit)
 	ret0, _ := ret[0].([]*entity.Center)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Search indicates an expected call of Search.
-func (mr *MockRepositoryMockRecorder) Search(tenantID, query interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Search(tenantID, query, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockRepository)(nil).Search), tenantID, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockRepository)(nil).Search), tenantID, query, page, limit)
 }
 
 // Update mocks base method.
@@ -368,33 +368,33 @@ func (mr *MockUseCaseMockRecorder) GetCount(id interface{}) *gomock.Call {
 }
 
 // ListCenters mocks base method.
-func (m *MockUseCase) ListCenters(tenantID entity.ID) ([]*entity.Center, error) {
+func (m *MockUseCase) ListCenters(tenantID entity.ID, page, limit int) ([]*entity.Center, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListCenters", tenantID)
+	ret := m.ctrl.Call(m, "ListCenters", tenantID, page, limit)
 	ret0, _ := ret[0].([]*entity.Center)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListCenters indicates an expected call of ListCenters.
-func (mr *MockUseCaseMockRecorder) ListCenters(tenantID interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) ListCenters(tenantID, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCenters", reflect.TypeOf((*MockUseCase)(nil).ListCenters), tenantID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCenters", reflect.TypeOf((*MockUseCase)(nil).ListCenters), tenantID, page, limit)
 }
 
 // SearchCenters mocks base method.
-func (m *MockUseCase) SearchCenters(tenantID entity.ID, query string) ([]*entity.Center, error) {
+func (m *MockUseCase) SearchCenters(tenantID entity.ID, query string, page, limit int) ([]*entity.Center, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchCenters", tenantID, query)
+	ret := m.ctrl.Call(m, "SearchCenters", tenantID, query, page, limit)
 	ret0, _ := ret[0].([]*entity.Center)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SearchCenters indicates an expected call of SearchCenters.
-func (mr *MockUseCaseMockRecorder) SearchCenters(tenantID, query interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) SearchCenters(tenantID, query, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchCenters", reflect.TypeOf((*MockUseCase)(nil).SearchCenters), tenantID, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchCenters", reflect.TypeOf((*MockUseCase)(nil).SearchCenters), tenantID, query, page, limit)
 }
 
 // UpdateCenter mocks base method.

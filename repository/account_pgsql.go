@@ -56,7 +56,7 @@ func (r *AccountPGSQL) Create(e *entity.Account) error {
 }
 
 // Note: Accounts are global in nature, but for storage purposes they will be assigned to some tenants.
-// GetByName retrievs an account using username
+// GetByName retrieves an account using username
 func (r *AccountPGSQL) GetByName(tenantID entity.ID, username string) (*entity.Account, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, ext_id, type, created_at FROM account WHERE tenant_id = $1 AND username = $2;`)
@@ -89,31 +89,35 @@ func (r *AccountPGSQL) Update(e *entity.Account) error {
 }
 
 // List accounts
-func (r *AccountPGSQL) List(tenantID entity.ID) ([]*entity.Account, error) {
-	stmt, err := r.db.Prepare(`
-		SELECT id, ext_id, username, type, created_at FROM account;`)
-	if err != nil {
-		return nil, err
-	}
-	var accounts []*entity.Account
-	rows, err := stmt.Query()
-	if err != nil {
-		return nil, err
-	}
-
-	var username sql.NullString
-	var acct_type sql.NullString
-	for rows.Next() {
-		var t entity.Account
-		err = rows.Scan(&t.ID, &t.ExtID, &username, &acct_type, &t.CreatedAt)
+func (r *AccountPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Account, error) {
+	query := `
+		SELECT id, ext_id, username, type, created_at FROM account`
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` LIMIT $2 OFFSET $3;`
+		stmt, err := r.db.Prepare(query)
 		if err != nil {
 			return nil, err
 		}
-		t.Username = username.String
-		t.Type = entity.AccountType(acct_type.String)
-		accounts = append(accounts, &t)
+		rows, err := stmt.Query(tenantID, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return r.scanRows(rows)
 	}
-	return accounts, nil
+
+	stmt, err := r.db.Prepare(query + ";")
+	if err != nil {
+		return nil, err
+	}
+	rows, err := stmt.Query(tenantID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return r.scanRows(rows)
 }
 
 // Delete deletes an account
@@ -202,59 +206,78 @@ func (r *AccountPGSQL) Get(id entity.ID) (*entity.Account, error) {
 }
 
 // Search searches accounts
-func (r *AccountPGSQL) Search(tenantID entity.ID, query string) ([]*entity.Account, error) {
+func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Account, error) {
 	// OR LOWER(first_name) LIKE LOWER($2)
 	// OR LOWER(last_name) LIKE LOWER($2)
 	// OR LOWER(email) LIKE LOWER($2)
-	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, username, first_name, last_name,
-			phone, email, type, created_at
-		FROM account 
-		WHERE tenant_id = $1 
-		AND (
-			LOWER(username) LIKE LOWER($2) 
-		);`)
+
+	query := `
+	SELECT id, tenant_id, ext_id, username, first_name, last_name,
+	phone, email, type, created_at
+	FROM account 
+	WHERE tenant_id = $1 
+	AND (
+		LOWER(username) LIKE LOWER($2) 
+		)`
+
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` LIMIT $3 OFFSET $4;`
+
+		stmt, err := r.db.Prepare(query)
+		if err != nil {
+			return nil, err
+		}
+		rows, err := stmt.Query(tenantID, "%"+q+"%", limit, offset)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return r.scanRows(rows)
+
+	}
+
+	stmt, err := r.db.Prepare(query + ";")
 	if err != nil {
 		return nil, err
 	}
-
-	rows, err := stmt.Query(tenantID, query+"%")
+	rows, err := stmt.Query(tenantID, "%"+q+"%")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var accounts []*entity.Account
+	return r.scanRows(rows)
+}
 
+func (r *AccountPGSQL) scanRows(rows *sql.Rows) ([]*entity.Account, error) {
+	var accounts []*entity.Account
 	for rows.Next() {
-		var a entity.Account
-		var ext_id, first_name, last_name, phone, email, accountType sql.NullString
+		var account entity.Account
+		var ext_id, username, first_name, last_name, phone, email sql.NullString
 
 		err := rows.Scan(
-			&a.ID,
-			&a.TenantID,
+			&account.ID,
+			&account.TenantID,
 			&ext_id,
-			&a.Username,
+			&username,
 			&first_name,
 			&last_name,
 			&phone,
 			&email,
-			&accountType,
-			&a.CreatedAt,
 		)
+
 		if err != nil {
 			return nil, err
 		}
+		account.ExtID = ext_id.String
+		account.Username = username.String
+		account.FirstName = first_name.String
+		account.LastName = last_name.String
+		account.Phone = phone.String
+		account.Email = email.String
 
-		a.ExtID = ext_id.String
-		a.FirstName = first_name.String
-		a.LastName = last_name.String
-		a.Phone = phone.String
-		a.Email = email.String
-		a.Type = entity.AccountType(accountType.String)
-
-		accounts = append(accounts, &a)
+		accounts = append(accounts, &account)
 	}
-
 	return accounts, nil
 }

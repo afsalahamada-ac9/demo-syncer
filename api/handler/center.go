@@ -36,6 +36,8 @@ func listCenters(service center.UseCase) http.Handler {
 		var err error
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
 		search := r.URL.Query().Get(httpParamQuery)
+		page, _ := strconv.Atoi(r.URL.Query().Get(httpParamPage))
+		limit, _ := strconv.Atoi(r.URL.Query().Get(httpParamLimit))
 
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
@@ -46,12 +48,12 @@ func listCenters(service center.UseCase) http.Handler {
 
 		switch {
 		case search == "":
-			data, err = service.ListCenters(tenantID)
+			data, err = service.ListCenters(tenantID, page, limit)
 		default:
 			// TODO: search need to be reworked; need to add a count
 			// for search; also need to see how the caller generates
 			// the search query request
-			data, err = service.SearchCenters(tenantID, search)
+			data, err = service.SearchCenters(tenantID, search, page, limit)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {

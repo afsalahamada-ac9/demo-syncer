@@ -58,12 +58,25 @@ func (r *inmem) Update(e *entity.Tenant) error {
 }
 
 // List tenants
-func (r *inmem) List() ([]*entity.Tenant, error) {
-	var d []*entity.Tenant
+func (r *inmem) List(page, limit int) ([]*entity.Tenant, error) {
+	var tenants []*entity.Tenant
 	for _, j := range r.m {
-		d = append(d, j)
+		tenants = append(tenants, j)
 	}
-	return d, nil
+	if page > 0 && limit > 0 {
+		start := (page - 1) * limit
+		end := start + limit
+		if start > len(tenants) {
+			return []*entity.Tenant{}, nil
+		}
+		if end > len(tenants) {
+			end = len(tenants)
+		}
+
+		return tenants[start:end], nil
+	}
+
+	return tenants, nil
 }
 
 // Delete a tenant
