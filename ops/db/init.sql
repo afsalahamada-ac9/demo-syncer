@@ -257,6 +257,8 @@ CREATE TABLE IF NOT EXISTS course_timing (
     course_date DATE,
     start_time TIME,
     end_time TIME,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_course_timings_course_id ON course_timing(course_id);
