@@ -13,8 +13,8 @@ import (
 // Reader interface
 type Reader interface {
 	Get(id entity.ID) (*entity.Course, error)
-	Search(tenantID entity.ID, query string) ([]*entity.Course, error)
-	List(tenantID entity.ID) ([]*entity.Course, error)
+	Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Course, error)
+	List(tenantID entity.ID, page, limit int) ([]*entity.Course, error)
 	GetCount(id entity.ID) (int, error)
 }
 
@@ -34,8 +34,8 @@ type Repository interface {
 // UseCase interface
 type UseCase interface {
 	GetCourse(id entity.ID) (*entity.Course, error)
-	SearchCourses(tenantID entity.ID, query string) ([]*entity.Course, error)
-	ListCourses(tenantID entity.ID) ([]*entity.Course, error)
+	SearchCourses(tenantID entity.ID, query string, page, limit int) ([]*entity.Course, error)
+	ListCourses(tenantID entity.ID, page, limit int) ([]*entity.Course, error)
 	CreateCourse(tenantID entity.ID,
 		extID string,
 		centerID entity.ID,

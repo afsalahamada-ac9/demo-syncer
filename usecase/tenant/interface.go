@@ -14,7 +14,7 @@ import (
 type Reader interface {
 	Get(id entity.ID) (*entity.Tenant, error)
 	GetByName(username string) (*entity.Tenant, error)
-	List() ([]*entity.Tenant, error)
+	List(page, limit int) ([]*entity.Tenant, error)
 	GetCount() (int, error)
 }
 
@@ -34,7 +34,7 @@ type Repository interface {
 // UseCase interface
 type UseCase interface {
 	GetTenant(id entity.ID) (*entity.Tenant, error)
-	ListTenants() ([]*entity.Tenant, error)
+	ListTenants(page, limit int) ([]*entity.Tenant, error)
 	CreateTenant(username, country string) (entity.ID, error)
 	UpdateTenant(e *entity.Tenant) error
 	DeleteTenant(id entity.ID) error

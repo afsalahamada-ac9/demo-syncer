@@ -104,27 +104,36 @@ func (r *TenantPGSQL) Update(e *entity.Tenant) error {
 }
 
 // List Tenants
-func (r *TenantPGSQL) List() ([]*entity.Tenant, error) {
-	stmt, err := r.db.Prepare(`SELECT id, name, country, created_at FROM tenant;`)
+func (r *TenantPGSQL) List(page, limit int) ([]*entity.Tenant, error) {
+	query := `SELECT id, name, country, created_at FROM tenant`
+
+	if page > 0 && limit > 0 {
+		offset := (page - 1) * limit
+		query += ` LIMIT $1 OFFSET $2;`
+		stmt, err := r.db.Prepare(query)
+		if err != nil {
+			return nil, err
+		}
+		rows, err := stmt.Query(limit, offset)
+		if err != nil {
+			return nil, err
+		}
+
+		defer rows.Close()
+		return r.scanRows(rows)
+	}
+
+	stmt, err := r.db.Prepare(query + ";")
 	if err != nil {
 		return nil, err
 	}
-	var Tenants []*entity.Tenant
 	rows, err := stmt.Query()
 	if err != nil {
 		return nil, err
 	}
-	for rows.Next() {
-		var t entity.Tenant
-		var country sql.NullString
-		err = rows.Scan(&t.ID, &t.Name, &country, &t.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		t.Country = country.String
-		Tenants = append(Tenants, &t)
-	}
-	return Tenants, nil
+	defer rows.Close()
+	return r.scanRows(rows)
+
 }
 
 // Delete a Tenant
@@ -149,4 +158,31 @@ func (r *TenantPGSQL) GetCount() (int, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *TenantPGSQL) scanRows(rows *sql.Rows) ([]*entity.Tenant, error) {
+	var tenants []*entity.Tenant
+
+	for rows.Next() {
+		var tenant entity.Tenant
+		var name, country, authtoken sql.NullString
+		err := rows.Scan(
+			&tenant.ID,
+			&name,
+			&country,
+			&authtoken,
+			&tenant.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		tenant.Name = name.String
+		tenant.Country = country.String
+		tenant.AuthToken = authtoken.String
+
+		tenants = append(tenants, &tenant)
+	}
+	return tenants, nil
 }

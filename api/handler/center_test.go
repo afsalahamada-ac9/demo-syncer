@@ -48,7 +48,7 @@ func Test_listCenters(t *testing.T) {
 	}
 	service.EXPECT().GetCount(tmpl.TenantID).Return(1)
 	service.EXPECT().
-		ListCenters(tmpl.TenantID).
+		ListCenters(tmpl.TenantID, gomock.Any(), gomock.Any()).
 		Return([]*entity.Center{tmpl}, nil)
 	ts := httptest.NewServer(listCenters(service))
 	defer ts.Close()
@@ -70,7 +70,7 @@ func Test_listCenters_NotFound(t *testing.T) {
 	tenantID := tenantAlice
 	service.EXPECT().GetCount(tenantID).Return(0)
 	service.EXPECT().
-		SearchCenters(tenantID, "non-existent").
+		SearchCenters(tenantID, "non-existent", gomock.Any(), gomock.Any()).
 		Return(nil, entity.ErrNotFound)
 
 	client := &http.Client{}
@@ -94,7 +94,7 @@ func Test_listCenters_Search(t *testing.T) {
 	}
 	service.EXPECT().GetCount(tmpl.TenantID).Return(1)
 	service.EXPECT().
-		SearchCenters(tmpl.TenantID, "default").
+		SearchCenters(tmpl.TenantID, "default", gomock.Any(), gomock.Any()).
 		Return([]*entity.Center{tmpl}, nil)
 	ts := httptest.NewServer(listCenters(service))
 	defer ts.Close()

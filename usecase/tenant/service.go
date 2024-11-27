@@ -62,8 +62,8 @@ func (s *Service) GetTenantByName(name string) (*entity.Tenant, error) {
 }
 
 // ListTenants list tenant
-func (s *Service) ListTenants() ([]*entity.Tenant, error) {
-	tenants, err := s.repo.List()
+func (s *Service) ListTenants(page, limit int) ([]*entity.Tenant, error) {
+	tenants, err := s.repo.List(page, limit)
 	if err != nil {
 		return nil, err
 	}

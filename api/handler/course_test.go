@@ -42,7 +42,7 @@ func Test_listCourses(t *testing.T) {
 	}
 	service.EXPECT().GetCount(tmpl.TenantID).Return(1)
 	service.EXPECT().
-		ListCourses(tmpl.TenantID).
+		ListCourses(tmpl.TenantID, gomock.Any(), gomock.Any()).
 		Return([]*entity.Course{tmpl}, nil)
 	ts := httptest.NewServer(listCourses(service))
 	defer ts.Close()
@@ -64,7 +64,7 @@ func Test_listCourses_NotFound(t *testing.T) {
 	tenantID := tenantAlice
 	service.EXPECT().GetCount(tenantID).Return(0)
 	service.EXPECT().
-		SearchCourses(tenantID, "non-existent").
+		SearchCourses(tenantID, "non-existent", 0, 0).
 		Return(nil, entity.ErrNotFound)
 
 	client := &http.Client{}
@@ -88,7 +88,7 @@ func Test_listCourses_Search(t *testing.T) {
 	}
 	service.EXPECT().GetCount(tmpl.TenantID).Return(1)
 	service.EXPECT().
-		SearchCourses(tmpl.TenantID, "default").
+		SearchCourses(tmpl.TenantID, "default", gomock.Any(), gomock.Any()).
 		Return([]*entity.Course{tmpl}, nil)
 	ts := httptest.NewServer(listCourses(service))
 	defer ts.Close()

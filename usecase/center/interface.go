@@ -13,8 +13,8 @@ import (
 // Reader interface
 type Reader interface {
 	Get(id entity.ID) (*entity.Center, error)
-	Search(tenantID entity.ID, query string) ([]*entity.Center, error)
-	List(tenantID entity.ID) ([]*entity.Center, error)
+	Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Center, error)
+	List(tenantID entity.ID, page, limit int) ([]*entity.Center, error)
 	GetCount(id entity.ID) (int, error)
 }
 
@@ -34,8 +34,8 @@ type Repository interface {
 // UseCase interface
 type UseCase interface {
 	GetCenter(id entity.ID) (*entity.Center, error)
-	SearchCenters(tenantID entity.ID, query string) ([]*entity.Center, error)
-	ListCenters(tenantID entity.ID) ([]*entity.Center, error)
+	SearchCenters(tenantID entity.ID, query string, page, limit int) ([]*entity.Center, error)
+	ListCenters(tenantID entity.ID, page, limit int) ([]*entity.Center, error)
 	CreateCenter(tenantID entity.ID, extID, extName, name string, mode entity.CenterMode, isEnabled bool) (entity.ID, error)
 	UpdateCenter(e *entity.Center) error
 	DeleteCenter(id entity.ID) error

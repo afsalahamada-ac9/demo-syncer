@@ -59,23 +59,23 @@ func Test_SearchAndFind(t *testing.T) {
 	_, _ = m.CreateCenter(tmpl2.TenantID, tmpl2.ExtID, tmpl2.ExtName, tmpl2.Name, tmpl2.Mode, tmpl2.IsEnabled)
 
 	t.Run("search", func(t *testing.T) {
-		res, err := m.SearchCenters(tmpl1.TenantID, "default1")
+		res, err := m.SearchCenters(tmpl1.TenantID, "default1", 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(res))
 		assert.Equal(t, tmpl1.ExtID, res[0].ExtID)
 		assert.Equal(t, tmpl1.Mode, res[0].Mode)
 
 		// 'default' query value matches both the center names
-		res, err = m.SearchCenters(tmpl1.TenantID, "default")
+		res, err = m.SearchCenters(tmpl1.TenantID, "default", 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(res))
 
-		res, err = m.SearchCenters(tmpl1.TenantID, "non-existent")
+		res, err = m.SearchCenters(tmpl1.TenantID, "non-existent", 0, 0)
 		assert.Equal(t, entity.ErrNotFound, err)
 		assert.Nil(t, res)
 	})
 	t.Run("list all", func(t *testing.T) {
-		all, err := m.ListCenters(tmpl1.TenantID)
+		all, err := m.ListCenters(tmpl1.TenantID, 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(all))
 	})

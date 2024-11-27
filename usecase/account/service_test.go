@@ -90,7 +90,7 @@ func Test_SearchAndFind(t *testing.T) {
 	)
 
 	t.Run("list all", func(t *testing.T) {
-		all, err := m.ListAccounts(tenantAlice)
+		all, err := m.ListAccounts(tenantAlice, 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(all))
 	})

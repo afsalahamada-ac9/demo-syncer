@@ -30,7 +30,8 @@ func listCourses(service course.UseCase) http.Handler {
 		var err error
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
 		search := r.URL.Query().Get(httpParamQuery)
-
+		page, _ := strconv.Atoi(r.URL.Query().Get(httpParamPage))
+		limit, _ := strconv.Atoi(r.URL.Query().Get(httpParamLimit))
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -40,12 +41,12 @@ func listCourses(service course.UseCase) http.Handler {
 
 		switch {
 		case search == "":
-			data, err = service.ListCourses(tenantID)
+			data, err = service.ListCourses(tenantID, page, limit)
 		default:
 			// TODO: search need to be reworked; need to add a count
 			// for search; also need to see how the caller generates
 			// the search query request
-			data, err = service.SearchCourses(tenantID, search)
+			data, err = service.SearchCourses(tenantID, search, page, limit)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {

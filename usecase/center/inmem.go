@@ -52,26 +52,54 @@ func (r *inmem) Update(e *entity.Center) error {
 // Search centers
 func (r *inmem) Search(tenantID entity.ID,
 	query string,
+	page, limit int,
 ) ([]*entity.Center, error) {
-	var d []*entity.Center
+	var centers []*entity.Center
 	for _, j := range r.m {
 		if j.TenantID == tenantID &&
 			strings.Contains(strings.ToLower(j.Name), query) {
-			d = append(d, j)
+			centers = append(centers, j)
 		}
 	}
-	return d, nil
+
+	if page > 0 && limit > 0 {
+		start := (page - 1) * limit
+		end := start + limit
+
+		if start > len(centers) {
+			return []*entity.Center{}, nil
+		}
+		if end > len(centers) {
+			end = len(centers)
+		}
+		return centers[start:end], nil
+	}
+
+	return centers, nil
 }
 
 // List centers
-func (r *inmem) List(tenantID entity.ID) ([]*entity.Center, error) {
-	var d []*entity.Center
+func (r *inmem) List(tenantID entity.ID, page, limit int) ([]*entity.Center, error) {
+	var centers []*entity.Center
 	for _, j := range r.m {
 		if j.TenantID == tenantID {
-			d = append(d, j)
+			centers = append(centers, j)
 		}
 	}
-	return d, nil
+
+	if page > 0 && limit > 0 {
+		start := (page - 1) * limit
+		end := start + limit
+		if start > len(centers) {
+			return []*entity.Center{}, nil
+		}
+
+		if end > len(centers) {
+			end = len(centers)
+		}
+		return centers[start:end], nil
+	}
+	return centers, nil
 }
 
 // Delete a center

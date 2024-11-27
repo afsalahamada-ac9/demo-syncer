@@ -83,7 +83,7 @@ func Test_SearchAndFind(t *testing.T) {
 		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
 
 	t.Run("search", func(t *testing.T) {
-		res, err := m.SearchCourses(tmpl1.TenantID, "Part")
+		res, err := m.SearchCourses(tmpl1.TenantID, "Part", 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(res))
 		assert.Equal(t, tmpl1.ExtID, res[0].ExtID)
@@ -92,16 +92,16 @@ func Test_SearchAndFind(t *testing.T) {
 		// TODO: checks for other fields to be added
 
 		// 'default' query value matches both the course names
-		res, err = m.SearchCourses(tmpl1.TenantID, "Sahaj")
+		res, err = m.SearchCourses(tmpl1.TenantID, "Sahaj", 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(res))
 
-		res, err = m.SearchCourses(tmpl1.TenantID, "non-existent")
+		res, err = m.SearchCourses(tmpl1.TenantID, "non-existent", 0, 0)
 		assert.Equal(t, entity.ErrNotFound, err)
 		assert.Nil(t, res)
 	})
 	t.Run("list all", func(t *testing.T) {
-		all, err := m.ListCourses(tmpl1.TenantID)
+		all, err := m.ListCourses(tmpl1.TenantID, 0, 0)
 		assert.Nil(t, err)
 		assert.Equal(t, 2, len(all))
 	})
