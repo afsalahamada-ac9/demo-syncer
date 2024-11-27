@@ -28,13 +28,13 @@ func NewCoursePGSQL(db *sql.DB) *CoursePGSQL {
 
 // Create creates a course
 func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
-	locationJSON, err := json.Marshal(e.Location)
+	addressJSON, err := json.Marshal(e.Address)
 	if err != nil {
 		return e.ID, err
 	}
 
 	stmt, err := r.db.Prepare(`
-		INSERT INTO course (id, tenant_id, ext_id, center_id, name, notes, timezone, location, status, mode, max_attendees, num_attendees, is_auto_approve, created_at)
+		INSERT INTO course (id, tenant_id, ext_id, center_id, name, notes, timezone, address, status, mode, max_attendees, num_attendees, is_auto_approve, created_at)
 		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`)
 	if err != nil {
 		return e.ID, err
@@ -47,7 +47,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 		e.Name,
 		e.Notes,
 		e.Timezone,
-		string(locationJSON),
+		string(addressJSON),
 		e.Status,
 		e.Mode,
 		e.MaxAttendees,
@@ -68,7 +68,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 // Get retrieves a course
 func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	stmt, err := r.db.Prepare(`
-		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
+		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, address,
 		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE id = $1;`)
@@ -88,7 +88,7 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	}
 
 	if loc_json.Valid && loc_json.String != "" {
-		err = json.Unmarshal([]byte(loc_json.String), &c.Location)
+		err = json.Unmarshal([]byte(loc_json.String), &c.Address)
 		if err != nil {
 			return nil, err
 		}
@@ -107,17 +107,17 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 // Update updates a course
 func (r *CoursePGSQL) Update(e *entity.Course) error {
 	e.UpdatedAt = time.Now()
-	locationJSON, err := json.Marshal(e.Location)
+	addressJSON, err := json.Marshal(e.Address)
 	if err != nil {
 		return err
 	}
 
 	_, err = r.db.Exec(`
-		UPDATE course SET center_id = $1, name = $2, notes = $3, timezone = $4, location = $5,
+		UPDATE course SET center_id = $1, name = $2, notes = $3, timezone = $4, address = $5,
 		status = $6, mode = $7, max_attendees = $8, num_attendees = $9, is_auto_approve = $10,
 		updated_at = $11
 		WHERE id = $12;`,
-		e.CenterID, e.Name, e.Notes, e.Timezone, string(locationJSON), (e.Status), (e.Mode),
+		e.CenterID, e.Name, e.Notes, e.Timezone, string(addressJSON), (e.Status), (e.Mode),
 		e.MaxAttendees, e.NumAttendees, e.IsAutoApprove, e.UpdatedAt.Format("2006-01-02"), e.ID)
 	if err != nil {
 		return err
@@ -128,7 +128,7 @@ func (r *CoursePGSQL) Update(e *entity.Course) error {
 // Search searches courses
 func (r *CoursePGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Course, error) {
 	query := `
-		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
+		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, address,
 		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE tenant_id = $1 AND name LIKE $2
@@ -168,7 +168,7 @@ func (r *CoursePGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*
 // List lists courses
 func (r *CoursePGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Course, error) {
 	query := `
-		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, location,
+		SELECT id, tenant_id, ext_id, center_id, name, notes, timezone, address,
 		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
 		FROM course
 		WHERE tenant_id = $1`
@@ -267,7 +267,7 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 		course.Mode = entity.CourseMode(mode.String)
 
 		if loc_json.Valid && loc_json.String != "" {
-			err = json.Unmarshal([]byte(loc_json.String), &course.Location)
+			err = json.Unmarshal([]byte(loc_json.String), &course.Address)
 			if err != nil {
 				return nil, err
 			}

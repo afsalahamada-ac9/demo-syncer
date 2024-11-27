@@ -37,11 +37,11 @@ CREATE TYPE timezone_type AS ENUM ('EST'
     , 'MST'
     , 'PST'
     );
-CREATE TYPE account_type AS ENUM ('teacher'
-    , 'assistant-teacher'
+CREATE TYPE account_type AS ENUM ('assistant-teacher'
+    , 'member'
     , 'organizer'
     , 'student'
-    , 'member'
+    , 'teacher'
     , 'user'
     );
 CREATE TYPE center_mode AS ENUM ('in-person'
@@ -122,9 +122,11 @@ CREATE TABLE IF NOT EXISTS center (
     -- Note: This is the human readable name for the center
     name VARCHAR(255),
     
-    -- Note: location format: {"street_1": ..., "street_2": ..., "city": ..., "state": ..., "zip": ..., "country": ...}
+    -- Note: address format: {"street_1": ..., "street_2": ..., "city": ..., "state": ..., "zip": ..., "country": ...}
     -- When multitenancy is introduced, then country can be removed.
-    location JSONB,
+    address JSONB,
+
+    -- TODO: Is status required?
 
     -- Note: geo_location format: {"lat": ..., "long": ...}
     geo_location JSONB,
@@ -159,8 +161,6 @@ CREATE TABLE IF NOT EXISTS course (
     -- When course is created outside of salesforce, ext_id will be NULL
     ext_id VARCHAR(32) UNIQUE,
 
-    -- TODO: What's CType ID? How is it used?
-
     -- Note: Do not want to delete tenant if course exists
     tenant_id BIGINT NOT NULL REFERENCES tenant(id),
     product_id BIGINT NOT NULL REFERENCES product(id),
@@ -170,9 +170,9 @@ CREATE TABLE IF NOT EXISTS course (
     status course_status NOT NULL DEFAULT 'draft',
     max_attendees INTEGER,
     timezone timezone_type,
-    -- Note: location format: {"street_1": ..., "street_2": ..., "city": ..., "state": ..., "zip": ..., "country": ...}
+    -- Note: address format: {"street_1": ..., "street_2": ..., "city": ..., "state": ..., "zip": ..., "country": ...}
     -- When multitenancy is introduced, then country can be removed.
-    location JSONB,
+    address JSONB,
     center_id BIGINT NOT NULL REFERENCES center(id) ON DELETE RESTRICT,
     mode course_mode NOT NULL DEFAULT 'in-person',
     num_attendees INTEGER DEFAULT 0,

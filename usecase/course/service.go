@@ -30,7 +30,7 @@ func (s *Service) CreateCourse(tenantID entity.ID,
 	extID string,
 	centerID entity.ID,
 	name, notes, timezone string,
-	location entity.CourseLocation,
+	address entity.CourseAddress,
 	status entity.CourseStatus,
 	mode entity.CourseMode,
 	maxAttendees, numAttendees int32,
@@ -38,7 +38,7 @@ func (s *Service) CreateCourse(tenantID entity.ID,
 ) (entity.ID, error) {
 	c, err := entity.NewCourse(tenantID, extID, centerID,
 		name, notes, timezone,
-		location, status, mode,
+		address, status, mode,
 		maxAttendees, numAttendees, isAutoApprove)
 	if err != nil {
 		return entity.IDInvalid, err

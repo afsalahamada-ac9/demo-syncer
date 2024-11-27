@@ -96,7 +96,7 @@ func createCourse(service course.UseCase) http.Handler {
 			MaxAttendees int32                   `json:"maxAttendees"`
 			Dates        []entity.CourseDateTime `json:"dates"`
 			Timezone     string                  `json:"timezone"`
-			Location     entity.CourseLocation   `json:"location"`
+			Address      entity.CourseAddress    `json:"address"`
 			Mode         entity.CourseMode       `json:"mode"`
 			Notify       []entity.ID             `json:"notify"`
 		}
@@ -124,7 +124,7 @@ func createCourse(service course.UseCase) http.Handler {
 			input.Name,
 			input.Notes,
 			input.Timezone,
-			input.Location,
+			input.Address,
 			input.Status,
 			input.Mode,
 			input.MaxAttendees,

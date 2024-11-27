@@ -33,7 +33,7 @@ func (s *Service) CreateCenter(tenantID entity.ID,
 	mode entity.CenterMode,
 	isEnabled bool,
 ) (entity.ID, error) {
-	c, err := entity.NewCenter(tenantID, extID, extName, name, entity.CenterLocation{},
+	c, err := entity.NewCenter(tenantID, extID, extName, name, entity.CenterAddress{},
 		entity.CenterGeoLocation{}, 0, mode, "", false, isEnabled)
 	if err != nil {
 		return entity.IDInvalid, err

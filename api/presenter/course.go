@@ -13,16 +13,16 @@ import (
 // Course data - TenantID is returned in the HTTP header
 // X-GLAD-TenantID
 type Course struct {
-	ID           entity.ID             `json:"id"`
-	TenantID     entity.ID             `json:"tenantId"`
-	ExtID        string                `json:"extId"`
-	CenterID     entity.ID             `json:"centerId"`
-	Name         string                `json:"name"`
-	Notes        string                `json:"notes"`
-	Timezone     string                `json:"timezone"`
-	Location     entity.CourseLocation `json:"location"` // TODO: To be defined in here in presenter
-	Status       entity.CourseStatus   `json:"status"`
-	Mode         entity.CourseMode     `json:"mode"`
-	MaxAttendees int32                 `json:"maxAttendees"`
-	NumAttendees int32                 `json:"numAttendees"`
+	ID           entity.ID            `json:"id"`
+	TenantID     entity.ID            `json:"tenantId"`
+	ExtID        string               `json:"extId"`
+	CenterID     entity.ID            `json:"centerId"`
+	Name         string               `json:"name"`
+	Notes        string               `json:"notes"`
+	Timezone     string               `json:"timezone"`
+	Address      entity.CourseAddress `json:"address"` // TODO: To be defined in here in presenter
+	Status       entity.CourseStatus  `json:"status"`
+	Mode         entity.CourseMode    `json:"mode"`
+	MaxAttendees int32                `json:"maxAttendees"`
+	NumAttendees int32                `json:"numAttendees"`
 }

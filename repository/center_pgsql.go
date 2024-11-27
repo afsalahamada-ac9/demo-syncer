@@ -28,7 +28,7 @@ func NewCenterPGSQL(db *sql.DB) *CenterPGSQL {
 // Create creates a center
 func (r *CenterPGSQL) Create(e *entity.Center) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
-		INSERT INTO center (id, tenant_id, ext_id, ext_name, name, location, geo_location,
+		INSERT INTO center (id, tenant_id, ext_id, ext_name, name, address, geo_location,
 		 capacity, mode, webpage, is_national_center, is_enabled, created_at)
 		VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`)
 	if err != nil {
@@ -40,7 +40,7 @@ func (r *CenterPGSQL) Create(e *entity.Center) (entity.ID, error) {
 		e.ExtID,
 		e.ExtName,
 		e.Name,
-		e.Location,    // TODO: to be converted into json
+		e.Address,     // TODO: to be converted into json
 		e.GeoLocation, // TODO: to be converted into json
 		e.Capacity,
 		e.Mode,

@@ -19,8 +19,8 @@ const (
 	// Add new types here
 )
 
-// Center Location
-type CenterLocation struct {
+// Center Address
+type CenterAddress struct {
 	Street1 string
 	Street2 string
 	City    string
@@ -43,7 +43,7 @@ type Center struct {
 
 	ExtName     string
 	Name        string
-	Location    CenterLocation
+	Address     CenterAddress
 	GeoLocation CenterGeoLocation
 
 	Capacity int32
@@ -58,15 +58,15 @@ type Center struct {
 	UpdatedAt time.Time
 }
 
-// NewCenterLocation creates a new center location
-func NewCenterLocation(street1 string,
+// NewCenterAddress creates a new center address
+func NewCenterAddress(street1 string,
 	street2 string,
 	city string,
 	state string,
 	zip string,
-	country string) (*CenterLocation, error) {
+	country string) (*CenterAddress, error) {
 
-	l := &CenterLocation{
+	l := &CenterAddress{
 		Street1: street1,
 		Street2: street2,
 		City:    city,
@@ -81,8 +81,8 @@ func NewCenterLocation(street1 string,
 	return l, nil
 }
 
-// Validate validates center location
-func (l *CenterLocation) Validate() error {
+// Validate validates center address
+func (l *CenterAddress) Validate() error {
 	if l.Street1 == "" || l.City == "" || l.State == "" || l.Zip == "" || l.Country == "" {
 		return ErrInvalidEntity
 	}
@@ -115,7 +115,7 @@ func NewCenter(tenantID ID,
 	extID string,
 	extName string,
 	name string,
-	location CenterLocation,
+	address CenterAddress,
 	geoLocation CenterGeoLocation,
 	capacity int32,
 	mode CenterMode,
@@ -129,7 +129,7 @@ func NewCenter(tenantID ID,
 		ExtID:            extID,
 		ExtName:          extName,
 		Name:             name,
-		Location:         location,
+		Address:          address,
 		GeoLocation:      geoLocation,
 		Capacity:         capacity,
 		Mode:             mode,

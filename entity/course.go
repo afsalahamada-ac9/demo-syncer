@@ -37,9 +37,9 @@ const (
 	// Add new types here
 )
 
-// Course Location
+// Course Address
 // TODO: json tags must be moved to presenter
-type CourseLocation struct {
+type CourseAddress struct {
 	Street1 string `json:"street"`
 	Street2 string `json:"street_2"`
 	City    string `json:"city"`
@@ -67,7 +67,7 @@ type Course struct {
 	Notes    string
 	Timezone string
 
-	Location CourseLocation
+	Address CourseAddress
 
 	Status CourseStatus
 
@@ -84,15 +84,15 @@ type Course struct {
 	UpdatedAt time.Time
 }
 
-// NewCourseLocation creates a new course location
-func NewCourseLocation(street1 string,
+// NewCourseAddress creates a new course address
+func NewCourseAddress(street1 string,
 	street2 string,
 	city string,
 	state string,
 	zip string,
-	country string) (*CourseLocation, error) {
+	country string) (*CourseAddress, error) {
 
-	l := &CourseLocation{
+	l := &CourseAddress{
 		Street1: street1,
 		Street2: street2,
 		City:    city,
@@ -107,8 +107,8 @@ func NewCourseLocation(street1 string,
 	return l, nil
 }
 
-// Validate validates course location
-func (l *CourseLocation) Validate() error {
+// Validate validates course address
+func (l *CourseAddress) Validate() error {
 	if l.Street1 == "" || l.City == "" || l.State == "" || l.Zip == "" || l.Country == "" {
 		return ErrInvalidEntity
 	}
@@ -122,7 +122,7 @@ func NewCourse(tenantID ID,
 	name string,
 	notes string,
 	timezone string,
-	location CourseLocation,
+	address CourseAddress,
 	status CourseStatus,
 	mode CourseMode,
 	maxAttendees int32,
@@ -136,7 +136,7 @@ func NewCourse(tenantID ID,
 		Name:          name,
 		Notes:         notes,
 		Timezone:      timezone,
-		Location:      location,
+		Address:       address,
 		Status:        status,
 		Mode:          mode,
 		MaxAttendees:  maxAttendees,

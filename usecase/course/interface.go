@@ -40,7 +40,7 @@ type UseCase interface {
 		extID string,
 		centerID entity.ID,
 		name, notes, timezone string,
-		location entity.CourseLocation,
+		address entity.CourseAddress,
 		status entity.CourseStatus,
 		mode entity.CourseMode,
 		maxAttendees, numAttendees int32,
