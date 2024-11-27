@@ -70,7 +70,7 @@ func (r *inmem) Update(e *entity.Account) error {
 }
 
 // List list accounts
-func (r *inmem) List(tenantID entity.ID, page, limit int) ([]*entity.Account, error) {
+func (r *inmem) List(tenantID entity.ID, page, limit int, at entity.AccountType) ([]*entity.Account, error) {
 	var d []*entity.Account
 	for _, j := range r.m {
 		// TenantID check removed
@@ -126,7 +126,7 @@ func (r *inmem) GetCount(tenantID entity.ID) (int, error) {
 }
 
 // Search search accounts
-func (r *inmem) Search(tenantID entity.ID, query string, page, limit int) ([]*entity.Account, error) {
+func (r *inmem) Search(tenantID entity.ID, query string, page, limit int, at entity.AccountType) ([]*entity.Account, error) {
 	var d []*entity.Account
 	for _, j := range r.m {
 		if j.TenantID == tenantID &&

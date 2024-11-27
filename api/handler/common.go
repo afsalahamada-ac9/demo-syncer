@@ -13,5 +13,6 @@ const (
 	httpParamQuery                = "q"
 	httpParamPage                 = "page"
 	httpParamLimit                = "limit"
+	httpParamType                 = "type"
 	maxHttpPaginationLimit        = 50
 )

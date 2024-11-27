@@ -50,7 +50,7 @@ func Test_listAccounts(t *testing.T) {
 	}
 	service.EXPECT().GetCount(tenantAlice).Return(1)
 	service.EXPECT().
-		ListAccounts(tenantAlice, gomock.Any(), gomock.Any()).
+		ListAccounts(tenantAlice, gomock.Any(), gomock.Any(), gomock.Any()).
 		Return([]*entity.Account{tmpl}, nil)
 	ts := httptest.NewServer(listAccounts(service))
 	defer ts.Close()

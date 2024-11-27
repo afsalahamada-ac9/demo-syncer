@@ -89,20 +89,29 @@ func (r *AccountPGSQL) Update(e *entity.Account) error {
 }
 
 // List accounts
-func (r *AccountPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Account, error) {
+func (r *AccountPGSQL) List(tenantID entity.ID, page, limit int, at entity.AccountType) ([]*entity.Account, error) {
+
+	// if account type is not passed, then match any account types
+	if at == "" {
+		at = entity.AccountType("%")
+	}
+
 	query := `
-		SELECT id, ext_id, username, type, created_at
-		FROM account
+		SELECT id, tenant_id, ext_id, username, first_name, last_name,
+		phone, email, type, created_at
+		FROM account 
 		WHERE tenant_id = $1
+			AND type::TEXT ILIKE $2
 	`
+
 	if page > 0 && limit > 0 {
 		offset := (page - 1) * limit
-		query += ` LIMIT $2 OFFSET $3;`
+		query += ` LIMIT $3 OFFSET $4;`
 		stmt, err := r.db.Prepare(query)
 		if err != nil {
 			return nil, err
 		}
-		rows, err := stmt.Query(tenantID, limit, offset)
+		rows, err := stmt.Query(tenantID, at, limit, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -114,7 +123,7 @@ func (r *AccountPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Acco
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(tenantID)
+	rows, err := stmt.Query(tenantID, at)
 	if err != nil {
 		return nil, err
 	}
@@ -209,10 +218,15 @@ func (r *AccountPGSQL) Get(id entity.ID) (*entity.Account, error) {
 }
 
 // Search searches accounts
-func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Account, error) {
+func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int, at entity.AccountType) ([]*entity.Account, error) {
 	// OR LOWER(first_name) LIKE LOWER($2)
 	// OR LOWER(last_name) LIKE LOWER($2)
 	// OR LOWER(email) LIKE LOWER($2)
+
+	// if account type is not passed, then match any account types
+	if at == "" {
+		at = entity.AccountType("%")
+	}
 
 	query := `
 		SELECT id, tenant_id, ext_id, username, first_name, last_name,
@@ -222,17 +236,18 @@ func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 			AND (
 				LOWER(username) LIKE LOWER($2) 
 			)
+			AND type::TEXT ILIKE $3
 	`
 
 	if page > 0 && limit > 0 {
 		offset := (page - 1) * limit
-		query += ` LIMIT $3 OFFSET $4;`
+		query += ` LIMIT $4 OFFSET $5;`
 
 		stmt, err := r.db.Prepare(query)
 		if err != nil {
 			return nil, err
 		}
-		rows, err := stmt.Query(tenantID, q+"%", limit, offset)
+		rows, err := stmt.Query(tenantID, q+"%", at, limit, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -245,7 +260,7 @@ func (r *AccountPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(tenantID, q+"%")
+	rows, err := stmt.Query(tenantID, q+"%", at)
 	if err != nil {
 		return nil, err
 	}

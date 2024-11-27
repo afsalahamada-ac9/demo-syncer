@@ -33,6 +33,7 @@ func listAccounts(service account.UseCase) http.Handler {
 
 		page, _ := strconv.Atoi(r.URL.Query().Get(httpParamPage))
 		limit, _ := strconv.Atoi(r.URL.Query().Get(httpParamLimit))
+		at := r.URL.Query().Get(httpParamType)
 
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
@@ -45,10 +46,10 @@ func listAccounts(service account.UseCase) http.Handler {
 		case search == "":
 			// TODO: Implement page and limit in the query and that should be bound
 			// by the values supported by the server
-			data, err = service.ListAccounts(tenantID, page, limit)
+			data, err = service.ListAccounts(tenantID, page, limit, entity.AccountType(at))
 		default:
 			// TODO: Do we need to filter/search by type? I think so.
-			data, err = service.SearchAccounts(tenantID, search, page, limit)
+			data, err = service.SearchAccounts(tenantID, search, page, limit, entity.AccountType(at))
 		}
 
 		w.Header().Set("Content-Type", "application/json")

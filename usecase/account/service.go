@@ -76,8 +76,8 @@ func (s *Service) GetAccountByName(tenantID entity.ID, username string) (*entity
 }
 
 // ListAccounts list accounts
-func (s *Service) ListAccounts(tenantID entity.ID, page, limit int) ([]*entity.Account, error) {
-	accounts, err := s.repo.List(tenantID, page, limit)
+func (s *Service) ListAccounts(tenantID entity.ID, page, limit int, at entity.AccountType) ([]*entity.Account, error) {
+	accounts, err := s.repo.List(tenantID, page, limit, at)
 	if err != nil {
 		return nil, err
 	}
@@ -134,8 +134,8 @@ func (s *Service) GetCount(tenantID entity.ID) int {
 }
 
 // SearchAccounts search accounts
-func (s *Service) SearchAccounts(tenantID entity.ID, query string, page, limit int) ([]*entity.Account, error) {
-	accounts, err := s.repo.Search(tenantID, query, page, limit)
+func (s *Service) SearchAccounts(tenantID entity.ID, query string, page, limit int, at entity.AccountType) ([]*entity.Account, error) {
+	accounts, err := s.repo.Search(tenantID, query, page, limit, at)
 	if err != nil {
 		return nil, err
 	}
