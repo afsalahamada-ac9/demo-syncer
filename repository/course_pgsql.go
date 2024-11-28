@@ -82,9 +82,9 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	}
 	var c entity.Course
 	var ext_id sql.NullString
-	var name, notes, timezone, loc_json, status, mode sql.NullString
+	var name, notes, timezone, address_json, status, mode sql.NullString
 	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &c.ProductID, &name, &notes, &timezone,
-		&loc_json, &status, &mode, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+		&address_json, &status, &mode, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -92,14 +92,14 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 		return nil, err
 	}
 
-	if loc_json.Valid && loc_json.String != "" {
-		err = json.Unmarshal([]byte(loc_json.String), &c.Address)
+	if address_json.Valid && address_json.String != "" {
+		err = json.Unmarshal([]byte(address_json.String), &c.Address)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	c.ExtID = ext_id.String
+	c.ExtID = &ext_id.String
 	c.Name = name.String
 	c.Notes = notes.String
 	c.Timezone = timezone.String
@@ -245,7 +245,7 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 	var courses []*entity.Course
 	for rows.Next() {
 		var course entity.Course
-		var ext_id, name, notes, timezone, loc_json, status, mode sql.NullString
+		var ext_id, name, notes, timezone, address_json, status, mode sql.NullString
 		err := rows.Scan(
 			&course.ID,
 			&course.TenantID,
@@ -255,7 +255,7 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 			&name,
 			&notes,
 			&timezone,
-			&loc_json,
+			&address_json,
 			&status,
 			&mode,
 			&course.MaxAttendees,
@@ -267,15 +267,15 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 			return nil, err
 		}
 
-		course.ExtID = ext_id.String
+		course.ExtID = &ext_id.String
 		course.Name = name.String
 		course.Notes = notes.String
 		course.Timezone = timezone.String
 		course.Status = entity.CourseStatus(status.String)
 		course.Mode = entity.CourseMode(mode.String)
 
-		if loc_json.Valid && loc_json.String != "" {
-			err = json.Unmarshal([]byte(loc_json.String), &course.Address)
+		if address_json.Valid && address_json.String != "" {
+			err = json.Unmarshal([]byte(address_json.String), &course.Address)
 			if err != nil {
 				return nil, err
 			}

@@ -14,15 +14,14 @@ import (
 // X-GLAD-TenantID
 type Course struct {
 	ID           entity.ID            `json:"id"`
-	TenantID     entity.ID            `json:"tenantId"`
-	ExtID        string               `json:"extId"`
-	CenterID     entity.ID            `json:"centerId"`
-	Name         string               `json:"name"`
-	Notes        string               `json:"notes"`
-	Timezone     string               `json:"timezone"`
-	Address      entity.CourseAddress `json:"address"` // TODO: To be defined in here in presenter
-	Status       entity.CourseStatus  `json:"status"`
-	Mode         entity.CourseMode    `json:"mode"`
-	MaxAttendees int32                `json:"maxAttendees"`
-	NumAttendees int32                `json:"numAttendees"`
+	ExtID        *string              `json:"extId,omitempty"`
+	CenterID     *entity.ID           `json:"centerId,omitempty"`
+	Name         *string              `json:"name,omitempty"`
+	Notes        *string              `json:"notes,omitempty"`
+	Timezone     *string              `json:"timezone,omitempty"`
+	Address      *Address             `json:"address,omitempty"`
+	Status       *entity.CourseStatus `json:"status,omitempty"`
+	Mode         *entity.CourseMode   `json:"mode,omitempty"`
+	MaxAttendees *int32               `json:"maxAttendees,omitempty"`
+	NumAttendees *int32               `json:"numAttendees,omitempty"`
 }

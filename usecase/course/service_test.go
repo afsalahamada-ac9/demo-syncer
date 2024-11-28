@@ -29,10 +29,12 @@ const (
 )
 
 func newFixtureCourse() *entity.Course {
+	extID := aliceExtID
+
 	return &entity.Course{
 		ID:        courseDefault,
 		TenantID:  tenantAlice,
-		ExtID:     aliceExtID,
+		ExtID:     &extID,
 		CenterID:  aliceCenterID,
 		ProductID: aliceProductID,
 		Name:      "Course Part 1",
@@ -73,7 +75,8 @@ func Test_SearchAndFind(t *testing.T) {
 	tmpl1 := newFixtureCourse()
 	tmpl2 := newFixtureCourse()
 	tmpl2.Name = "Course Sahaj Meditation"
-	tmpl2.ExtID = bobExtID
+	extID := bobExtID
+	tmpl2.ExtID = &extID
 
 	tID, _ := m.CreateCourse(tmpl1.TenantID, tmpl1.ExtID, tmpl1.CenterID,
 		tmpl1.ProductID, tmpl1.Name, tmpl1.Notes, tmpl1.Timezone,
@@ -145,7 +148,8 @@ func TestDelete(t *testing.T) {
 
 	tmpl1 := newFixtureCourse()
 	tmpl2 := newFixtureCourse()
-	tmpl2.ExtID = bobExtID
+	extID := bobExtID
+	tmpl2.ExtID = &extID
 	t2ID, _ := m.CreateCourse(tmpl2.TenantID, tmpl2.ExtID, tmpl2.CenterID,
 		tmpl2.ProductID, tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
 		tmpl1.Address, tmpl1.Status, tmpl1.Mode,

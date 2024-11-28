@@ -38,21 +38,20 @@ const (
 )
 
 // Course Address
-// TODO: json tags must be moved to presenter
 type CourseAddress struct {
-	Street1 string `json:"street"`
-	Street2 string `json:"street_2"`
-	City    string `json:"city"`
-	State   string `json:"state"`
-	Zip     string `json:"zip"`
-	Country string `json:"country"`
+	Street1 string
+	Street2 string
+	City    string
+	State   string
+	Zip     string
+	Country string
 }
 
 // Course date/time
 type CourseDateTime struct {
-	Date      string `json:"date"`      // Only date in YYYY-MM-DD format
-	StartTime string `json:"startTime"` // Only time in HH:MM:SS format (SS is optional, default 00)
-	EndTime   string `json:"endTime"`
+	Date      string
+	StartTime string
+	EndTime   string
 }
 
 // Course data
@@ -62,7 +61,7 @@ type Course struct {
 	CenterID  ID
 	ProductID ID
 
-	ExtID string
+	ExtID *string
 
 	Name     string
 	Notes    string
@@ -118,7 +117,7 @@ func (l *CourseAddress) Validate() error {
 
 // NewCourse create a new course
 func NewCourse(tenantID ID,
-	extID string,
+	extID *string,
 	centerID ID,
 	productID ID,
 	name string,

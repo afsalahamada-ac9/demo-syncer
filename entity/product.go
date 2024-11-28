@@ -26,21 +26,20 @@ const (
 )
 
 // Product represents a product entity
-// TODO: json tags must be moved to presenter
 type Product struct {
-	ID               ID                `json:"id"`
-	ExtID            string            `json:"extId"`
-	TenantID         ID                `json:"tenantId"`
-	ExtName          string            `json:"extName"`
-	Title            string            `json:"title"`
-	CType            string            `json:"ctype"`
-	BaseProductExtID string            `json:"baseProductExtId,omitempty"`
-	DurationDays     int32             `json:"durationDays,omitempty"`
-	Visibility       ProductVisibility `json:"visibility,omitempty"`
-	MaxAttendees     int32             `json:"maxAttendees,omitempty"`
-	Format           ProductFormat     `json:"format,omitempty"`
-	CreatedAt        time.Time         `json:"createdAt"`
-	UpdatedAt        time.Time         `json:"updatedAt"`
+	ID               ID
+	ExtID            string
+	TenantID         ID
+	ExtName          string
+	Title            string
+	CType            string
+	BaseProductExtID string
+	DurationDays     int32
+	Visibility       ProductVisibility
+	MaxAttendees     int32
+	Format           ProductFormat
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 // NewProduct creates a new product with the given parameters

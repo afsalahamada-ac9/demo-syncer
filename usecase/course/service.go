@@ -27,7 +27,7 @@ func NewService(r Repository) *Service {
 
 // CreateCourse creates a course
 func (s *Service) CreateCourse(tenantID entity.ID,
-	extID string,
+	extID *string,
 	centerID entity.ID,
 	productID entity.ID,
 	name, notes, timezone string,

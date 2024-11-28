@@ -310,7 +310,7 @@ func (m *MockUseCase) EXPECT() *MockUseCaseMockRecorder {
 }
 
 // CreateCourse mocks base method.
-func (m *MockUseCase) CreateCourse(tenantID entity.ID, extID string, centerID, productID entity.ID, name, notes, timezone string, address entity.CourseAddress, status entity.CourseStatus, mode entity.CourseMode, maxAttendees, numAttendees int32, isAutoApprove bool) (entity.ID, error) {
+func (m *MockUseCase) CreateCourse(tenantID entity.ID, extID *string, centerID, productID entity.ID, name, notes, timezone string, address entity.CourseAddress, status entity.CourseStatus, mode entity.CourseMode, maxAttendees, numAttendees int32, isAutoApprove bool) (entity.ID, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCourse", tenantID, extID, centerID, productID, name, notes, timezone, address, status, mode, maxAttendees, numAttendees, isAutoApprove)
 	ret0, _ := ret[0].(entity.ID)

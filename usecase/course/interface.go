@@ -37,7 +37,7 @@ type UseCase interface {
 	SearchCourses(tenantID entity.ID, query string, page, limit int) ([]*entity.Course, error)
 	ListCourses(tenantID entity.ID, page, limit int) ([]*entity.Course, error)
 	CreateCourse(tenantID entity.ID,
-		extID string,
+		extID *string,
 		centerID entity.ID,
 		productID entity.ID,
 		name, notes, timezone string,

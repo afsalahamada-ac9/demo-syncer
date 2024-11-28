@@ -126,8 +126,6 @@ CREATE TABLE IF NOT EXISTS center (
     -- When multitenancy is introduced, then country can be removed.
     address JSONB,
 
-    -- TODO: Is status required?
-
     -- Note: geo_location format: {"lat": ..., "long": ...}
     geo_location JSONB,
     -- maximum occupancy
@@ -182,7 +180,6 @@ CREATE TABLE IF NOT EXISTS course (
 );
 CREATE INDEX idx_course_tenant_id ON course(tenant_id);
 CREATE INDEX idx_course_product_id ON course(product_id);
-CREATE INDEX idx_course_ext_id ON course(ext_id);
 
 -- ACCOUNT entity
 CREATE TABLE IF NOT EXISTS account (
@@ -210,11 +207,10 @@ CREATE TABLE IF NOT EXISTS account (
     -- UNIQUE(tenant_id, username)
 );
 CREATE INDEX idx_account_tenant_id ON account(tenant_id);
-CREATE INDEX idx_account_ext_id ON account(ext_id);
 CREATE INDEX idx_account_username ON account(username);
 CREATE INDEX idx_account_type ON account(type);
 CREATE INDEX idx_account_cognito_id ON account(cognito_id);
--- TODO: Need indexes for email and phone?
+CREATE INDEX idx_account_email ON account(email);
 
 -- Notes: Max 3 organizers per course
 -- Notes: Organizer is not mandatory for a course (Confirm)
@@ -251,7 +247,7 @@ CREATE TABLE IF NOT EXISTS course_timing (
     id BIGSERIAL PRIMARY KEY,
     course_id BIGINT NOT NULL REFERENCES course(id) ON DELETE CASCADE,
     -- Note: ext_id is salesforce id
-    ext_id VARCHAR(32) NOT NULL UNIQUE,
+    ext_id VARCHAR(32) UNIQUE,
     -- Note: 'name' is needed in SalesForce. Set as 'D-mmddyyyy'
     -- Note: 'timezone' is needed in SalesForce. Set the value from 'course' table
     course_date DATE,
@@ -262,7 +258,6 @@ CREATE TABLE IF NOT EXISTS course_timing (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_course_timings_course_id ON course_timing(course_id);
-CREATE INDEX idx_course_timing_ext_id ON course_timing(ext_id);
 
 -- Note: Tenant is not required for course_notify
 -- Notes: Notify is not mandatory for a course
@@ -272,4 +267,3 @@ CREATE TABLE IF NOT EXISTS course_notify (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_course_notify_course_id ON course_notify(course_id);
--- CREATE INDEX idx_course_notify_notify_id ON course_notify(notify_id); -- TODO: May be this is not required

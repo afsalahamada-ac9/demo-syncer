@@ -165,9 +165,6 @@ func Test_createCourse(t *testing.T) {
 	var tmpl *presenter.Course
 	json.NewDecoder(res.Body).Decode(&tmpl)
 	assert.Equal(t, id, tmpl.ID)
-	assert.Equal(t, payload.ExtID, tmpl.ExtID)
-	// assert.Equal(t, payload.Name, tmpl.Name)
-	// assert.Equal(t, payload.Mode, tmpl.Mode)
 	assert.Equal(t, tenantAlice.String(), res.Header.Get(common.HttpHeaderTenantID))
 }
 
@@ -181,10 +178,11 @@ func Test_getCourse(t *testing.T) {
 	path, err := r.GetRoute("getCourse").GetPathTemplate()
 	assert.Nil(t, err)
 	assert.Equal(t, "/v1/courses/{id}", path)
+	extID := aliceExtID
 	tmpl := &entity.Course{
 		ID:       entity.NewID(),
 		TenantID: tenantAlice,
-		ExtID:    aliceExtID,
+		ExtID:    &extID,
 		Name:     "default-0",
 		Mode:     entity.CourseInPerson,
 	}
@@ -205,9 +203,8 @@ func Test_getCourse(t *testing.T) {
 	assert.NotNil(t, d)
 
 	assert.Equal(t, tmpl.ID, d.ID)
-	assert.Equal(t, tmpl.ExtID, d.ExtID)
-	assert.Equal(t, tmpl.Name, d.Name)
-	assert.Equal(t, tmpl.Mode, d.Mode)
+	assert.Equal(t, tmpl.Name, *d.Name)
+	assert.Equal(t, tmpl.Mode, *d.Mode)
 	assert.Equal(t, tenantAlice.String(), res.Header.Get(common.HttpHeaderTenantID))
 }
 

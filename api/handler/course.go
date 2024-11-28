@@ -65,13 +65,21 @@ func listCourses(service course.UseCase) http.Handler {
 		}
 		var toJ []*presenter.Course
 		for _, d := range data {
-			toJ = append(toJ, &presenter.Course{
-				ID:       d.ID,
-				TenantID: d.TenantID,
-				ExtID:    d.ExtID,
-				Name:     d.Name,
-				Mode:     d.Mode,
-			})
+			pc := &presenter.Course{
+				ID:           d.ID,
+				Name:         &d.Name,
+				Mode:         &d.Mode,
+				CenterID:     &d.CenterID,
+				Notes:        &d.Notes,
+				Timezone:     &d.Timezone,
+				Status:       &d.Status,
+				MaxAttendees: &d.MaxAttendees,
+				NumAttendees: &d.NumAttendees,
+			}
+			pc.Address = &presenter.Address{}
+			pc.Address.CopyFrom(d.Address)
+
+			toJ = append(toJ, pc)
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.Header().Set(common.HttpHeaderTenantID, tenant)
@@ -85,7 +93,7 @@ func createCourse(service course.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding course"
 		var input struct {
-			ExtID        string
+			ExtID        *string
 			Name         string                  `json:"name"`
 			CenterID     entity.ID               `json:"centerId"`
 			ProductID    entity.ID               `json:"productId"`
@@ -138,10 +146,7 @@ func createCourse(service course.UseCase) http.Handler {
 			return
 		}
 		toJ := &presenter.Course{
-			ID:    id,
-			ExtID: input.ExtID,
-			// Name:     input.Name,
-			// TenantID: tenantID,
+			ID: id,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
@@ -179,12 +184,19 @@ func getCourse(service course.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Course{
-			ID:    data.ID,
-			ExtID: data.ExtID,
-			Name:  data.Name,
-			Mode:  data.Mode,
-			// TODO: More fields to be added
+			ID:           data.ID,
+			Name:         &data.Name,
+			Mode:         &data.Mode,
+			CenterID:     &data.CenterID,
+			Notes:        &data.Notes,
+			Timezone:     &data.Timezone,
+			Status:       &data.Status,
+			MaxAttendees: &data.MaxAttendees,
+			NumAttendees: &data.NumAttendees,
 		}
+
+		toJ.Address = &presenter.Address{}
+		toJ.Address.CopyFrom(data.Address)
 
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -260,10 +272,7 @@ func updateCourse(service course.UseCase) http.Handler {
 		}
 
 		toJ := &presenter.Course{
-			ID:       input.ID,
-			TenantID: tenantID,
-			ExtID:    input.ExtID,
-			Name:     input.Name,
+			ID: input.ID,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, tenant)
