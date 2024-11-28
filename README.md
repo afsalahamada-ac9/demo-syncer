@@ -7,7 +7,7 @@
                 // Add your health check logic here
                 if healthy {
                     w.WriteHeader(http.StatusOK)
-                    w.Write([]byte("healthy"))
+                    _, _ = w.Write([]byte("healthy"))
                     return
                 }
                 w.WriteHeader(http.StatusServiceUnavailable)

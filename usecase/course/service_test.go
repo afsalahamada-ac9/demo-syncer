@@ -16,10 +16,11 @@ import (
 )
 
 const (
-	courseDefault entity.ID = 13790493495087071234
-	tenantAlice   entity.ID = 13790492210917015554
-	aliceExtID              = "000aliceExtID"
-	aliceCenterID           = 13790493495087075501
+	courseDefault  entity.ID = 13790493495087071234
+	tenantAlice    entity.ID = 13790492210917015554
+	aliceExtID               = "000aliceExtID"
+	aliceCenterID            = 13790493495087075501
+	aliceProductID           = 13790493495087076601
 
 	// todo: add multi-tenant support
 	// tenantBob    entity.ID = 13790492210917015555
@@ -29,13 +30,14 @@ const (
 
 func newFixtureCourse() *entity.Course {
 	return &entity.Course{
-		ID:       courseDefault,
-		TenantID: tenantAlice,
-		ExtID:    aliceExtID,
-		CenterID: aliceCenterID,
-		Name:     "Course Part 1",
-		Notes:    "This is a course notes. It can be multi-line text. The notes can be longer than this.",
-		Timezone: "PST",
+		ID:        courseDefault,
+		TenantID:  tenantAlice,
+		ExtID:     aliceExtID,
+		CenterID:  aliceCenterID,
+		ProductID: aliceProductID,
+		Name:      "Course Part 1",
+		Notes:     "This is a course notes. It can be multi-line text. The notes can be longer than this.",
+		Timezone:  "PST",
 		Address: entity.CourseAddress{
 			Street1: "1 Street Way",
 			Street2: "",
@@ -58,7 +60,7 @@ func Test_Create(t *testing.T) {
 	m := NewService(repo)
 	tmpl := newFixtureCourse()
 	_, err := m.CreateCourse(tmpl.TenantID, tmpl.ExtID, tmpl.CenterID,
-		tmpl.Name, tmpl.Notes, tmpl.Timezone,
+		tmpl.ProductID, tmpl.Name, tmpl.Notes, tmpl.Timezone,
 		tmpl.Address, tmpl.Status, tmpl.Mode,
 		tmpl.MaxAttendees, tmpl.NumAttendees, tmpl.IsAutoApprove)
 	assert.Nil(t, err)
@@ -74,11 +76,11 @@ func Test_SearchAndFind(t *testing.T) {
 	tmpl2.ExtID = bobExtID
 
 	tID, _ := m.CreateCourse(tmpl1.TenantID, tmpl1.ExtID, tmpl1.CenterID,
-		tmpl1.Name, tmpl1.Notes, tmpl1.Timezone,
+		tmpl1.ProductID, tmpl1.Name, tmpl1.Notes, tmpl1.Timezone,
 		tmpl1.Address, tmpl1.Status, tmpl1.Mode,
 		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
 	_, _ = m.CreateCourse(tmpl2.TenantID, tmpl2.ExtID, tmpl2.CenterID,
-		tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
+		tmpl2.ProductID, tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
 		tmpl1.Address, tmpl1.Status, tmpl1.Mode,
 		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
 
@@ -122,7 +124,7 @@ func Test_Update(t *testing.T) {
 	m := NewService(repo)
 	tmpl := newFixtureCourse()
 	id, err := m.CreateCourse(tmpl.TenantID, tmpl.ExtID, tmpl.CenterID,
-		tmpl.Name, tmpl.Notes, tmpl.Timezone,
+		tmpl.ProductID, tmpl.Name, tmpl.Notes, tmpl.Timezone,
 		tmpl.Address, tmpl.Status, tmpl.Mode,
 		tmpl.MaxAttendees, tmpl.NumAttendees, tmpl.IsAutoApprove)
 
@@ -145,7 +147,7 @@ func TestDelete(t *testing.T) {
 	tmpl2 := newFixtureCourse()
 	tmpl2.ExtID = bobExtID
 	t2ID, _ := m.CreateCourse(tmpl2.TenantID, tmpl2.ExtID, tmpl2.CenterID,
-		tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
+		tmpl2.ProductID, tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
 		tmpl1.Address, tmpl1.Status, tmpl1.Mode,
 		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
 

@@ -34,7 +34,7 @@ func listTenants(service tenant.UseCase) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -43,7 +43,7 @@ func listTenants(service tenant.UseCase) http.Handler {
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 
@@ -58,7 +58,7 @@ func listTenants(service tenant.UseCase) http.Handler {
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode tenant"))
+			_, _ = w.Write([]byte("Unable to encode tenant"))
 		}
 	})
 }
@@ -75,14 +75,14 @@ func createTenant(service tenant.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
 		id, err := service.CreateTenant(input.Name, input.Country)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 		toJ := &presenter.Tenant{
@@ -95,7 +95,7 @@ func createTenant(service tenant.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -108,19 +108,19 @@ func getTenant(service tenant.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 		data, err := service.GetTenant(id)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Empty data returned"))
+			_, _ = w.Write([]byte("Empty data returned"))
 			return
 		}
 
@@ -133,7 +133,7 @@ func getTenant(service tenant.UseCase) http.Handler {
 
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode tenant"))
+			_, _ = w.Write([]byte("Unable to encode tenant"))
 		}
 	})
 }
@@ -145,7 +145,7 @@ func deleteTenant(service tenant.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 		err = service.DeleteTenant(id)
@@ -155,11 +155,11 @@ func deleteTenant(service tenant.UseCase) http.Handler {
 			return
 		case entity.ErrNotFound:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Tenant doesn't exist"))
+			_, _ = w.Write([]byte("Tenant doesn't exist"))
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -177,7 +177,7 @@ func login(service tenant.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -188,11 +188,11 @@ func login(service tenant.UseCase) http.Handler {
 		// intentionally returning same response for auth failure and not found scenarios
 		case entity.ErrAuthFailure, entity.ErrNotFound:
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Invalid login credentials"))
+			_, _ = w.Write([]byte("Invalid login credentials"))
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -204,7 +204,7 @@ func login(service tenant.UseCase) http.Handler {
 
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode tenant"))
+			_, _ = w.Write([]byte("Unable to encode tenant"))
 		}
 	})
 }
@@ -217,7 +217,7 @@ func updateTenant(service tenant.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 
@@ -226,14 +226,14 @@ func updateTenant(service tenant.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
 		err = service.UpdateTenant(&input)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -249,7 +249,7 @@ func updateTenant(service tenant.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})

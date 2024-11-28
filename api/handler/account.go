@@ -38,7 +38,7 @@ func listAccounts(service account.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to parse tenant id"))
+			_, _ = w.Write([]byte("Unable to parse tenant id"))
 			return
 		}
 
@@ -55,7 +55,7 @@ func listAccounts(service account.UseCase) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -67,9 +67,9 @@ func listAccounts(service account.UseCase) http.Handler {
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
-		} // note: check this
+		}
 
 		var toJ []*presenter.Account
 		for _, d := range data {
@@ -85,7 +85,7 @@ func listAccounts(service account.UseCase) http.Handler {
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode account"))
+			_, _ = w.Write([]byte("Unable to encode account"))
 		}
 	})
 }
@@ -103,7 +103,7 @@ func listAccounts(service account.UseCase) http.Handler {
 // 		tenantID, err := entity.StringToID(tenant)
 // 		if err != nil {
 // 			w.WriteHeader(http.StatusBadRequest)
-// 			w.Write([]byte("Missing tenant ID"))
+// 			_, _ = w.Write([]byte("Missing tenant ID"))
 // 			return
 // 		}
 
@@ -111,7 +111,7 @@ func listAccounts(service account.UseCase) http.Handler {
 // 		if err != nil {
 // 			log.Println(err.Error())
 // 			w.WriteHeader(http.StatusBadRequest)
-// 			w.Write([]byte("Unable to decode the data. " + err.Error()))
+// 			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 // 			return
 // 		}
 
@@ -122,7 +122,7 @@ func listAccounts(service account.UseCase) http.Handler {
 // 			input.Content)
 // 		if err != nil {
 // 			w.WriteHeader(http.StatusInternalServerError)
-// 			w.Write([]byte(errorMessage + ":" + err.Error()))
+// 			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 // 			return
 // 		}
 // 		toJ := &presenter.Account{
@@ -138,7 +138,7 @@ func listAccounts(service account.UseCase) http.Handler {
 // 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 // 			log.Println(err.Error())
 // 			w.WriteHeader(http.StatusInternalServerError)
-// 			w.Write([]byte(errorMessage))
+// 			_, _ = w.Write([]byte(errorMessage))
 // 			return
 // 		}
 // 	})
@@ -151,7 +151,7 @@ func getAccount(service account.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to parse tenant id"))
+			_, _ = w.Write([]byte("Unable to parse tenant id"))
 			return
 		}
 
@@ -161,13 +161,13 @@ func getAccount(service account.UseCase) http.Handler {
 		data, err := service.GetAccountByName(tenantID, username)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Empty data returned"))
+			_, _ = w.Write([]byte("Empty data returned"))
 			return
 		}
 
@@ -184,7 +184,7 @@ func getAccount(service account.UseCase) http.Handler {
 		w.Header().Set(common.HttpHeaderTenantID, r.Header.Get(common.HttpHeaderTenantID))
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode account"))
+			_, _ = w.Write([]byte("Unable to encode account"))
 		}
 	})
 }
@@ -196,7 +196,7 @@ func deleteAccount(service account.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to parse tenant id"))
+			_, _ = w.Write([]byte("Unable to parse tenant id"))
 			return
 		}
 
@@ -210,11 +210,11 @@ func deleteAccount(service account.UseCase) http.Handler {
 			return
 		case entity.ErrNotFound:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Account doesn't exist"))
+			_, _ = w.Write([]byte("Account doesn't exist"))
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -232,7 +232,7 @@ func updateAccount(service account.UseCase) http.Handler {
 		// tenantID, err := entity.StringToID(tenant)
 		// if err != nil {
 		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	w.Write([]byte("Missing tenant ID"))
+		// 	_, _ = w.Write([]byte("Missing tenant ID"))
 		// 	return
 		// }
 
@@ -240,7 +240,7 @@ func updateAccount(service account.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -248,7 +248,7 @@ func updateAccount(service account.UseCase) http.Handler {
 		err = service.UpdateAccount(&input)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -267,7 +267,7 @@ func updateAccount(service account.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})

@@ -29,6 +29,7 @@ func NewService(r Repository) *Service {
 func (s *Service) CreateCourse(tenantID entity.ID,
 	extID string,
 	centerID entity.ID,
+	productID entity.ID,
 	name, notes, timezone string,
 	address entity.CourseAddress,
 	status entity.CourseStatus,
@@ -36,7 +37,7 @@ func (s *Service) CreateCourse(tenantID entity.ID,
 	maxAttendees, numAttendees int32,
 	isAutoApprove bool,
 ) (entity.ID, error) {
-	c, err := entity.NewCourse(tenantID, extID, centerID,
+	c, err := entity.NewCourse(tenantID, extID, centerID, productID,
 		name, notes, timezone,
 		address, status, mode,
 		maxAttendees, numAttendees, isAutoApprove)

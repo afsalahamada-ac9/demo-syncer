@@ -598,6 +598,10 @@ components:
           type: integer
           format: int64
           example: 10000000
+        productId:
+          type: integer
+          format: int64
+          example: 20000000
         mode:
           type: string
           description: Course delivery mode

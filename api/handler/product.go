@@ -34,7 +34,7 @@ func listProducts(service product.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to parse tenant id"))
+			_, _ = w.Write([]byte("Unable to parse tenant id"))
 			return
 		}
 
@@ -47,7 +47,7 @@ func listProducts(service product.UseCase) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -56,7 +56,7 @@ func listProducts(service product.UseCase) http.Handler {
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 
@@ -76,7 +76,7 @@ func listProducts(service product.UseCase) http.Handler {
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode product"))
+			_, _ = w.Write([]byte("Unable to encode product"))
 		}
 	})
 }
@@ -100,7 +100,7 @@ func createProduct(service product.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
+			_, _ = w.Write([]byte("Missing tenant ID"))
 			return
 		}
 
@@ -108,7 +108,7 @@ func createProduct(service product.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -126,7 +126,7 @@ func createProduct(service product.UseCase) http.Handler {
 		)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -146,7 +146,7 @@ func createProduct(service product.UseCase) http.Handler {
 		w.WriteHeader(http.StatusCreated)
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -159,19 +159,19 @@ func getProduct(service product.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 		data, err := service.GetProduct(id)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Empty data returned"))
+			_, _ = w.Write([]byte("Empty data returned"))
 			return
 		}
 
@@ -190,7 +190,7 @@ func getProduct(service product.UseCase) http.Handler {
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode product"))
+			_, _ = w.Write([]byte("Unable to encode product"))
 		}
 	})
 }
@@ -202,7 +202,7 @@ func deleteProduct(service product.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 		err = service.DeleteProduct(id)
@@ -212,11 +212,11 @@ func deleteProduct(service product.UseCase) http.Handler {
 			return
 		case entity.ErrNotFound:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Product doesn't exist"))
+			_, _ = w.Write([]byte("Product doesn't exist"))
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -230,7 +230,7 @@ func updateProduct(service product.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 
@@ -239,7 +239,7 @@ func updateProduct(service product.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
+			_, _ = w.Write([]byte("Missing tenant ID"))
 			return
 		}
 
@@ -247,7 +247,7 @@ func updateProduct(service product.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -256,7 +256,7 @@ func updateProduct(service product.UseCase) http.Handler {
 		err = service.UpdateProduct(&input)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -277,7 +277,7 @@ func updateProduct(service product.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})

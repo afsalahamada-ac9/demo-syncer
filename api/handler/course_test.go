@@ -128,6 +128,7 @@ func Test_createCourse(t *testing.T) {
 			gomock.Any(),
 			gomock.Any(),
 			gomock.Any(),
+			gomock.Any(),
 			gomock.Any()).
 		Return(id, nil)
 	h := createCourse(service)

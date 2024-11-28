@@ -42,7 +42,7 @@ func listCenters(service center.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to parse tenant id"))
+			_, _ = w.Write([]byte("Unable to parse tenant id"))
 			return
 		}
 
@@ -58,7 +58,7 @@ func listCenters(service center.UseCase) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -67,7 +67,7 @@ func listCenters(service center.UseCase) http.Handler {
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 		var toJ []*presenter.Center
@@ -82,7 +82,7 @@ func listCenters(service center.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.Header().Set(common.HttpHeaderTenantID, tenant)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode center"))
+			_, _ = w.Write([]byte("Unable to encode center"))
 		}
 	})
 }
@@ -102,7 +102,7 @@ func createCenter(service center.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
+			_, _ = w.Write([]byte("Missing tenant ID"))
 			return
 		}
 
@@ -110,7 +110,7 @@ func createCenter(service center.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -123,7 +123,7 @@ func createCenter(service center.UseCase) http.Handler {
 			input.IsEnabled)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 		toJ := &presenter.Center{
@@ -137,7 +137,7 @@ func createCenter(service center.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -150,19 +150,19 @@ func getCenter(service center.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 		data, err := service.GetCenter(id)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Empty data returned"))
+			_, _ = w.Write([]byte("Empty data returned"))
 			return
 		}
 
@@ -176,7 +176,7 @@ func getCenter(service center.UseCase) http.Handler {
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode center"))
+			_, _ = w.Write([]byte("Unable to encode center"))
 		}
 	})
 }
@@ -188,7 +188,7 @@ func deleteCenter(service center.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 		err = service.DeleteCenter(id)
@@ -198,11 +198,11 @@ func deleteCenter(service center.UseCase) http.Handler {
 			return
 		case entity.ErrNotFound:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Center doesn't exist"))
+			_, _ = w.Write([]byte("Center doesn't exist"))
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -216,7 +216,7 @@ func updateCenter(service center.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 
@@ -225,7 +225,7 @@ func updateCenter(service center.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
+			_, _ = w.Write([]byte("Missing tenant ID"))
 			return
 		}
 
@@ -233,7 +233,7 @@ func updateCenter(service center.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -242,7 +242,7 @@ func updateCenter(service center.UseCase) http.Handler {
 		err = service.UpdateCenter(&input)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -257,7 +257,7 @@ func updateCenter(service center.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})

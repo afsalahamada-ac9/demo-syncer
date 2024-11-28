@@ -39,6 +39,7 @@ type UseCase interface {
 	CreateCourse(tenantID entity.ID,
 		extID string,
 		centerID entity.ID,
+		productID entity.ID,
 		name, notes, timezone string,
 		address entity.CourseAddress,
 		status entity.CourseStatus,

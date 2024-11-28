@@ -310,18 +310,18 @@ func (m *MockUseCase) EXPECT() *MockUseCaseMockRecorder {
 }
 
 // CreateCourse mocks base method.
-func (m *MockUseCase) CreateCourse(tenantID entity.ID, extID string, centerID entity.ID, name, notes, timezone string, address entity.CourseAddress, status entity.CourseStatus, mode entity.CourseMode, maxAttendees, numAttendees int32, isAutoApprove bool) (entity.ID, error) {
+func (m *MockUseCase) CreateCourse(tenantID entity.ID, extID string, centerID, productID entity.ID, name, notes, timezone string, address entity.CourseAddress, status entity.CourseStatus, mode entity.CourseMode, maxAttendees, numAttendees int32, isAutoApprove bool) (entity.ID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateCourse", tenantID, extID, centerID, name, notes, timezone, address, status, mode, maxAttendees, numAttendees, isAutoApprove)
+	ret := m.ctrl.Call(m, "CreateCourse", tenantID, extID, centerID, productID, name, notes, timezone, address, status, mode, maxAttendees, numAttendees, isAutoApprove)
 	ret0, _ := ret[0].(entity.ID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateCourse indicates an expected call of CreateCourse.
-func (mr *MockUseCaseMockRecorder) CreateCourse(tenantID, extID, centerID, name, notes, timezone, address, status, mode, maxAttendees, numAttendees, isAutoApprove interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) CreateCourse(tenantID, extID, centerID, productID, name, notes, timezone, address, status, mode, maxAttendees, numAttendees, isAutoApprove interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCourse", reflect.TypeOf((*MockUseCase)(nil).CreateCourse), tenantID, extID, centerID, name, notes, timezone, address, status, mode, maxAttendees, numAttendees, isAutoApprove)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCourse", reflect.TypeOf((*MockUseCase)(nil).CreateCourse), tenantID, extID, centerID, productID, name, notes, timezone, address, status, mode, maxAttendees, numAttendees, isAutoApprove)
 }
 
 // DeleteCourse mocks base method.

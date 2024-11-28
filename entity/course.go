@@ -57,9 +57,10 @@ type CourseDateTime struct {
 
 // Course data
 type Course struct {
-	ID       ID
-	TenantID ID
-	CenterID ID
+	ID        ID
+	TenantID  ID
+	CenterID  ID
+	ProductID ID
 
 	ExtID string
 
@@ -119,6 +120,7 @@ func (l *CourseAddress) Validate() error {
 func NewCourse(tenantID ID,
 	extID string,
 	centerID ID,
+	productID ID,
 	name string,
 	notes string,
 	timezone string,
@@ -133,6 +135,7 @@ func NewCourse(tenantID ID,
 		TenantID:      tenantID,
 		ExtID:         extID,
 		CenterID:      centerID,
+		ProductID:     productID,
 		Name:          name,
 		Notes:         notes,
 		Timezone:      timezone,

@@ -98,7 +98,11 @@ func main() {
 
 	http.Handle("/", r)
 	http.Handle("/metrics", promhttp.Handler())
-	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	r.HandleFunc("/readiness", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 

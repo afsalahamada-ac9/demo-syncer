@@ -35,7 +35,7 @@ func listCourses(service course.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to parse tenant id"))
+			_, _ = w.Write([]byte("Unable to parse tenant id"))
 			return
 		}
 
@@ -51,7 +51,7 @@ func listCourses(service course.UseCase) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -60,7 +60,7 @@ func listCourses(service course.UseCase) http.Handler {
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 		var toJ []*presenter.Course
@@ -76,7 +76,7 @@ func listCourses(service course.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.Header().Set(common.HttpHeaderTenantID, tenant)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode course"))
+			_, _ = w.Write([]byte("Unable to encode course"))
 		}
 	})
 }
@@ -88,6 +88,7 @@ func createCourse(service course.UseCase) http.Handler {
 			ExtID        string
 			Name         string                  `json:"name"`
 			CenterID     entity.ID               `json:"centerId"`
+			ProductID    entity.ID               `json:"productId"`
 			Organizer    []entity.ID             `json:"organizer"`
 			Contact      []entity.ID             `json:"contact"`
 			Teacher      []entity.ID             `json:"teacher"`
@@ -105,7 +106,7 @@ func createCourse(service course.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
+			_, _ = w.Write([]byte("Missing tenant ID"))
 			return
 		}
 
@@ -113,7 +114,7 @@ func createCourse(service course.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -121,6 +122,7 @@ func createCourse(service course.UseCase) http.Handler {
 			tenantID,
 			input.ExtID,
 			input.CenterID,
+			input.ProductID,
 			input.Name,
 			input.Notes,
 			input.Timezone,
@@ -132,7 +134,7 @@ func createCourse(service course.UseCase) http.Handler {
 			0, false)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 		toJ := &presenter.Course{
@@ -147,7 +149,7 @@ func createCourse(service course.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -160,19 +162,19 @@ func getCourse(service course.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 		data, err := service.GetCourse(id)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Empty data returned"))
+			_, _ = w.Write([]byte("Empty data returned"))
 			return
 		}
 
@@ -187,7 +189,7 @@ func getCourse(service course.UseCase) http.Handler {
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Unable to encode course"))
+			_, _ = w.Write([]byte("Unable to encode course"))
 		}
 	})
 }
@@ -199,7 +201,7 @@ func deleteCourse(service course.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 		err = service.DeleteCourse(id)
@@ -209,11 +211,11 @@ func deleteCourse(service course.UseCase) http.Handler {
 			return
 		case entity.ErrNotFound:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Course doesn't exist"))
+			_, _ = w.Write([]byte("Course doesn't exist"))
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
@@ -227,7 +229,7 @@ func updateCourse(service course.UseCase) http.Handler {
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 
@@ -236,7 +238,7 @@ func updateCourse(service course.UseCase) http.Handler {
 		tenantID, err := entity.StringToID(tenant)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing tenant ID"))
+			_, _ = w.Write([]byte("Missing tenant ID"))
 			return
 		}
 
@@ -244,7 +246,7 @@ func updateCourse(service course.UseCase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Unable to decode the data. " + err.Error()))
+			_, _ = w.Write([]byte("Unable to decode the data. " + err.Error()))
 			return
 		}
 
@@ -253,7 +255,7 @@ func updateCourse(service course.UseCase) http.Handler {
 		err = service.UpdateCourse(&input)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage + ":" + err.Error()))
+			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))
 			return
 		}
 
@@ -269,7 +271,7 @@ func updateCourse(service course.UseCase) http.Handler {
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			_, _ = w.Write([]byte(errorMessage))
 			return
 		}
 	})
