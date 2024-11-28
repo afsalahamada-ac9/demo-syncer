@@ -48,12 +48,11 @@ func newFixtureCourse() *entity.Course {
 			Country: "USA",
 			Zip:     "12345-6789",
 		},
-		Status:        entity.CourseActive,
-		Mode:          entity.CourseInPerson,
-		MaxAttendees:  50,
-		NumAttendees:  12,
-		IsAutoApprove: true,
-		CreatedAt:     time.Now(),
+		Status:       entity.CourseActive,
+		Mode:         entity.CourseInPerson,
+		MaxAttendees: 50,
+		NumAttendees: 12,
+		CreatedAt:    time.Now(),
 	}
 }
 
@@ -64,7 +63,8 @@ func Test_Create(t *testing.T) {
 	_, err := m.CreateCourse(tmpl.TenantID, tmpl.ExtID, tmpl.CenterID,
 		tmpl.ProductID, tmpl.Name, tmpl.Notes, tmpl.Timezone,
 		tmpl.Address, tmpl.Status, tmpl.Mode,
-		tmpl.MaxAttendees, tmpl.NumAttendees, tmpl.IsAutoApprove)
+		tmpl.MaxAttendees, tmpl.NumAttendees,
+	)
 	assert.Nil(t, err)
 	assert.False(t, tmpl.CreatedAt.IsZero())
 }
@@ -81,11 +81,13 @@ func Test_SearchAndFind(t *testing.T) {
 	tID, _ := m.CreateCourse(tmpl1.TenantID, tmpl1.ExtID, tmpl1.CenterID,
 		tmpl1.ProductID, tmpl1.Name, tmpl1.Notes, tmpl1.Timezone,
 		tmpl1.Address, tmpl1.Status, tmpl1.Mode,
-		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
+		tmpl1.MaxAttendees, tmpl1.NumAttendees,
+	)
 	_, _ = m.CreateCourse(tmpl2.TenantID, tmpl2.ExtID, tmpl2.CenterID,
 		tmpl2.ProductID, tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
 		tmpl1.Address, tmpl1.Status, tmpl1.Mode,
-		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
+		tmpl1.MaxAttendees, tmpl1.NumAttendees,
+	)
 
 	t.Run("search", func(t *testing.T) {
 		res, err := m.SearchCourses(tmpl1.TenantID, "Part", 0, 0)
@@ -129,7 +131,8 @@ func Test_Update(t *testing.T) {
 	id, err := m.CreateCourse(tmpl.TenantID, tmpl.ExtID, tmpl.CenterID,
 		tmpl.ProductID, tmpl.Name, tmpl.Notes, tmpl.Timezone,
 		tmpl.Address, tmpl.Status, tmpl.Mode,
-		tmpl.MaxAttendees, tmpl.NumAttendees, tmpl.IsAutoApprove)
+		tmpl.MaxAttendees, tmpl.NumAttendees,
+	)
 
 	assert.Nil(t, err)
 
@@ -153,7 +156,8 @@ func TestDelete(t *testing.T) {
 	t2ID, _ := m.CreateCourse(tmpl2.TenantID, tmpl2.ExtID, tmpl2.CenterID,
 		tmpl2.ProductID, tmpl2.Name, tmpl1.Notes, tmpl1.Timezone,
 		tmpl1.Address, tmpl1.Status, tmpl1.Mode,
-		tmpl1.MaxAttendees, tmpl1.NumAttendees, tmpl1.IsAutoApprove)
+		tmpl1.MaxAttendees, tmpl1.NumAttendees,
+	)
 
 	err := m.DeleteCourse(tmpl1.ID)
 	assert.Equal(t, entity.ErrNotFound, err)

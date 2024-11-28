@@ -30,6 +30,7 @@ func (s *Service) CreateProduct(tenantID entity.ID,
 	visibility entity.ProductVisibility,
 	maxAttendees int32,
 	format entity.ProductFormat,
+	isAutoApprove bool,
 ) (entity.ID, error) {
 	p, err := entity.NewProduct(tenantID,
 		extID,
@@ -41,6 +42,7 @@ func (s *Service) CreateProduct(tenantID entity.ID,
 		visibility,
 		maxAttendees,
 		format,
+		isAutoApprove,
 	)
 	if err != nil {
 		return entity.IDInvalid, err

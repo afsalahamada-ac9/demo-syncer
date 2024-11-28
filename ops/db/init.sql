@@ -97,6 +97,7 @@ CREATE TABLE IF NOT EXISTS product (
     max_attendees INTEGER,
     format product_format,
 
+    is_auto_approve BOOLEAN DEFAULT FALSE,
     -- is_deleted is an internal field in Salesforce. Hence, need not be synced
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -174,7 +175,9 @@ CREATE TABLE IF NOT EXISTS course (
     center_id BIGINT NOT NULL REFERENCES center(id) ON DELETE RESTRICT,
     mode course_mode NOT NULL DEFAULT 'in-person',
     num_attendees INTEGER DEFAULT 0,
-    is_auto_approve BOOLEAN DEFAULT FALSE,
+
+    -- is_auto_approve does not make sense here. In Salesforce this seems like copied from Master (Product)
+
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

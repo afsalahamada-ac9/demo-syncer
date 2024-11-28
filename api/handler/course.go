@@ -138,8 +138,9 @@ func createCourse(service course.UseCase) http.Handler {
 			input.Status,
 			input.Mode,
 			input.MaxAttendees,
-			// numAttendees, isAutoApprove
-			0, false)
+			// numAttendees
+			0,
+		)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(errorMessage + ":" + err.Error()))

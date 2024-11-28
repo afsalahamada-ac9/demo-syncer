@@ -310,18 +310,18 @@ func (m *MockUseCase) EXPECT() *MockUseCaseMockRecorder {
 }
 
 // CreateProduct mocks base method.
-func (m *MockUseCase) CreateProduct(tenantID entity.ID, extID, extName, title, ctype, baseProductExtID string, durationDays int32, visibility entity.ProductVisibility, maxAttendees int32, format entity.ProductFormat) (entity.ID, error) {
+func (m *MockUseCase) CreateProduct(tenantID entity.ID, extID, extName, title, ctype, baseProductExtID string, durationDays int32, visibility entity.ProductVisibility, maxAttendees int32, format entity.ProductFormat, isAutoApprove bool) (entity.ID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateProduct", tenantID, extID, extName, title, ctype, baseProductExtID, durationDays, visibility, maxAttendees, format)
+	ret := m.ctrl.Call(m, "CreateProduct", tenantID, extID, extName, title, ctype, baseProductExtID, durationDays, visibility, maxAttendees, format, isAutoApprove)
 	ret0, _ := ret[0].(entity.ID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateProduct indicates an expected call of CreateProduct.
-func (mr *MockUseCaseMockRecorder) CreateProduct(tenantID, extID, extName, title, ctype, baseProductExtID, durationDays, visibility, maxAttendees, format interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) CreateProduct(tenantID, extID, extName, title, ctype, baseProductExtID, durationDays, visibility, maxAttendees, format, isAutoApprove interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProduct", reflect.TypeOf((*MockUseCase)(nil).CreateProduct), tenantID, extID, extName, title, ctype, baseProductExtID, durationDays, visibility, maxAttendees, format)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProduct", reflect.TypeOf((*MockUseCase)(nil).CreateProduct), tenantID, extID, extName, title, ctype, baseProductExtID, durationDays, visibility, maxAttendees, format, isAutoApprove)
 }
 
 // DeleteProduct mocks base method.

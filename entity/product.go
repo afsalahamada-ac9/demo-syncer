@@ -38,8 +38,11 @@ type Product struct {
 	Visibility       ProductVisibility
 	MaxAttendees     int32
 	Format           ProductFormat
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+
+	IsAutoApprove bool
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // NewProduct creates a new product with the given parameters
@@ -53,6 +56,7 @@ func NewProduct(tenantID ID,
 	visibility ProductVisibility,
 	maxAttendees int32,
 	format ProductFormat,
+	isAutoApprove bool,
 ) (*Product, error) {
 	p := &Product{
 		ID:               NewID(),
@@ -66,6 +70,7 @@ func NewProduct(tenantID ID,
 		Visibility:       visibility,
 		MaxAttendees:     maxAttendees,
 		Format:           format,
+		IsAutoApprove:    isAutoApprove,
 		CreatedAt:        time.Now(),
 	}
 

@@ -625,8 +625,6 @@ components:
             type: integer
             format: int64
             example: 10000000
-        autoApprove:
-          type: boolean
     Center:
       type: object
       properties:

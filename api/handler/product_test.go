@@ -144,6 +144,7 @@ func Test_createProduct(t *testing.T) {
 			gomock.Any(),
 			gomock.Any(),
 			gomock.Any(),
+			gomock.Any(),
 		).
 		Return(id, nil)
 	h := createProduct(service)

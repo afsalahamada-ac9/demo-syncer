@@ -37,9 +37,9 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 		INSERT INTO course
 			(
 				id, tenant_id, ext_id, center_id, product_id, name, notes, timezone, address, status,
-			 	mode, max_attendees, num_attendees, is_auto_approve, created_at
+			 	mode, max_attendees, num_attendees, created_at
 			)
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`)
 	if err != nil {
 		return e.ID, err
 	}
@@ -57,7 +57,6 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 		e.Mode,
 		e.MaxAttendees,
 		e.NumAttendees,
-		e.IsAutoApprove,
 		time.Now().Format("2006-01-02"),
 	)
 	if err != nil {
@@ -74,7 +73,7 @@ func (r *CoursePGSQL) Create(e *entity.Course) (entity.ID, error) {
 func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, center_id, product_id, name, notes, timezone, address,
-		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
+		status, mode, max_attendees, num_attendees, created_at
 		FROM course
 		WHERE id = $1;`)
 	if err != nil {
@@ -84,7 +83,7 @@ func (r *CoursePGSQL) Get(id entity.ID) (*entity.Course, error) {
 	var ext_id sql.NullString
 	var name, notes, timezone, address_json, status, mode sql.NullString
 	err = stmt.QueryRow(id).Scan(&c.ID, &c.TenantID, &ext_id, &c.CenterID, &c.ProductID, &name, &notes, &timezone,
-		&address_json, &status, &mode, &c.MaxAttendees, &c.NumAttendees, &c.IsAutoApprove, &c.CreatedAt)
+		&address_json, &status, &mode, &c.MaxAttendees, &c.NumAttendees, &c.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -119,12 +118,12 @@ func (r *CoursePGSQL) Update(e *entity.Course) error {
 
 	_, err = r.db.Exec(`
 		UPDATE course SET center_id = $1, name = $2, notes = $3, timezone = $4, address = $5,
-			status = $6, mode = $7, max_attendees = $8, num_attendees = $9, is_auto_approve = $10,
-			updated_at = $11, product_id = $12
-		WHERE id = $13;
+			status = $6, mode = $7, max_attendees = $8, num_attendees = $9,
+			updated_at = $10, product_id = $11
+		WHERE id = $12;
 		`,
 		e.CenterID, e.Name, e.Notes, e.Timezone, string(addressJSON), (e.Status), (e.Mode),
-		e.MaxAttendees, e.NumAttendees, e.IsAutoApprove, e.UpdatedAt.Format("2006-01-02"), e.ProductID,
+		e.MaxAttendees, e.NumAttendees, e.UpdatedAt.Format("2006-01-02"), e.ProductID,
 		e.ID)
 	if err != nil {
 		return err
@@ -136,7 +135,7 @@ func (r *CoursePGSQL) Update(e *entity.Course) error {
 func (r *CoursePGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Course, error) {
 	query := `
 		SELECT id, tenant_id, ext_id, center_id, product_id, name, notes, timezone, address,
-		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
+		status, mode, max_attendees, num_attendees, created_at
 		FROM course
 		WHERE tenant_id = $1 AND name LIKE $2
 	`
@@ -176,7 +175,7 @@ func (r *CoursePGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*
 func (r *CoursePGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Course, error) {
 	query := `
 		SELECT id, tenant_id, ext_id, center_id, product_id, name, notes, timezone, address,
-		status, mode, max_attendees, num_attendees, is_auto_approve, created_at
+		status, mode, max_attendees, num_attendees, created_at
 		FROM course
 		WHERE tenant_id = $1`
 
@@ -260,7 +259,6 @@ func (r *CoursePGSQL) scanRows(rows *sql.Rows) ([]*entity.Course, error) {
 			&mode,
 			&course.MaxAttendees,
 			&course.NumAttendees,
-			&course.IsAutoApprove,
 			&course.CreatedAt,
 		)
 		if err != nil {

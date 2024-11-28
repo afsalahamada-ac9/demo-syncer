@@ -72,6 +72,7 @@ func listProducts(service product.UseCase) http.Handler {
 				Visibility:       d.Visibility,
 				MaxAttendees:     d.MaxAttendees,
 				Format:           d.Format,
+				IsAutoApprove:    d.IsAutoApprove,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -94,6 +95,7 @@ func createProduct(service product.UseCase) http.Handler {
 			Visibility       entity.ProductVisibility `json:"visibility"`
 			MaxAttendees     int32                    `json:"maxAttendees"`
 			Format           entity.ProductFormat     `json:"format"`
+			IsAutoApprove    bool                     `json:"isAutoApprove"`
 		}
 
 		tenant := r.Header.Get(common.HttpHeaderTenantID)
@@ -123,6 +125,7 @@ func createProduct(service product.UseCase) http.Handler {
 			input.Visibility,
 			input.MaxAttendees,
 			input.Format,
+			input.IsAutoApprove,
 		)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -185,6 +188,7 @@ func getProduct(service product.UseCase) http.Handler {
 			Visibility:       data.Visibility,
 			MaxAttendees:     data.MaxAttendees,
 			Format:           data.Format,
+			IsAutoApprove:    data.IsAutoApprove,
 		}
 
 		w.Header().Set(common.HttpHeaderTenantID, data.TenantID.String())

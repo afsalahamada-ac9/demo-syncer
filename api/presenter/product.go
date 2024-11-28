@@ -22,4 +22,5 @@ type Product struct {
 	Visibility       entity.ProductVisibility `json:"visibility,omitempty"`
 	MaxAttendees     int32                    `json:"maxAttendees,omitempty"`
 	Format           entity.ProductFormat     `json:"format,omitempty"`
+	IsAutoApprove    bool                     `json:"isAutoApprove"`
 }

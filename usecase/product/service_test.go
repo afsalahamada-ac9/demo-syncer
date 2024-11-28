@@ -18,16 +18,17 @@ const (
 
 func newFixtureProduct() *entity.Product {
 	return &entity.Product{
-		ID:           productDefault,
-		TenantID:     tenantAlice,
-		ExtID:        aliceExtID,
-		ExtName:      "default1",
-		Title:        "Default Product 1",
-		CType:        "workshop",
-		Format:       entity.ProductFormatInPerson,
-		Visibility:   entity.ProductVisibilityUnlisted,
-		MaxAttendees: 20,
-		CreatedAt:    time.Now(),
+		ID:            productDefault,
+		TenantID:      tenantAlice,
+		ExtID:         aliceExtID,
+		ExtName:       "default1",
+		Title:         "Default Product 1",
+		CType:         "workshop",
+		Format:        entity.ProductFormatInPerson,
+		Visibility:    entity.ProductVisibilityUnlisted,
+		MaxAttendees:  20,
+		IsAutoApprove: true,
+		CreatedAt:     time.Now(),
 	}
 }
 
@@ -46,6 +47,7 @@ func Test_CreateProduct(t *testing.T) {
 		tmpl.Visibility,
 		tmpl.MaxAttendees,
 		tmpl.Format,
+		tmpl.IsAutoApprove,
 	)
 	assert.Nil(t, err)
 	assert.False(t, tmpl.CreatedAt.IsZero())
@@ -72,6 +74,7 @@ func Test_SearchAndFind(t *testing.T) {
 		tmpl1.Visibility,
 		tmpl1.MaxAttendees,
 		tmpl1.Format,
+		tmpl1.IsAutoApprove,
 	)
 
 	tID, _ := m.CreateProduct(
@@ -85,6 +88,7 @@ func Test_SearchAndFind(t *testing.T) {
 		tmpl2.Visibility,
 		tmpl2.MaxAttendees,
 		tmpl2.Format,
+		tmpl2.IsAutoApprove,
 	)
 
 	t.Run("search", func(t *testing.T) {
@@ -136,6 +140,7 @@ func Test_UpdateProduct(t *testing.T) {
 		tmpl.Visibility,
 		tmpl.MaxAttendees,
 		tmpl.Format,
+		tmpl.IsAutoApprove,
 	)
 	assert.Nil(t, err)
 
@@ -167,6 +172,7 @@ func TestDeleteProduct(t *testing.T) {
 		tmpl2.Visibility,
 		tmpl2.MaxAttendees,
 		tmpl2.Format,
+		tmpl2.IsAutoApprove,
 	)
 
 	err := m.DeleteProduct(tmpl1.ID)

@@ -45,7 +45,6 @@ type UseCase interface {
 		status entity.CourseStatus,
 		mode entity.CourseMode,
 		maxAttendees, numAttendees int32,
-		isAutoApprove bool,
 	) (entity.ID, error)
 	UpdateCourse(e *entity.Course) error
 	DeleteCourse(id entity.ID) error

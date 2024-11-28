@@ -44,6 +44,7 @@ type UseCase interface {
 		visibility entity.ProductVisibility,
 		maxAttendees int32,
 		format entity.ProductFormat,
+		isAutoApprove bool,
 	) (entity.ID, error)
 	UpdateProduct(e *entity.Product) error
 	DeleteProduct(id entity.ID) error

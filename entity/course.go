@@ -76,9 +76,6 @@ type Course struct {
 	MaxAttendees int32
 	NumAttendees int32
 
-	// TODO: AutoApprove may not be required here. It's likely in Course Master or Catalog.
-	IsAutoApprove bool
-
 	// meta data
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -128,23 +125,22 @@ func NewCourse(tenantID ID,
 	mode CourseMode,
 	maxAttendees int32,
 	numAttendees int32,
-	isAutoApprove bool) (*Course, error) {
+) (*Course, error) {
 	c := &Course{
-		ID:            NewID(),
-		TenantID:      tenantID,
-		ExtID:         extID,
-		CenterID:      centerID,
-		ProductID:     productID,
-		Name:          name,
-		Notes:         notes,
-		Timezone:      timezone,
-		Address:       address,
-		Status:        status,
-		Mode:          mode,
-		MaxAttendees:  maxAttendees,
-		NumAttendees:  numAttendees,
-		IsAutoApprove: isAutoApprove,
-		CreatedAt:     time.Now(),
+		ID:           NewID(),
+		TenantID:     tenantID,
+		ExtID:        extID,
+		CenterID:     centerID,
+		ProductID:    productID,
+		Name:         name,
+		Notes:        notes,
+		Timezone:     timezone,
+		Address:      address,
+		Status:       status,
+		Mode:         mode,
+		MaxAttendees: maxAttendees,
+		NumAttendees: numAttendees,
+		CreatedAt:    time.Now(),
 	}
 	err := c.Validate()
 	if err != nil {

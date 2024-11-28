@@ -23,8 +23,8 @@ func NewProductPGSQL(db *sql.DB) *ProductPGSQL {
 func (r *ProductPGSQL) Create(e *entity.Product) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
 		INSERT INTO product (id, ext_id, tenant_id, ext_name, title, ctype, base_product_ext_id, 
-			duration_days, visibility, max_attendees, format, created_at)
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
+			duration_days, visibility, max_attendees, format, is_auto_approve, created_at)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`)
 	if err != nil {
 		return e.ID, err
 	}
@@ -40,6 +40,7 @@ func (r *ProductPGSQL) Create(e *entity.Product) (entity.ID, error) {
 		string(e.Visibility),
 		e.MaxAttendees,
 		string(e.Format),
+		e.IsAutoApprove,
 		time.Now().Format("2006-01-02"),
 	)
 	if err != nil {
@@ -56,7 +57,7 @@ func (r *ProductPGSQL) Create(e *entity.Product) (entity.ID, error) {
 func (r *ProductPGSQL) Get(id entity.ID) (*entity.Product, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, tenant_id, ext_id, ext_name, title, ctype, base_product_ext_id, 
-			duration_days, visibility, max_attendees, format, created_at 
+			duration_days, visibility, max_attendees, format, is_auto_approve, created_at 
 		FROM product WHERE id = $1;`)
 	if err != nil {
 		return nil, err
@@ -78,6 +79,7 @@ func (r *ProductPGSQL) Get(id entity.ID) (*entity.Product, error) {
 		&visibility,
 		&max_attendees,
 		&format,
+		&p.IsAutoApprove,
 		&p.CreatedAt,
 	)
 	if err != nil {
@@ -104,7 +106,7 @@ func (r *ProductPGSQL) Update(e *entity.Product) error {
 		UPDATE product 
 		SET ext_name = $1, title = $2, ctype = $3, base_product_ext_id = $4,
 			duration_days = $5, visibility = $6, max_attendees = $7,
-			format = $8, updated_at = $10
+			format = $8,  is_auto_approve = $9, updated_at = $10
 		WHERE id = $11;`,
 		e.ExtName,
 		e.Title,
@@ -114,6 +116,7 @@ func (r *ProductPGSQL) Update(e *entity.Product) error {
 		string(e.Visibility),
 		e.MaxAttendees,
 		string(e.Format),
+		e.IsAutoApprove,
 		e.UpdatedAt.Format("2006-01-02"),
 		e.ID,
 	)
@@ -127,7 +130,7 @@ func (r *ProductPGSQL) Update(e *entity.Product) error {
 func (r *ProductPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]*entity.Product, error) {
 	query := `
 		SELECT id, tenant_id, ext_id, ext_name, title, ctype, base_product_ext_id,
-			duration_days, visibility, max_attendees, format, created_at
+			duration_days, visibility, max_attendees, format, is_auto_approve, created_at
 		FROM product 
 		WHERE tenant_id = $1 AND (LOWER(ext_name) LIKE LOWER($2) OR LOWER(title) LIKE LOWER($2))
 	`
@@ -166,7 +169,7 @@ func (r *ProductPGSQL) Search(tenantID entity.ID, q string, page, limit int) ([]
 func (r *ProductPGSQL) List(tenantID entity.ID, page, limit int) ([]*entity.Product, error) {
 	query := `
 		SELECT id, tenant_id, ext_id, ext_name, title, ctype, base_product_ext_id,
-			duration_days, visibility, max_attendees, format, created_at
+			duration_days, visibility, max_attendees, format, is_auto_approve, created_at
 		FROM product 
 		WHERE tenant_id = $1
 	`
@@ -256,6 +259,7 @@ func (r *ProductPGSQL) scanRows(rows *sql.Rows) ([]*entity.Product, error) {
 			&visibility,
 			&max_attendees,
 			&format,
+			&p.IsAutoApprove,
 			&p.CreatedAt,
 		)
 		if err != nil {
