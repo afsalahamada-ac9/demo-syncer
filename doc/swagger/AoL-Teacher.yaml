@@ -4,14 +4,18 @@ info:
   description: |-
     AoL Teacher API specification.
 
+    TODO:
+      1. Attendee object
+      2. Info query
+
   contact:
     email: sudhagar@abovecloud9.ai
-  version: 0.0.4
+  version: 0.0.5
 externalDocs:
   description: Find out more about AboveCloud9.AI
   url: https://abovecloud9.ai
 servers:
-  - url: https://api.abovecloud9.ai/api/v1 # placeholder
+  - url: https://stage.api.ac9ai.com/v1 # placeholder
 tags:
   - name: account
     description: Operations about accounts
@@ -47,7 +51,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                $ref: '#/components/schemas/CourseResponse'
         '400':
           description: Invalid ID supplied
           content:
@@ -79,7 +83,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Course'
+              $ref: '#/components/schemas/CourseRequest'
         required: true
       responses:
         '200':
@@ -87,7 +91,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                $ref: '#/components/schemas/CourseResponse'
         '405':
           description: Invalid input
           content:
@@ -366,7 +370,7 @@ paths:
       parameters:
         - name: username
           in: path
-          description: 'The name that needs to be fetched. Use user1 for testing. '
+          description: The name that needs to be fetched. Use user1 for testing.
           required: true
           schema:
             type: string
@@ -434,41 +438,6 @@ paths:
       security:
         - bearer: []
     
-    post:
-      tags:
-        - product
-      summary: Create a new product
-      description: Add a new product to the system
-      operationId: createProduct
-      requestBody:
-        description: Product object to be created
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BaseProduct'
-      responses:
-        '201':
-          description: Product created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      security:
-        - bearer: []
-
   /products/{id}:
     get:
       tags:
@@ -529,6 +498,15 @@ components:
         endTime:
           type: string
           format: time
+    CourseTeacher:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10000000
+        is_primary:
+          type: boolean
     Timezone:
       type: string
       description: Supported timezones
@@ -538,13 +516,9 @@ components:
         - CST
         - MST
         - PST
-    Course:
+    CourseRequest:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 10000000
         name:
           type: string
         organizer:
@@ -562,9 +536,7 @@ components:
         teacher:
           type: array
           items:
-            type: integer
-            format: int64
-            example: 10000000
+            $ref: '#/components/schemas/CourseTeacher'
         notes:
           type: string
           description: Course notes
@@ -615,16 +587,31 @@ components:
             type: integer
             format: int64
             example: 10000000
-        numAttendees: # Cannot be more than maxAttendees
+    CourseResponse:
+      type: object
+      properties:
+        id:
           type: integer
-          format: int32
-          example: 10
-        attendees:
-          type: array
-          items:
-            type: integer
-            format: int64
-            example: 10000000
+          format: int64
+          example: 10000000
+        shortURL:
+          type: string
+    Course:
+      allOf: # Combines the CourseRequest and CourseResponse
+        - $ref: "#/components/schemas/CourseRequest"
+        - $ref: "#/components/schemas/CourseResponse"
+        - type: object
+          properties:
+            numAttendees: # Cannot be more than maxAttendees
+              type: integer
+              format: int32
+              example: 10
+            attendees:
+              type: array
+              items:
+                type: integer
+                format: int64
+                example: 10000000
     Center:
       type: object
       properties:
@@ -801,12 +788,13 @@ components:
           type: string
           enum: [In Person, Online, Destination Retreats]
           example: "In Person"
+        isAutoApprove:
+          type: boolean
+
     Product:
       allOf: # Combines the BaseProduct and the inline model
         - $ref: "#/components/schemas/BaseProduct"
         - type: object
-          required:
-            - rootCause
           properties:
             id:
               type: integer
@@ -831,7 +819,7 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: https://abovecloud9.ai/oauth/authorize
+          authorizationUrl: https://auth.ac9ai.com/oauth/authorize
           scopes:
             write:courses: modify courses
             read:courses: read courses
