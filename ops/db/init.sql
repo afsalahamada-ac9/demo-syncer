@@ -51,8 +51,7 @@ CREATE TYPE center_mode AS ENUM ('in-person'
 -- Create tables
 CREATE TABLE IF NOT EXISTS tenant (
     id BIGSERIAL PRIMARY KEY,
-    -- TODO: Name need not be unique, but name and country together must be unique
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
     country VARCHAR(128) NOT NULL,
     is_default BOOLEAN UNIQUE DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -165,7 +164,7 @@ CREATE TABLE IF NOT EXISTS course (
     product_id BIGINT NOT NULL REFERENCES product(id),
 
     name VARCHAR(128) NOT NULL,
-    notes VARCHAR(1024), -- TODO: check the size of this column
+    notes TEXT,
     status course_status NOT NULL DEFAULT 'draft',
     max_attendees INTEGER,
     timezone timezone_type,
@@ -175,6 +174,10 @@ CREATE TABLE IF NOT EXISTS course (
     center_id BIGINT NOT NULL REFERENCES center(id) ON DELETE RESTRICT,
     mode course_mode NOT NULL DEFAULT 'in-person',
     num_attendees INTEGER DEFAULT 0,
+
+    -- Note: Details page URL is good enough
+    url VARCHAR(512),
+    short_url VARCHAR(64),
 
     -- is_auto_approve does not make sense here. In Salesforce this seems like copied from Master (Product)
 
@@ -240,6 +243,7 @@ CREATE INDEX idx_course_contact_contact_id ON course_contact(contact_id);
 CREATE TABLE IF NOT EXISTS course_teacher (
     course_id BIGINT NOT NULL REFERENCES course(id) ON DELETE CASCADE,
     teacher_id BIGINT NOT NULL REFERENCES account(id) ON DELETE RESTRICT,
+    is_primary BOOLEAN DEFAULT FALSE,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_course_teacher_course_id ON course_teacher(course_id);
@@ -251,7 +255,7 @@ CREATE TABLE IF NOT EXISTS course_timing (
     course_id BIGINT NOT NULL REFERENCES course(id) ON DELETE CASCADE,
     -- Note: ext_id is salesforce id
     ext_id VARCHAR(32) UNIQUE,
-    -- Note: 'name' is needed in SalesForce. Set as 'D-mmddyyyy'
+    -- Note: 'name' is needed in SalesForce. It's a formula field and hence not used here.
     -- Note: 'timezone' is needed in SalesForce. Set the value from 'course' table
     course_date DATE,
     start_time TIME,
