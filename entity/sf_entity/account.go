@@ -1,5 +1,7 @@
 package entity
 
+import "strings"
+
 type Account struct {
 	Operation string        `json:"operation"`
 	Value     Account_value `json:"value"`
@@ -29,5 +31,5 @@ func (*Account_value) TableName() string {
 // note: we've to store both the times in separate fields, calculate their difference, and then we'll decide on it. UTC time zone standard.
 
 func (*Account) NewAccount(Id string, Tenant_id int, Cognito_id string, Name string, Fname string, Lname string, Phone string, Email string, Type string, Updated_at string, Created_at string) *Account_value {
-	return &Account_value{Ext_Id: Id, Tenant_Id: Tenant_id, Cognito_Id: Cognito_id, Name: Name, First_Name: Fname, Last_Name: Lname, Phone: Phone, Email: Email, Type: Type, Updated_at: Updated_at, Created_at: Created_at}
+	return &Account_value{Ext_Id: Id, Tenant_Id: Tenant_id, Cognito_Id: Cognito_id, Name: Name, First_Name: Fname, Last_Name: Lname, Phone: Phone, Email: Email, Type: strings.ToLower(Type), Updated_at: Updated_at, Created_at: Created_at}
 }

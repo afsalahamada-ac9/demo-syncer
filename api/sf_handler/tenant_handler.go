@@ -24,6 +24,7 @@ func TenantHandler(w http.ResponseWriter, r *http.Request) {
 		_, err := tapi.WriteToDB(&record)
 		if err == nil {
 			json.NewEncoder(w).Encode(record)
+			log.Println("insertion successful")
 		} else {
 			json.NewEncoder(w).Encode(err)
 		}

@@ -22,7 +22,8 @@ func ProductHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	log.Println("response:", string(resp))
 	for _, record := range response {
-		_, err := tapi.WriteToDB(&record)
+		value := record.Value
+		_, err := tapi.WriteToDB(record.NewProduct(value.Updated_at, value.Created_at /*value.Is_deleted,*/, value.Format, value.Max_Attendees, value.Listing_Visibity, value.Event_Duration, value.Product, value.CType, value.Title, value.Name, value.TenantID, value.ExtID, value.Base_product_ext_id, value.Is_auto_approve))
 		if err != nil {
 			json.NewEncoder(w).Encode(err)
 		} else {

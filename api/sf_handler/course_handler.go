@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sudhagar/glad/api/tapi"
-	"sudhagar/glad/entity"
+	entity "sudhagar/glad/entity/sf_entity"
 )
 
 func CourseHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +20,8 @@ func CourseHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("there was an error unmarshalling the body")
 	}
 	for _, course := range courses {
-		_, err := tapi.WriteToDB(&course)
+		value := course.Value
+		_, err := tapi.WriteToDB(course.NewCourse(value.Url, value.Max_attendees, value.Address, value.Tenant_id, value.Ext_id, value.Name, value.Timezone, value.Mode, value.Center_id, value.Status, value.Created_at, value.Num_attendees, value.Product_id, value.Updated_at, value.Notes, value.Short_url))
 		if err != nil {
 			json.NewEncoder(w).Encode(err)
 		} else {

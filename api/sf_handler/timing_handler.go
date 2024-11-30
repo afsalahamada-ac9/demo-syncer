@@ -21,7 +21,8 @@ func TimingHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("there was an error unmarshalling the request body", err)
 	}
 	for _, record := range response {
-		_, err := tapi.WriteToDB(&record)
+		value := record.Value
+		_, err := tapi.WriteToDB(record.NewTiming(value.Course_id, value.Ext_id, value.Course_date, value.Start_time, value.End_time, value.Updated_at, value.Created_at))
 		if err == nil {
 			json.NewEncoder(w).Encode(record)
 		} else {
