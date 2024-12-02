@@ -28,5 +28,6 @@ func CourseHandler(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(course)
 		}
 	}
-	log.Println(courses)
+	log.Println("this is what is being parsed:", courses)
+
 }

@@ -12,6 +12,9 @@ func WriteToDB(record any) (string, error) {
 	if err != nil {
 		log.Println("there is an error fetching the db", err)
 	}
+	if db == nil {
+		log.Println("db is nil")
+	}
 	log.Println("inserting record now:", record)
 	result := db.Create(record)
 	if result.Error != nil {

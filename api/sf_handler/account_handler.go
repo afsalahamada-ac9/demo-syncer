@@ -1,16 +1,20 @@
 package sf_handler
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	tapi "sudhagar/glad/api/tapi"
 	test_entity "sudhagar/glad/entity/sf_entity"
+	"sudhagar/glad/repository"
 )
 
 func AccountHandler(w http.ResponseWriter, r *http.Request) {
 	var response []test_entity.Account
+	var repo repository.Mongo
+	collection := repo.Connect()
 	parse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println("there was an error reading the request body", err)
@@ -30,6 +34,16 @@ func AccountHandler(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(err)
 			json.NewEncoder(w).Encode("failed")
 		}
+
+		result, err := collection.InsertOne(context.Background(), record)
+		if err != nil {
+			log.Println("there was an error in the operation", err)
+			collection.InsertOne(context.Background(), err)
+		} else {
+			log.Println("operation successful", result)
+		}
 	}
-	log.Println(response)
+
+	log.Println("you sent the following:", response)
+
 }

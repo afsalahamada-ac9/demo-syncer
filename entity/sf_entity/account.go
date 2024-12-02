@@ -3,9 +3,9 @@ package entity
 import "strings"
 
 type Account struct {
-	Operation string        `json:"operation"`
-	Value     Account_value `json:"value"`
-	Object    string        `json:"object"`
+	Operation string        `json:"operation" bson:"operation"`
+	Value     Account_value `json:"value" bson:"value"`
+	Object    string        `json:"object" bson:"object"`
 }
 
 type Account_value struct {
